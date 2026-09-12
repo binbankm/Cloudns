@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - GatewayRulesView
+
 // Apple HIG Compliant Cloudflare Zero Trust Gateway Security Policies (DNS/HTTP)
 
 struct GatewayRulesView: View {
@@ -9,12 +10,12 @@ struct GatewayRulesView: View {
     @State private var ruleToDelete: GatewayRule?
     @State private var showingDeleteAlert = false
     @State private var showingAddSheet = false
-    
+
     init(accountId: String) {
         self.accountId = accountId
         _viewModel = StateObject(wrappedValue: GatewayRulesViewModel(accountId: accountId))
     }
-    
+
     var body: some View {
         List {
             if !viewModel.filteredRules.isEmpty {
@@ -28,7 +29,7 @@ struct GatewayRulesView: View {
                                 } label: {
                                     Label("Copy Rule Name", systemImage: "doc.on.doc")
                                 }
-                                
+
                                 if let traffic = rule.traffic, !traffic.isEmpty {
                                     Button {
                                         copyToClipboard(traffic, toast: "Traffic Expression Copied")
@@ -36,9 +37,9 @@ struct GatewayRulesView: View {
                                         Label("Copy Traffic Expression", systemImage: "curlybraces")
                                     }
                                 }
-                                
+
                                 Divider()
-                                
+
                                 Button(role: .destructive) {
                                     HapticManager.impact(.medium)
                                     ruleToDelete = rule
@@ -117,17 +118,16 @@ struct GatewayRulesView: View {
             }
         }
     }
-    
-    @ViewBuilder
+
     private func ruleRow(_ rule: GatewayRule) -> some View {
         HStack(alignment: .center, spacing: 12) {
             ListRowIcon(icon: rule.enabled ? "shield.fill" : "shield.slash", color: rule.enabled ? .green : .gray)
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(rule.name)
                     .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
-                
+
                 if let traffic = rule.traffic, !traffic.isEmpty {
                     Text(traffic)
                         .font(.caption2.monospaced())
@@ -135,9 +135,9 @@ struct GatewayRulesView: View {
                         .lineLimit(1)
                 }
             }
-            
+
             Spacer()
-            
+
             let actionColor: Color = rule.action.lowercased() == "block" ? .red : (rule.action.lowercased() == "allow" ? .green : .orange)
             Text(rule.action.uppercased())
                 .font(.caption2.weight(.medium))
@@ -155,22 +155,22 @@ struct GatewayRulesView: View {
 struct AddGatewayRuleSheetView: View {
     @ObservedObject var viewModel: GatewayRulesViewModel
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var name = ""
     @State private var action = "block"
     @State private var traffic = ""
     @State private var isSaving = false
     @State private var errorMessage: String?
-    
+
     let actions = ["block", "allow", "isolate"]
-    
+
     var body: some View {
         NavigationStack {
             Form {
                 Section("Rule Details") {
                     TextField("Rule Name (e.g. Block Malware)", text: $name)
                         .font(.body)
-                    
+
                     Picker("Action", selection: $action) {
                         ForEach(actions, id: \.self) { act in
                             Text(act.capitalized).tag(act)
@@ -178,7 +178,7 @@ struct AddGatewayRuleSheetView: View {
                     }
                     .pickerStyle(.segmented)
                 }
-                
+
                 Section {
                     TextField("dns.fqdn == \"malicious.com\"", text: $traffic)
                         .font(.body.monospaced())
@@ -190,7 +190,7 @@ struct AddGatewayRuleSheetView: View {
                 } footer: {
                     Text("Wirefilter expression matching network traffic.")
                 }
-                
+
                 if let err = errorMessage {
                     Section {
                         Text(verbatim: err)

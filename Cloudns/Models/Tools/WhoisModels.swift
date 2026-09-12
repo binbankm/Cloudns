@@ -3,7 +3,10 @@ import Foundation
 // MARK: - WHOIS Info Model
 
 public struct WhoisInfo: Identifiable, Sendable {
-    public nonisolated var id: String { domain }
+    public nonisolated var id: String {
+        domain
+    }
+
     public let domain: String
     public let statuses: [String]
     public let registrar: String?
@@ -11,7 +14,7 @@ public struct WhoisInfo: Identifiable, Sendable {
     public let updated: Date?
     public let expires: Date?
     public let nameservers: [String]
-    
+
     public nonisolated init(
         domain: String,
         statuses: [String] = [],

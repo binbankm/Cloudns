@@ -7,12 +7,12 @@ struct AuditLogsView: View {
     @StateObject private var viewModel: AuditLogsViewModel
     @State private var selectedLog: AuditLog?
     @AppStorage(AppStorageKey.appLanguage) private var appLanguage = "system"
-    
+
     init(accountId: String = "") {
         self.accountId = accountId
         _viewModel = StateObject(wrappedValue: AuditLogsViewModel(accountId: accountId))
     }
-    
+
     var body: some View {
         List {
             if !viewModel.filteredLogs.isEmpty {
@@ -74,18 +74,18 @@ struct AuditLogsView: View {
 
 struct AuditLogRowView: View {
     let log: AuditLog
-    
+
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             ListRowIcon(icon: log.actionIcon, color: log.actionColor, size: 34, cornerRadius: 8)
                 .padding(.top, 2)
-            
+
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 6) {
                     Text(LocalizedStringKey(log.displayActionKey))
                         .font(.subheadline.weight(.bold))
                         .foregroundStyle(.primary)
-                    
+
                     Text(LocalizedStringKey(log.friendlyResourceTypeKey))
                         .font(.caption2.weight(.medium))
                         .foregroundStyle(.secondary)
@@ -93,9 +93,9 @@ struct AuditLogRowView: View {
                         .padding(.vertical, 2)
                         .background(Color(.tertiarySystemFill))
                         .clipShape(Capsule())
-                    
+
                     Spacer()
-                    
+
                     if let res = log.action?.result {
                         Text(res ? LocalizedStringKey("Success") : LocalizedStringKey("Failed"))
                             .font(.caption2.weight(.medium))
@@ -105,14 +105,14 @@ struct AuditLogRowView: View {
                             .background(Capsule().fill(res ? Color.green.opacity(0.12) : Color.red.opacity(0.12)))
                     }
                 }
-                
+
                 log.primarySummaryView
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.primary)
                     .lineLimit(2)
-                
+
                 log.secondaryContextView
-                
+
                 HStack(spacing: 8) {
                     if let email = log.actor?.email, !email.isEmpty {
                         Label(email, systemImage: "person.circle")
@@ -124,15 +124,15 @@ struct AuditLogRowView: View {
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
-                    
+
                     if let ip = log.actor?.ip, !ip.isEmpty {
                         Text("• \(ip)")
                             .font(.caption2.monospacedDigit())
                             .foregroundStyle(.secondary)
                     }
-                    
+
                     Spacer()
-                    
+
                     if let when = log.when, let date = DateFormatters.parseISO8601(when) {
                         Text(date.displayFormatted(date: .abbreviated, time: .shortened))
                             .font(.caption2)
@@ -140,7 +140,7 @@ struct AuditLogRowView: View {
                     }
                 }
             }
-            
+
             Image(systemName: "chevron.right")
                 .font(.caption2.weight(.bold))
                 .foregroundStyle(.tertiary)
@@ -157,13 +157,13 @@ struct AuditLogDetailSheetView: View {
     let log: AuditLog
     @Environment(\.dismiss) private var dismiss
     @AppStorage(AppStorageKey.appLanguage) private var appLanguage = "system"
-    
+
     var body: some View {
         List {
             Section {
                 VStack(spacing: 12) {
                     HeroHeaderEmblemView(icon: log.actionIcon, primaryColor: log.actionColor, size: 56)
-                    
+
                     VStack(spacing: 4) {
                         HStack(spacing: 4) {
                             Text(LocalizedStringKey(log.displayActionKey))
@@ -172,13 +172,13 @@ struct AuditLogDetailSheetView: View {
                         }
                         .font(.title3.weight(.bold))
                         .foregroundStyle(.primary)
-                        
+
                         log.primarySummaryView
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
                     }
-                    
+
                     if let res = log.action?.result {
                         Text(res ? LocalizedStringKey("Success") : LocalizedStringKey("Failed"))
                             .font(.subheadline.weight(.medium))
@@ -192,7 +192,7 @@ struct AuditLogDetailSheetView: View {
                 .padding(.vertical, 8)
                 .listRowBackground(Color.clear)
             }
-            
+
             Section("Operation Summary") {
                 detailRow(label: "Action Type", value: log.action?.type ?? "-")
                 if let info = log.action?.info, !info.isEmpty {
@@ -216,7 +216,7 @@ struct AuditLogDetailSheetView: View {
                     detailRow(label: "Time (UTC)", value: when)
                 }
             }
-            
+
             if hasChanges {
                 Section("Changes & Payload") {
                     if let oldText = formattedOldValue, !oldText.isEmpty {
@@ -234,7 +234,7 @@ struct AuditLogDetailSheetView: View {
                         }
                         .padding(.vertical, 2)
                     }
-                    
+
                     if let newText = formattedNewValue, !newText.isEmpty {
                         VStack(alignment: .leading, spacing: 4) {
                             Label("New Value (After)", systemImage: "plus.circle.fill")
@@ -252,7 +252,7 @@ struct AuditLogDetailSheetView: View {
                     }
                 }
             }
-            
+
             if let meta = log.metadata, !meta.isEmpty {
                 Section("Metadata & Context") {
                     ForEach(Array(meta.keys.sorted()), id: \.self) { key in
@@ -262,7 +262,7 @@ struct AuditLogDetailSheetView: View {
                     }
                 }
             }
-            
+
             Section("Actor Details") {
                 if let email = log.actor?.email, !email.isEmpty {
                     detailRow(label: "Actor Email", value: email, isCopyable: true)
@@ -277,7 +277,7 @@ struct AuditLogDetailSheetView: View {
                     detailRow(label: "Source IP", value: ip, isCopyable: true)
                 }
             }
-            
+
             Section("Target Resource") {
                 if let resType = log.resource?.type, !resType.isEmpty {
                     detailRow(label: "Resource Type", value: resType)
@@ -292,7 +292,7 @@ struct AuditLogDetailSheetView: View {
                     detailRow(label: "Zone ID", value: zoneId, isCopyable: true)
                 }
             }
-            
+
             Section {
                 detailRow(label: "Audit Log ID", value: log.id, isCopyable: true)
             }
@@ -310,54 +310,54 @@ struct AuditLogDetailSheetView: View {
             }
         }
     }
-    
+
     private var hasChanges: Bool {
-        return formattedOldValue != nil || formattedNewValue != nil
+        formattedOldValue != nil || formattedNewValue != nil
     }
-    
+
     private var formattedOldValue: String? {
         if let json = log.oldValueJson, !json.isEmpty {
             let val = AnyJSONValue.dictionary(json)
             return val.prettyJSONString
         }
-        if let old = log.oldValue, old != .null && old != .string("") {
+        if let old = log.oldValue, old != .null, old != .string("") {
             return old.prettyJSONString
         }
         return nil
     }
-    
+
     private var formattedNewValue: String? {
         if let json = log.newValueJson, !json.isEmpty {
             let val = AnyJSONValue.dictionary(json)
             return val.prettyJSONString
         }
-        if let new = log.newValue, new != .null && new != .string("") {
+        if let new = log.newValue, new != .null, new != .string("") {
             return new.prettyJSONString
         }
         return nil
     }
-    
+
     private func detailRow(label: LocalizedStringKey, value: String, isCopyable: Bool = false) -> some View {
         detailRowContent(labelView: Text(label), value: value, isCopyable: isCopyable)
     }
-    
+
     private func detailRow(verbatimLabel: String, value: String, isCopyable: Bool = false) -> some View {
         detailRowContent(labelView: Text(verbatim: verbatimLabel), value: value, isCopyable: isCopyable)
     }
-    
-    private func detailRowContent<V: View>(labelView: V, value: String, isCopyable: Bool) -> some View {
+
+    private func detailRowContent(labelView: some View, value: String, isCopyable: Bool) -> some View {
         HStack {
             labelView
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
-            
+
             Spacer(minLength: 12)
-            
+
             Text(verbatim: value)
                 .font(.subheadline.monospacedDigit())
                 .foregroundStyle(.primary)
                 .multilineTextAlignment(.trailing)
-            
+
             if isCopyable {
                 Button {
                     copyToClipboard(value, toast: "Copied")

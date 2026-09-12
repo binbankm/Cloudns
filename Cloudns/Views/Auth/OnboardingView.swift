@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - OnboardingView
+
 // Apple HIG Compliant Onboarding Flow (iOS 16.0+)
 
 struct OnboardingView: View {
@@ -9,47 +10,47 @@ struct OnboardingView: View {
     @AppStorage(AppStorageKey.hasSeenOnboarding) private var hasSeenOnboarding = false
     @ObservedObject private var authManager = AppAuthManager.shared
     @State private var currentPage = 0
-    
+
     private let totalPages = 4
-    
+
     private var currentColor: Color {
         switch currentPage {
-        case 0: return .blue
-        case 1: return .green
-        case 2: return .orange
-        default: return .purple
+        case 0: .blue
+        case 1: .green
+        case 2: .orange
+        default: .purple
         }
     }
-    
+
     private var biometryIcon: String {
         authManager.biometryIcon
     }
-    
+
     private var biometryBadgeText: LocalizedStringKey {
         authManager.biometryBadgeText
     }
-    
+
     private func completeOnboarding() {
         withAnimation(reduceMotion ? .none : .easeInOut(duration: 0.3)) {
             hasSeenOnboarding = true
         }
         dismiss()
     }
-    
+
     var body: some View {
         ZStack {
             Color(uiColor: .systemBackground).ignoresSafeArea()
-            
+
             GeometryReader { proxy in
                 let w = proxy.size.width
-                
+
                 ZStack {
                     Circle()
                         .fill(currentColor.opacity(0.18))
                         .frame(width: w * 0.9, height: w * 0.9)
                         .blur(radius: 65)
                         .offset(x: -w * 0.25, y: -w * 0.3)
-                    
+
                     Circle()
                         .fill(currentColor.opacity(0.12))
                         .frame(width: w * 0.8, height: w * 0.8)
@@ -59,7 +60,7 @@ struct OnboardingView: View {
                 .animation(reduceMotion ? .none : .easeInOut(duration: 0.5), value: currentPage)
             }
             .ignoresSafeArea()
-            
+
             VStack(spacing: 0) {
                 // Top Bar: Brand & Skip Action
                 HStack {
@@ -77,9 +78,9 @@ struct OnboardingView: View {
                             .font(.headline.weight(.bold))
                             .foregroundStyle(.primary)
                     }
-                    
+
                     Spacer()
-                    
+
                     Button("Skip") {
                         HapticManager.impact(.light)
                         completeOnboarding()
@@ -94,7 +95,7 @@ struct OnboardingView: View {
                 }
                 .padding(.horizontal, 24)
                 .padding(.top, 12)
-                
+
                 // Tab Pages
                 TabView(selection: $currentPage) {
                     OnboardingPageView(
@@ -105,7 +106,7 @@ struct OnboardingView: View {
                         badgeText: "DNS & Edge Fleet"
                     )
                     .tag(0)
-                    
+
                     OnboardingPageView(
                         icon: "shield.lefthalf.filled",
                         title: "Enterprise Shield",
@@ -114,7 +115,7 @@ struct OnboardingView: View {
                         badgeText: "Security & WAF"
                     )
                     .tag(1)
-                    
+
                     OnboardingPageView(
                         icon: "bolt.fill",
                         title: "Serverless Execution",
@@ -123,7 +124,7 @@ struct OnboardingView: View {
                         badgeText: "Compute & Storage"
                     )
                     .tag(2)
-                    
+
                     OnboardingPageView(
                         icon: biometryIcon,
                         title: "Biometric Privacy",
@@ -137,11 +138,11 @@ struct OnboardingView: View {
                 .onChange(of: currentPage) { _ in
                     HapticManager.selection()
                 }
-                
+
                 // Bottom Controls
                 VStack(spacing: 20) {
                     HStack(spacing: 8) {
-                        ForEach(0..<totalPages, id: \.self) { index in
+                        ForEach(0 ..< totalPages, id: \.self) { index in
                             Capsule()
                                 .fill(currentPage == index ? currentColor : Color.secondary.opacity(0.25))
                                 .frame(width: currentPage == index ? 24 : 7, height: 7)
@@ -149,7 +150,7 @@ struct OnboardingView: View {
                         }
                     }
                     .padding(.vertical, 6)
-                    
+
                     Button(action: {
                         if currentPage < totalPages - 1 {
                             HapticManager.impact(.light)
@@ -164,7 +165,7 @@ struct OnboardingView: View {
                         HStack(spacing: 8) {
                             Text(currentPage == totalPages - 1 ? LocalizedStringKey("Get Started") : LocalizedStringKey("Continue"))
                                 .font(.body.weight(.semibold))
-                            
+
                             Image(systemName: currentPage == totalPages - 1 ? "checkmark" : "arrow.right")
                                 .font(.subheadline.weight(.bold))
                         }
@@ -198,11 +199,11 @@ struct OnboardingPageView: View {
     let description: LocalizedStringKey
     let color: Color
     let badgeText: LocalizedStringKey
-    
+
     var body: some View {
         VStack(spacing: 0) {
             Spacer(minLength: 20)
-            
+
             ZStack {
                 Circle()
                     .fill(
@@ -215,7 +216,7 @@ struct OnboardingPageView: View {
                     )
                     .frame(width: 220, height: 220)
                     .blur(radius: 20)
-                
+
                 RoundedRectangle(cornerRadius: 36, style: .continuous)
                     .fill(
                         LinearGradient(
@@ -226,7 +227,7 @@ struct OnboardingPageView: View {
                     )
                     .frame(width: 140, height: 140)
                     .shadow(color: color.opacity(0.32), radius: 18, x: 0, y: 8)
-                
+
                 Image(systemName: icon)
                     .font(.system(size: 58, weight: .semibold))
                     .symbolRenderingMode(.hierarchical)
@@ -234,9 +235,9 @@ struct OnboardingPageView: View {
             }
             .accessibilityHidden(true)
             .frame(height: 230)
-            
+
             Spacer(minLength: 24)
-            
+
             Text(badgeText)
                 .font(.caption2.weight(.bold))
                 .foregroundStyle(color)
@@ -249,7 +250,7 @@ struct OnboardingPageView: View {
                         .stroke(color.opacity(0.25), lineWidth: 1)
                 )
                 .padding(.bottom, 12)
-            
+
             Text(title)
                 .font(.title.weight(.bold))
                 .foregroundStyle(.primary)
@@ -257,14 +258,14 @@ struct OnboardingPageView: View {
                 .padding(.horizontal, 24)
                 .padding(.bottom, 12)
                 .minimumScaleFactor(0.85)
-            
+
             Text(description)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .lineSpacing(4)
                 .padding(.horizontal, 32)
-            
+
             Spacer(minLength: 32)
         }
     }

@@ -10,7 +10,7 @@ public struct DashboardSnapshot: Codable, Sendable {
     public let kvCount: Int
     public let r2Count: Int
     public let d1Count: Int
-    
+
     public init(
         zones: [Zone],
         workers: [WorkerScript],
@@ -36,35 +36,40 @@ public enum DashboardChartMetric: String, CaseIterable, Identifiable, Sendable {
     case requests = "Requests"
     case bandwidth = "Bandwidth"
     case threats = "Threats"
-    
-    public var id: String { rawValue }
-    
+
+    public var id: String {
+        rawValue
+    }
+
     public var title: String {
         switch self {
-        case .requests: return "Requests"
-        case .bandwidth: return "Bandwidth"
-        case .threats: return "Threats"
+        case .requests: "Requests"
+        case .bandwidth: "Bandwidth"
+        case .threats: "Threats"
         }
     }
-    
+
     public var icon: String {
         switch self {
-        case .requests: return "chart.bar.fill"
-        case .bandwidth: return "arrow.up.arrow.down"
-        case .threats: return "shield.lefthalf.filled"
+        case .requests: "chart.bar.fill"
+        case .bandwidth: "arrow.up.arrow.down"
+        case .threats: "shield.lefthalf.filled"
         }
     }
 }
 
 public struct FleetHourlyMetric: Identifiable, Codable, Equatable, Sendable {
-    public var id: String { timeString }
+    public var id: String {
+        timeString
+    }
+
     public let date: Date
     public let timeString: String
     public let requests: Double
     public let bytes: Double
     public let cachedRequests: Double
     public let threats: Double
-    
+
     public init(
         date: Date,
         timeString: String,

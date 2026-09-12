@@ -1,24 +1,26 @@
 import SwiftUI
 
 // MARK: - SSLSettingsView
+
 // Apple HIG Compliant Cloudflare SSL/TLS Encryption, Edge Certificates & HSTS (iOS 16.0+)
 
 struct SSLSettingsView: View {
     let zoneId: String
     @StateObject private var viewModel = SSLSettingsViewModel()
-    
+
     var body: some View {
         List {
             // MARK: - Hero Header
+
             Section {
                 VStack(spacing: 12) {
                     HeroHeaderEmblemView(icon: "lock.shield.fill", primaryColor: .green, secondaryColor: .teal)
-                    .padding(.top, 4)
-                    
+                        .padding(.top, 4)
+
                     Text("SSL / TLS Encryption")
                         .font(.title2.weight(.bold))
                         .foregroundStyle(.primary)
-                    
+
                     Text("Manage end-to-end encryption, edge certificates, and security protocols.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
@@ -30,8 +32,9 @@ struct SSLSettingsView: View {
             }
             .listRowBackground(Color.clear)
             .listRowInsets(EdgeInsets())
-            
+
             // MARK: - Encryption Mode
+
             Section(
                 header: Text("SSL/TLS Encryption Mode"),
                 footer: Text("Full or Full (Strict) is recommended if your origin server has an active SSL certificate.")
@@ -49,7 +52,7 @@ struct SSLSettingsView: View {
                     Picker("Encryption Mode", selection: Binding(
                         get: { viewModel.sslMode },
                         set: { newValue in
-                            guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
+                            guard viewModel.hasFetchedData, !viewModel.isLoading else { return }
                             HapticManager.selection()
                             Task {
                                 await viewModel.updateSSLMode(zoneId: zoneId, mode: newValue)
@@ -67,8 +70,9 @@ struct SSLSettingsView: View {
                 }
                 .disabled(!viewModel.hasFetchedData)
             }
-            
+
             // MARK: - Edge Certificates
+
             Section(
                 header: Text("Edge Certificates"),
                 footer: Text("Redirect all incoming HTTP requests to HTTPS and prevent mixed content warnings.")
@@ -77,7 +81,7 @@ struct SSLSettingsView: View {
                 Toggle(isOn: Binding(
                     get: { viewModel.alwaysUseHTTPS },
                     set: { newValue in
-                        guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
+                        guard viewModel.hasFetchedData, !viewModel.isLoading else { return }
                         HapticManager.selection()
                         Task {
                             await viewModel.updateAlwaysUseHTTPS(zoneId: zoneId, isOn: newValue)
@@ -97,12 +101,12 @@ struct SSLSettingsView: View {
                     }
                 }
                 .disabled(!viewModel.hasFetchedData)
-                
+
                 // Automatic HTTPS Rewrites
                 Toggle(isOn: Binding(
                     get: { viewModel.automaticHTTPSRewrites },
                     set: { newValue in
-                        guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
+                        guard viewModel.hasFetchedData, !viewModel.isLoading else { return }
                         HapticManager.selection()
                         Task {
                             await viewModel.updateAutomaticHTTPSRewrites(zoneId: zoneId, isOn: newValue)
@@ -123,8 +127,9 @@ struct SSLSettingsView: View {
                 }
                 .disabled(!viewModel.hasFetchedData)
             }
-            
+
             // MARK: - Advanced SSL/TLS
+
             Section(
                 header: Text("Advanced SSL/TLS Settings"),
                 footer: Text("Configure minimum TLS cipher versions and privacy routing features.")
@@ -143,7 +148,7 @@ struct SSLSettingsView: View {
                     Picker("Minimum TLS Version", selection: Binding(
                         get: { viewModel.minTLSVersion },
                         set: { newValue in
-                            guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
+                            guard viewModel.hasFetchedData, !viewModel.isLoading else { return }
                             HapticManager.selection()
                             Task {
                                 await viewModel.updateMinTLSVersion(zoneId: zoneId, version: newValue)
@@ -160,12 +165,12 @@ struct SSLSettingsView: View {
                     .labelsHidden()
                 }
                 .disabled(!viewModel.hasFetchedData)
-                
+
                 // TLS 1.3
                 Toggle(isOn: Binding(
                     get: { viewModel.tls13 },
                     set: { newValue in
-                        guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
+                        guard viewModel.hasFetchedData, !viewModel.isLoading else { return }
                         HapticManager.selection()
                         Task {
                             await viewModel.updateTLS13(zoneId: zoneId, isOn: newValue)
@@ -194,12 +199,12 @@ struct SSLSettingsView: View {
                     }
                 }
                 .disabled(!viewModel.hasFetchedData)
-                
+
                 // Opportunistic Encryption
                 Toggle(isOn: Binding(
                     get: { viewModel.opportunisticEncryption },
                     set: { newValue in
-                        guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
+                        guard viewModel.hasFetchedData, !viewModel.isLoading else { return }
                         HapticManager.selection()
                         Task {
                             await viewModel.updateOpportunisticEncryption(zoneId: zoneId, isOn: newValue)
@@ -220,8 +225,9 @@ struct SSLSettingsView: View {
                 }
                 .disabled(!viewModel.hasFetchedData)
             }
-            
+
             // MARK: - HSTS
+
             Section(
                 header: Text("HSTS (Strict Transport Security)"),
                 footer: Text("Enforcing HSTS tells browsers to never load your site over plain HTTP.")
@@ -229,9 +235,13 @@ struct SSLSettingsView: View {
                 Toggle(isOn: Binding(
                     get: { viewModel.hstsEnabled },
                     set: { enabled in
-                        guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
+                        guard viewModel.hasFetchedData, !viewModel.isLoading else { return }
                         viewModel.hstsEnabled = enabled
-                        if enabled { HapticManager.notification(.warning) } else { HapticManager.selection() }
+                        if enabled {
+                            HapticManager.notification(.warning)
+                        } else {
+                            HapticManager.selection()
+                        }
                     }
                 )) {
                     HStack(spacing: 12) {
@@ -246,7 +256,7 @@ struct SSLSettingsView: View {
                     }
                 }
                 .disabled(!viewModel.hasFetchedData)
-                
+
                 if viewModel.hstsEnabled {
                     HStack(spacing: 12) {
                         ListRowIcon(icon: "clock.fill", color: .indigo)
@@ -259,34 +269,34 @@ struct SSLSettingsView: View {
                         }
                         Spacer()
                         Picker("Max-Age", selection: $viewModel.hstsMaxAge) {
-                            Text("1 Month").tag(2592000)
-                            Text("3 Months").tag(7776000)
-                            Text("6 Months").tag(15552000)
-                            Text("12 Months").tag(31536000)
+                            Text("1 Month").tag(2_592_000)
+                            Text("3 Months").tag(7_776_000)
+                            Text("6 Months").tag(15_552_000)
+                            Text("12 Months").tag(31_536_000)
                         }
                         .pickerStyle(.menu)
                         .labelsHidden()
                     }
                     .disabled(!viewModel.hasFetchedData)
-                    
+
                     Toggle(isOn: $viewModel.hstsIncludeSubdomains) {
                         Text("Include Subdomains")
                             .font(.body)
                     }
                     .disabled(!viewModel.hasFetchedData)
-                    
+
                     Toggle(isOn: $viewModel.hstsNoSniff) {
                         Text("No-Sniff Header")
                             .font(.body)
                     }
                     .disabled(!viewModel.hasFetchedData)
-                    
+
                     Toggle(isOn: $viewModel.hstsPreload) {
                         Text("Preload Approval")
                             .font(.body)
                     }
                     .disabled(!viewModel.hasFetchedData)
-                    
+
                     Button("Save HSTS Settings") {
                         HapticManager.impact(.medium)
                         Task {
@@ -317,9 +327,13 @@ struct SSLSettingsView: View {
         }
         .alert("Error", isPresented: Binding(
             get: { viewModel.errorMessage != nil },
-            set: { if !$0 { viewModel.errorMessage = nil } }
+            set: {
+                if !$0 {
+                    viewModel.errorMessage = nil
+                }
+            }
         ), actions: {
-            Button("OK", role: .cancel) { }
+            Button("OK", role: .cancel) {}
         }, message: {
             if let errorMsg = viewModel.errorMessage {
                 Text(verbatim: errorMsg)
@@ -331,14 +345,14 @@ struct SSLSettingsView: View {
             }
         }
     }
-    
+
     private func modeDescription(_ mode: String) -> LocalizedStringKey {
         switch mode {
-        case "off": return "No encryption between visitor and origin."
-        case "flexible": return "Encrypted to edge, plain HTTP to origin."
-        case "full": return "Encrypted end-to-end (self-signed allowed)."
-        case "strict": return "Encrypted end-to-end with verified CA cert."
-        default: return "Configuring…"
+        case "off": "No encryption between visitor and origin."
+        case "flexible": "Encrypted to edge, plain HTTP to origin."
+        case "full": "Encrypted end-to-end (self-signed allowed)."
+        case "strict": "Encrypted end-to-end with verified CA cert."
+        default: "Configuring…"
         }
     }
 }

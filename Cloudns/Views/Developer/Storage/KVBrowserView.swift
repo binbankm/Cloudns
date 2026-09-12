@@ -1,12 +1,13 @@
 import SwiftUI
 
 // MARK: - KVBrowserView
+
 // Apple HIG Compliant Cloudflare Workers KV & D1 SQL Storage Hub
 
 struct KVBrowserView: View {
     let accountId: String
     @StateObject private var viewModel: KVViewModel
-    
+
     @State private var searchText = ""
     @State private var showingCreateKVSheet = false
     @State private var showingCreateD1Sheet = false
@@ -14,32 +15,36 @@ struct KVBrowserView: View {
     @State private var showingDeleteKVAlert = false
     @State private var databaseToDelete: D1Database?
     @State private var showingDeleteD1Alert = false
-    
+
     init(accountId: String) {
         self.accountId = accountId
         _viewModel = StateObject(wrappedValue: KVViewModel(accountId: accountId))
     }
-    
+
     private var filteredNamespaces: [KVNamespace] {
-        if searchText.isEmpty { return viewModel.namespaces }
+        if searchText.isEmpty {
+            return viewModel.namespaces
+        }
         return viewModel.namespaces.filter {
             $0.title.localizedStandardContains(searchText) ||
-            $0.id.localizedStandardContains(searchText)
+                $0.id.localizedStandardContains(searchText)
         }
     }
-    
+
     private var filteredDatabases: [D1Database] {
-        if searchText.isEmpty { return viewModel.d1Databases }
+        if searchText.isEmpty {
+            return viewModel.d1Databases
+        }
         return viewModel.d1Databases.filter {
             $0.name.localizedStandardContains(searchText) ||
-            $0.uuid.localizedStandardContains(searchText)
+                $0.uuid.localizedStandardContains(searchText)
         }
     }
-    
+
     var body: some View {
         let kvTitle = viewModel.hasFetchedData ? "KV Namespaces (\(viewModel.namespaces.count))" : "KV Namespaces"
         let d1Title = viewModel.hasFetchedData ? "D1 Databases (\(viewModel.d1Databases.count))" : "D1 Databases"
-        
+
         VStack(spacing: 0) {
             Picker("Storage", selection: $viewModel.selectedSegment) {
                 Text(kvTitle).tag(0)
@@ -52,7 +57,7 @@ struct KVBrowserView: View {
             .onChange(of: viewModel.selectedSegment) { _ in
                 HapticManager.selection()
             }
-            
+
             contentView
         }
         .searchable(
@@ -130,8 +135,7 @@ struct KVBrowserView: View {
             }
         }
     }
-    
-    @ViewBuilder
+
     private var contentView: some View {
         List {
             if viewModel.selectedSegment == 0 {
@@ -149,15 +153,15 @@ struct KVBrowserView: View {
                                 } label: {
                                     Label("Copy Title", systemImage: "doc.on.doc")
                                 }
-                                
+
                                 Button {
                                     copyToClipboard(ns.id, toast: "Namespace ID Copied")
                                 } label: {
                                     Label("Copy ID", systemImage: "link")
                                 }
-                                
+
                                 Divider()
-                                
+
                                 Button(role: .destructive) {
                                     HapticManager.impact(.medium)
                                     namespaceToDelete = ns
@@ -194,15 +198,15 @@ struct KVBrowserView: View {
                                 } label: {
                                     Label("Copy Name", systemImage: "doc.on.doc")
                                 }
-                                
+
                                 Button {
                                     copyToClipboard(db.uuid, toast: "Database UUID Copied")
                                 } label: {
                                     Label("Copy UUID", systemImage: "link")
                                 }
-                                
+
                                 Divider()
-                                
+
                                 Button(role: .destructive) {
                                     HapticManager.impact(.medium)
                                     databaseToDelete = db
@@ -249,17 +253,16 @@ struct KVBrowserView: View {
             retryAction: { Task { await viewModel.fetchData() } }
         )
     }
-    
-    @ViewBuilder
+
     private func kvRow(_ ns: KVNamespace) -> some View {
         HStack(alignment: .center, spacing: 12) {
             ListRowIcon(icon: "key.horizontal.fill", color: .purple)
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(ns.title)
                     .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
-                
+
                 Text(ns.id)
                     .font(.caption.monospacedDigit())
                     .foregroundStyle(.secondary)
@@ -268,18 +271,17 @@ struct KVBrowserView: View {
         }
         .padding(.vertical, 2)
     }
-    
-    @ViewBuilder
+
     private func d1Row(_ db: D1Database) -> some View {
         HStack(alignment: .center, spacing: 12) {
             ListRowIcon(icon: "cylinder.split.1x2.fill", color: .teal)
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 6) {
                     Text(db.name)
                         .font(.body.weight(.medium))
                         .foregroundStyle(.primary)
-                    
+
                     if let version = db.version {
                         Text(version.uppercased())
                             .font(.caption2.weight(.medium))
@@ -289,13 +291,13 @@ struct KVBrowserView: View {
                             .background(Capsule().fill(Color.purple.opacity(0.12)))
                     }
                 }
-                
+
                 HStack(spacing: 8) {
                     Text(db.uuid)
                         .font(.caption2.monospacedDigit())
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
-                    
+
                     if let size = db.fileSize {
                         Text("·")
                             .foregroundStyle(.secondary)
@@ -315,11 +317,11 @@ struct KVBrowserView: View {
 struct KVCreateNamespaceSheetView: View {
     @ObservedObject var viewModel: KVViewModel
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var title = ""
     @State private var isCreating = false
     @State private var errorMessage: String?
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -334,7 +336,7 @@ struct KVCreateNamespaceSheetView: View {
                 } footer: {
                     Text("Name your KV namespace (e.g. USER_SESSIONS).")
                 }
-                
+
                 if let err = errorMessage {
                     Section {
                         HStack(spacing: 8) {
@@ -385,11 +387,11 @@ struct KVCreateNamespaceSheetView: View {
 struct D1CreateDatabaseSheetView: View {
     @ObservedObject var viewModel: KVViewModel
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var name = ""
     @State private var isCreating = false
     @State private var errorMessage: String?
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -404,7 +406,7 @@ struct D1CreateDatabaseSheetView: View {
                 } footer: {
                     Text("Unique SQLite database name across your account.")
                 }
-                
+
                 if let err = errorMessage {
                     Section {
                         HStack(spacing: 8) {
@@ -455,24 +457,26 @@ struct D1CreateDatabaseSheetView: View {
 struct KVNamespaceKeysView: View {
     let accountId: String
     let namespace: KVNamespace
-    
+
     @StateObject private var viewModel: KVViewModel
     @State private var showingAddKeySheet = false
     @State private var keyToDelete: String?
     @State private var showingDeleteAlert = false
     @State private var searchText = ""
-    
+
     init(accountId: String, namespace: KVNamespace) {
         self.accountId = accountId
         self.namespace = namespace
         _viewModel = StateObject(wrappedValue: KVViewModel(accountId: accountId))
     }
-    
+
     private var filteredKeys: [KVKey] {
-        if searchText.isEmpty { return viewModel.keys }
+        if searchText.isEmpty {
+            return viewModel.keys
+        }
         return viewModel.keys.filter { $0.name.localizedStandardContains(searchText) }
     }
-    
+
     var body: some View {
         List {
             if !filteredKeys.isEmpty {
@@ -500,9 +504,9 @@ struct KVNamespaceKeysView: View {
                             } label: {
                                 Label("Copy Key Name", systemImage: "doc.on.doc")
                             }
-                            
+
                             Divider()
-                            
+
                             Button(role: .destructive) {
                                 HapticManager.impact(.medium)
                                 keyToDelete = k.name
@@ -573,7 +577,7 @@ struct KVKeyValueDetailView: View {
     @ObservedObject var viewModel: KVViewModel
     let namespaceId: String
     let keyName: String
-    
+
     var body: some View {
         List {
             Section("Key") {
@@ -591,7 +595,7 @@ struct KVKeyValueDetailView: View {
                     .buttonStyle(.plain)
                 }
             }
-            
+
             Section("Value") {
                 if viewModel.isValueLoading {
                     ProgressView()
@@ -600,7 +604,7 @@ struct KVKeyValueDetailView: View {
                         Text(verbatim: val)
                             .font(.caption.monospaced())
                             .textSelection(.enabled)
-                        
+
                         Button {
                             copyToClipboard(val, toast: "Value Copied")
                         } label: {
@@ -633,12 +637,12 @@ struct KVAddKeySheetView: View {
     @ObservedObject var viewModel: KVViewModel
     let namespaceId: String
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var key = ""
     @State private var value = ""
     @State private var isSaving = false
     @State private var errorMessage: String?
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -648,13 +652,13 @@ struct KVAddKeySheetView: View {
                         .autocorrectionDisabled()
                         .textInputAutocapitalization(.never)
                 }
-                
+
                 Section("Value") {
                     TextEditor(text: $value)
                         .font(.caption.monospaced())
                         .frame(minHeight: 120)
                 }
-                
+
                 if let err = errorMessage {
                     Section {
                         HStack(spacing: 8) {

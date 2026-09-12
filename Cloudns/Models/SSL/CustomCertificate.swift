@@ -7,7 +7,7 @@ struct CustomCertificate: Codable, Identifiable, Equatable, Sendable {
     let expires_on: String?
     let status: String?
     let signature: String?
-    
+
     init(id: String, hosts: [String], issuer: String? = "Custom CA", expires_on: String? = nil, status: String? = "active", signature: String? = "Custom") {
         self.id = id
         self.hosts = hosts

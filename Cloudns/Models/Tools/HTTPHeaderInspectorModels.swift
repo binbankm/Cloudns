@@ -17,11 +17,11 @@ public struct HTTPInspectionResult: Equatable, Sendable {
     public let httpVersion: String
     public let isHTTP3Supported: Bool
     public let responseBody: String?
-    
+
     public var responseHeaders: [String: String] {
         headers.reduce(into: [String: String]()) { $0[$1.key] = $1.value }
     }
-    
+
     public init(
         url: String,
         statusCode: Int,

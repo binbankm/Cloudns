@@ -1,6 +1,6 @@
+import Combine
 import Foundation
 import SwiftUI
-import Combine
 
 // MARK: - AppTab Definition
 
@@ -22,16 +22,16 @@ public enum DeepLinkDestination: Identifiable, Equatable, Sendable {
     case trace
     case status
     case ipranges
-    
+
     public var id: String {
         switch self {
-        case .zone(let id): return "zone_\(id)"
-        case .worker(let id): return "worker_\(id)"
-        case .pages(let id): return "pages_\(id)"
-        case .dig: return "dig"
-        case .trace: return "trace"
-        case .status: return "status"
-        case .ipranges: return "ipranges"
+        case let .zone(id): "zone_\(id)"
+        case let .worker(id): "worker_\(id)"
+        case let .pages(id): "pages_\(id)"
+        case .dig: "dig"
+        case .trace: "trace"
+        case .status: "status"
+        case .ipranges: "ipranges"
         }
     }
 }
@@ -41,21 +41,21 @@ public enum DeepLinkDestination: Identifiable, Equatable, Sendable {
 @MainActor
 public final class DeepLinkRouter: ObservableObject {
     public static let shared = DeepLinkRouter()
-    
+
     @Published public var activeDestination: DeepLinkDestination?
-    
+
     private init() {}
-    
+
     public func handle(url: URL, currentTab: Binding<AppTab>) {
         guard url.scheme == "cloudns" else { return }
         HapticManager.selection()
-        
+
         let host = (url.host ?? "").lowercased()
         let pathComponents = url.pathComponents.filter { $0 != "/" && !$0.isEmpty }
         let targetId = pathComponents.first
-        
+
         var newDestination: DeepLinkDestination?
-        
+
         if host == "tools" {
             currentTab.wrappedValue = .tools
             let toolName = pathComponents.first?.lowercased() ?? ""
@@ -95,12 +95,12 @@ public final class DeepLinkRouter: ObservableObject {
         } else if host == "ipranges" {
             newDestination = .ipranges
         }
-        
+
         if let dest = newDestination {
-            self.activeDestination = dest
+            activeDestination = dest
         }
     }
-    
+
     public func handle(url: URL, currentTab: Binding<Int>) {
         let binding = Binding<AppTab>(
             get: { AppTab(rawValue: currentTab.wrappedValue) ?? .dashboard },

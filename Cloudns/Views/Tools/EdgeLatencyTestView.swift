@@ -1,12 +1,13 @@
 import SwiftUI
 
 // MARK: - EdgeLatencyTestView
+
 // Apple HIG Compliant Edge Latency & Jitter Benchmark
 
 struct EdgeLatencyTestView: View {
     @StateObject private var viewModel = EdgeLatencyViewModel()
     @FocusState private var isFieldFocused: Bool
-    
+
     var body: some View {
         List {
             // 1. Input & Rounds Section
@@ -15,7 +16,7 @@ struct EdgeLatencyTestView: View {
                     Image(systemName: "speedometer")
                         .foregroundStyle(.tint)
                         .accessibilityHidden(true)
-                    
+
                     TextField("https://example.com", text: $viewModel.latencyHostInput)
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
@@ -26,7 +27,7 @@ struct EdgeLatencyTestView: View {
                         .onSubmit {
                             performTest()
                         }
-                    
+
                     if !viewModel.latencyHostInput.isEmpty {
                         Button {
                             viewModel.latencyHostInput = ""
@@ -40,13 +41,13 @@ struct EdgeLatencyTestView: View {
                         .accessibilityLabel("Clear Input")
                     }
                 }
-                
-                Stepper("Test Rounds: \(viewModel.latencyRounds)", value: $viewModel.latencyRounds, in: 3...10)
+
+                Stepper("Test Rounds: \(viewModel.latencyRounds)", value: $viewModel.latencyRounds, in: 3 ... 10)
                     .font(.subheadline)
                     .onChange(of: viewModel.latencyRounds) { _ in
                         HapticManager.selection()
                     }
-                
+
                 Button {
                     performTest()
                 } label: {
@@ -68,7 +69,7 @@ struct EdgeLatencyTestView: View {
             } footer: {
                 Text("Sends consecutive HTTP/HTTPS HEAD probes to measure edge latency, round-trip time jitter & packet consistency.")
             }
-            
+
             if viewModel.isLatencyLoading {
                 Section {
                     HStack {
@@ -83,12 +84,12 @@ struct EdgeLatencyTestView: View {
                 Section("Latency & Jitter Summary") {
                     metricsRows(result: result)
                 }
-                
+
                 // 3. Protocol Info Section
                 Section("Edge Protocol & Server") {
                     protocolRows(result: result)
                 }
-                
+
                 // 4. Round Breakdown Section
                 Section("Round-by-Round Breakdown (\(result.pings.count))") {
                     roundsRows(result: result)
@@ -115,14 +116,15 @@ struct EdgeLatencyTestView: View {
         .navigationTitle("Edge Latency Test")
         .navigationBarTitleDisplayMode(.inline)
     }
-    
+
     private func performTest() {
         isFieldFocused = false
         HapticManager.impact(.light)
         Task { await viewModel.testLatency() }
     }
-    
+
     // MARK: - 2. Metrics Rows
+
     @ViewBuilder
     private func metricsRows(result: EdgeLatencyResult) -> some View {
         HStack {
@@ -134,7 +136,7 @@ struct EdgeLatencyTestView: View {
                 .font(.subheadline.weight(.bold).monospacedDigit())
                 .foregroundStyle(.green)
         }
-        
+
         HStack {
             Text("Min / Max Latency")
                 .font(.subheadline)
@@ -144,7 +146,7 @@ struct EdgeLatencyTestView: View {
                 .font(.subheadline.monospacedDigit())
                 .foregroundStyle(.primary)
         }
-        
+
         HStack {
             Text("Jitter")
                 .font(.subheadline)
@@ -154,19 +156,20 @@ struct EdgeLatencyTestView: View {
                 .font(.subheadline.weight(.semibold).monospacedDigit())
                 .foregroundStyle(.orange)
         }
-        
+
         HStack {
             Text("Packet Loss")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             Spacer()
-            Text((result.packetLossPercent / 100.0), format: .percent.precision(.fractionLength(0)))
+            Text(result.packetLossPercent / 100.0, format: .percent.precision(.fractionLength(0)))
                 .font(.subheadline.weight(.bold).monospacedDigit())
                 .foregroundStyle(result.packetLossPercent == 0 ? Color.green : Color.red)
         }
     }
-    
+
     // MARK: - 3. Protocol Rows
+
     @ViewBuilder
     private func protocolRows(result: EdgeLatencyResult) -> some View {
         HStack {
@@ -181,7 +184,7 @@ struct EdgeLatencyTestView: View {
                 .padding(.vertical, 2)
                 .background(Capsule().fill(Color.green.opacity(0.12)))
         }
-        
+
         if !result.serverHeader.isEmpty {
             HStack {
                 Text("Server Banner")
@@ -194,18 +197,18 @@ struct EdgeLatencyTestView: View {
             }
         }
     }
-    
+
     // MARK: - 4. Rounds Rows
-    @ViewBuilder
+
     private func roundsRows(result: EdgeLatencyResult) -> some View {
         ForEach(result.pings) { ping in
             HStack {
                 Text("Round \(ping.id)")
                     .font(.subheadline.weight(.medium))
                     .foregroundStyle(.secondary)
-                
+
                 Spacer()
-                
+
                 if ping.isSuccess {
                     Text("\(ping.latencyMs.formatted(.number.precision(.fractionLength(1)))) ms")
                         .font(.subheadline.weight(.semibold).monospacedDigit())

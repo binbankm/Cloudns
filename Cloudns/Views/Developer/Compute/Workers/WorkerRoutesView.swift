@@ -1,13 +1,14 @@
 import SwiftUI
 
 // MARK: - WorkerRoutesView
+
 // Apple HIG Compliant Cloudflare Worker Domain & Route Management
 
 struct WorkerRoutesView: View {
     let accountId: String
     let scriptName: String
     let fallbackRoutes: [String]
-    
+
     @State private var customDomains: [WorkerCustomDomain] = []
     @State private var isLoading = false
     @State private var hasFetchedData = false
@@ -15,7 +16,7 @@ struct WorkerRoutesView: View {
     @State private var showingAttachSheet = false
     @State private var domainToDelete: WorkerCustomDomain?
     @State private var showingDeleteAlert = false
-    
+
     var body: some View {
         contentView
             .navigationTitle("Domains & Routes")
@@ -62,11 +63,11 @@ struct WorkerRoutesView: View {
                 }
             }
     }
-    
-    @ViewBuilder
+
     private var contentView: some View {
         List {
             // MARK: - Custom Domains
+
             Section(
                 header: Text("Custom Domains (\(customDomains.count))"),
                 footer: Text("Custom domains map directly to this Worker without requiring DNS or SSL certificate configuration.")
@@ -84,9 +85,9 @@ struct WorkerRoutesView: View {
                                 } label: {
                                     Label("Copy Hostname", systemImage: "doc.on.doc")
                                 }
-                                
+
                                 Divider()
-                                
+
                                 Button(role: .destructive) {
                                     domainToDelete = dom
                                     showingDeleteAlert = true
@@ -108,8 +109,9 @@ struct WorkerRoutesView: View {
                     }
                 }
             }
-            
+
             // MARK: - Standard Zone Routes
+
             if !fallbackRoutes.isEmpty {
                 Section(
                     header: Text("Zone Routes (\(fallbackRoutes.count))"),
@@ -118,7 +120,7 @@ struct WorkerRoutesView: View {
                     ForEach(fallbackRoutes, id: \.self) { route in
                         HStack(spacing: 12) {
                             ListRowIcon(icon: "arrow.triangle.swap", color: .blue)
-                            
+
                             Text(route)
                                 .font(.caption.monospaced())
                                 .foregroundStyle(.primary)
@@ -149,38 +151,37 @@ struct WorkerRoutesView: View {
             retryAction: { Task { await fetchDomains() } }
         )
     }
-    
-    @ViewBuilder
+
     private func domainRow(_ dom: WorkerCustomDomain) -> some View {
         HStack(alignment: .center, spacing: 12) {
             ListRowIcon(icon: "link", color: .teal)
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(dom.hostname)
                     .font(.body)
                     .foregroundStyle(.primary)
-                
+
                 if let zName = dom.zoneName {
                     Text(zName)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
             }
-            
+
             Spacer()
         }
         .padding(.vertical, 2)
     }
-    
+
     private func fetchDomains() async {
         isLoading = true
         errorMessage = nil
         do {
-            self.customDomains = try await WorkerService.shared.getWorkerCustomDomains(accountId: accountId, scriptName: scriptName)
-            self.hasFetchedData = true
+            customDomains = try await WorkerService.shared.getWorkerCustomDomains(accountId: accountId, scriptName: scriptName)
+            hasFetchedData = true
         } catch {
-            self.errorMessage = error.localizedDescription
-            self.hasFetchedData = true
+            errorMessage = error.localizedDescription
+            hasFetchedData = true
         }
         isLoading = false
     }
@@ -193,11 +194,11 @@ struct WorkerAttachDomainSheetView: View {
     let scriptName: String
     let onAttached: () -> Void
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var hostname = ""
     @State private var isAttaching = false
     @State private var errorMessage: String?
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -209,7 +210,7 @@ struct WorkerAttachDomainSheetView: View {
                         .font(.body.monospacedDigit())
                         .submitLabel(.done)
                 }
-                
+
                 if let err = errorMessage {
                     Section {
                         HStack(spacing: 8) {
@@ -237,10 +238,10 @@ struct WorkerAttachDomainSheetView: View {
                             errorMessage = nil
                             do {
                                 let trimmedHost = hostname.trimmingCharacters(in: .whitespaces)
-                                let (zones, _) = (try? await ZoneService.shared.getZones()) ?? ([], nil)
+                                let (zones, _) = await (try? ZoneService.shared.getZones()) ?? ([], nil)
                                 let matchedZone = zones.first(where: { trimmedHost.hasSuffix($0.name) })
                                 let targetZoneId = matchedZone?.id ?? zones.first?.id ?? ""
-                                
+
                                 try await WorkerService.shared.attachWorkerDomain(
                                     accountId: accountId,
                                     scriptName: scriptName,

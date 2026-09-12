@@ -1,12 +1,13 @@
 import SwiftUI
 
 // MARK: - DNSPropagationView
+
 // Apple HIG Compliant Worldwide DNS Propagation Probe
 
 struct DNSPropagationView: View {
     @StateObject private var viewModel = DNSPropagationViewModel()
     @FocusState private var isFieldFocused: Bool
-    
+
     var body: some View {
         List {
             // Target Domain Input
@@ -15,7 +16,7 @@ struct DNSPropagationView: View {
                     Image(systemName: "globe.americas.fill")
                         .foregroundStyle(.tint)
                         .accessibilityHidden(true)
-                    
+
                     TextField("example.com", text: $viewModel.propagationDomain)
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
@@ -26,7 +27,7 @@ struct DNSPropagationView: View {
                         .onSubmit {
                             Task { await viewModel.queryPropagation() }
                         }
-                    
+
                     if !viewModel.propagationDomain.isEmpty {
                         Button {
                             viewModel.propagationDomain = ""
@@ -40,7 +41,7 @@ struct DNSPropagationView: View {
                         .accessibilityLabel("Clear Domain")
                     }
                 }
-                
+
                 HStack {
                     Text("Record Type")
                         .font(.subheadline)
@@ -54,7 +55,7 @@ struct DNSPropagationView: View {
                     .pickerStyle(.menu)
                     .labelsHidden()
                 }
-                
+
                 HStack(spacing: 8) {
                     Image(systemName: "target")
                         .foregroundStyle(.secondary)
@@ -64,7 +65,7 @@ struct DNSPropagationView: View {
                         .autocorrectionDisabled()
                         .font(.body.monospacedDigit())
                 }
-                
+
                 Button {
                     isFieldFocused = false
                     HapticManager.impact(.light)
@@ -88,7 +89,7 @@ struct DNSPropagationView: View {
             } footer: {
                 Text("Simultaneously probes DNS answers across 8 Anycast edge resolvers across North America, Europe, Asia, Australia & South America.")
             }
-            
+
             if viewModel.isPropagationLoading {
                 Section("Querying 8 Global Edge Nodes…") {
                     HStack {
@@ -107,14 +108,14 @@ struct DNSPropagationView: View {
                                 Text("Propagation Score")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
-                                
+
                                 (Text(verbatim: "\(result.propagationPercent)% ") + Text("Synchronized"))
                                     .font(.title3.weight(.bold))
                                     .foregroundStyle(result.propagationPercent >= 100 ? Color.green : (result.propagationPercent >= 50 ? Color.orange : Color.red))
                             }
-                            
+
                             Spacer()
-                            
+
                             let isSuccess = result.propagationPercent >= 100
                             Text("\(result.matchedCount)/\(result.nodes.count) Nodes")
                                 .font(.caption2.weight(.medium))
@@ -123,13 +124,13 @@ struct DNSPropagationView: View {
                                 .padding(.vertical, 4)
                                 .background(Capsule().fill((isSuccess ? Color.green : Color.orange).opacity(0.12)))
                         }
-                        
+
                         ProgressView(value: Double(result.propagationPercent) / 100.0)
                             .tint(result.propagationPercent >= 100 ? Color.green : Color.orange)
                     }
                     .padding(.vertical, 2)
                 }
-                
+
                 // 2. Regional Nodes Breakdown
                 Section("Regional Edge Resolvers (\(result.nodes.count))") {
                     ForEach(result.nodes) { node in
@@ -137,7 +138,7 @@ struct DNSPropagationView: View {
                             HStack {
                                 Text(node.countryFlag)
                                     .font(.title3)
-                                
+
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(node.regionName)
                                         .font(.subheadline.weight(.semibold))
@@ -145,19 +146,19 @@ struct DNSPropagationView: View {
                                         .font(.caption2)
                                         .foregroundStyle(.secondary)
                                 }
-                                
+
                                 Spacer()
-                                
+
                                 nodeStatusBadge(node.status)
                             }
-                            
+
                             if !node.resolvedIPs.isEmpty {
                                 Text(node.resolvedIPs.joined(separator: ", "))
                                     .font(.caption.monospaced())
                                     .foregroundStyle(.primary)
                                     .padding(.leading, 32)
                             }
-                            
+
                             if let lat = node.latencyMs {
                                 Text("Latency: \(lat.formatted(.number.precision(.fractionLength(1)))) ms")
                                     .font(.caption2.monospacedDigit())
@@ -192,7 +193,7 @@ struct DNSPropagationView: View {
         .navigationTitle("DNS Propagation")
         .navigationBarTitleDisplayMode(.inline)
     }
-    
+
     @ViewBuilder
     private func nodeStatusBadge(_ status: DNSPropagationNode.NodeStatus) -> some View {
         switch status {

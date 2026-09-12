@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - D1RowEditorView
+
 // Apple HIG Compliant Cloudflare D1 SQL Row Editor & Insert Form
 
 struct D1RowEditorView: View {
@@ -11,7 +12,9 @@ struct D1RowEditorView: View {
     @State private var fieldValues: [String: String] = [:]
     @State private var isSaving = false
 
-    private var isNewRow: Bool { existingRow == nil }
+    private var isNewRow: Bool {
+        existingRow == nil
+    }
 
     private var editableColumns: [D1ColumnInfo] {
         viewModel.columns.filter { $0.name != "_rowid_" }
@@ -76,7 +79,7 @@ struct D1RowEditorView: View {
                                         .background(Color(.secondarySystemFill))
                                         .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                                 }
-                                
+
                                 TextField(
                                     "Value",
                                     text: Binding(
@@ -89,8 +92,8 @@ struct D1RowEditorView: View {
                                 .textInputAutocapitalization(.never)
                                 .autocorrectionDisabled()
                                 .submitLabel(.done)
-                                
-                                if let dflt = col.defaultValue, !dflt.isEmpty, dflt != "NULL" && dflt != "<null>" {
+
+                                if let dflt = col.defaultValue, !dflt.isEmpty, dflt != "NULL", dflt != "<null>" {
                                     Text("Default: \(dflt)")
                                         .font(.caption2)
                                         .foregroundStyle(.secondary)
@@ -145,15 +148,14 @@ struct D1RowEditorView: View {
         isSaving = true
         let snapshot = fieldValues
         Task {
-            let success: Bool
-            if isNewRow {
-                success = await viewModel.insertRow(values: snapshot)
+            let success: Bool = if isNewRow {
+                await viewModel.insertRow(values: snapshot)
             } else if let rowid = existingRow?["_rowid_"] {
-                success = await viewModel.updateRow(rowid: rowid, values: snapshot)
+                await viewModel.updateRow(rowid: rowid, values: snapshot)
             } else {
-                success = false
+                false
             }
-            
+
             await MainActor.run {
                 isSaving = false
                 if success {

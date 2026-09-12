@@ -13,8 +13,10 @@ struct SecurityGraphQLZone: Codable, Sendable {
 }
 
 struct SecurityEvent: Codable, Identifiable, Equatable, Sendable {
-    var id: String { datetime + clientIP + ruleId }
-    
+    var id: String {
+        datetime + clientIP + ruleId
+    }
+
     let action: String
     let clientIP: String
     let clientCountryName: String
@@ -24,7 +26,7 @@ struct SecurityEvent: Codable, Identifiable, Equatable, Sendable {
     let edgeResponseStatus: Int?
     let host: String
     let ruleId: String
-    
+
     enum CodingKeys: String, CodingKey {
         case action
         case clientIP
@@ -36,28 +38,28 @@ struct SecurityEvent: Codable, Identifiable, Equatable, Sendable {
         case host = "clientRequestHTTPHost"
         case ruleId
     }
-    
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.action = (try? container.decode(String.self, forKey: .action)) ?? "block"
-        self.clientIP = (try? container.decode(String.self, forKey: .clientIP)) ?? "0.0.0.0"
-        self.clientCountryName = (try? container.decode(String.self, forKey: .clientCountryName)) ?? "XX"
-        
+        action = (try? container.decode(String.self, forKey: .action)) ?? "block"
+        clientIP = (try? container.decode(String.self, forKey: .clientIP)) ?? "0.0.0.0"
+        clientCountryName = (try? container.decode(String.self, forKey: .clientCountryName)) ?? "XX"
+
         if let asnStr = try? container.decode(String.self, forKey: .clientAsn) {
-            self.clientAsn = asnStr
+            clientAsn = asnStr
         } else if let asnInt = try? container.decode(Int.self, forKey: .clientAsn) {
-            self.clientAsn = String(asnInt)
+            clientAsn = String(asnInt)
         } else {
-            self.clientAsn = nil
+            clientAsn = nil
         }
-        
-        self.datetime = (try? container.decode(String.self, forKey: .datetime)) ?? DateFormatters.formatISO8601(Date())
-        self.source = (try? container.decode(String.self, forKey: .source)) ?? "firewall"
-        self.edgeResponseStatus = try? container.decodeIfPresent(Int.self, forKey: .edgeResponseStatus)
-        self.host = (try? container.decode(String.self, forKey: .host)) ?? ""
-        self.ruleId = (try? container.decode(String.self, forKey: .ruleId)) ?? UUID().uuidString
+
+        datetime = (try? container.decode(String.self, forKey: .datetime)) ?? DateFormatters.formatISO8601(Date())
+        source = (try? container.decode(String.self, forKey: .source)) ?? "firewall"
+        edgeResponseStatus = try? container.decodeIfPresent(Int.self, forKey: .edgeResponseStatus)
+        host = (try? container.decode(String.self, forKey: .host)) ?? ""
+        ruleId = (try? container.decode(String.self, forKey: .ruleId)) ?? UUID().uuidString
     }
-    
+
     init(
         action: String = "block",
         clientIP: String = "192.0.2.1",
@@ -79,5 +81,4 @@ struct SecurityEvent: Codable, Identifiable, Equatable, Sendable {
         self.host = host
         self.ruleId = ruleId
     }
-    
 }

@@ -1,16 +1,17 @@
 import SwiftUI
 
 // MARK: - IPAccessRulesView
+
 // Apple HIG Compliant IP Access Rules Management
 
 struct IPAccessRulesView: View {
     let zoneId: String
-    
+
     @StateObject private var viewModel = IPAccessRulesViewModel()
     @State private var showingAddRule = false
     @State private var ruleToDelete: IPAccessRule?
     @State private var showingDeleteConfirm = false
-    
+
     var body: some View {
         List {
             if !viewModel.rules.isEmpty {
@@ -23,9 +24,9 @@ struct IPAccessRulesView: View {
                                 } label: {
                                     Label("Copy Target", systemImage: "doc.on.doc")
                                 }
-                                
+
                                 Divider()
-                                
+
                                 Button(role: .destructive) {
                                     ruleToDelete = rule
                                     showingDeleteConfirm = true
@@ -117,15 +118,15 @@ struct IPAccessRulesView: View {
 
 struct IPAccessRuleRowView: View {
     let rule: IPAccessRule
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
                 Text(rule.configuration.value)
                     .font(.body.monospacedDigit().weight(.medium))
-                
+
                 Spacer()
-                
+
                 let modeColor = colorForMode(rule.mode)
                 Text(rule.mode.uppercased())
                     .font(.caption2.weight(.medium))
@@ -134,12 +135,12 @@ struct IPAccessRuleRowView: View {
                     .padding(.vertical, 2)
                     .background(Capsule().fill(modeColor.opacity(0.12)))
             }
-            
+
             HStack(spacing: 4) {
                 Text(rule.configuration.target.uppercased().replacingOccurrences(of: "_", with: " "))
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                
+
                 if let notes = rule.notes, !notes.isEmpty {
                     Text("•")
                         .foregroundStyle(.secondary)
@@ -152,13 +153,13 @@ struct IPAccessRuleRowView: View {
         }
         .padding(.vertical, 2)
     }
-    
+
     private func colorForMode(_ mode: String) -> Color {
         switch mode {
-        case "block": return .red
-        case "challenge", "js_challenge", "managed_challenge": return .orange
-        case "whitelist": return .green
-        default: return .blue
+        case "block": .red
+        case "challenge", "js_challenge", "managed_challenge": .orange
+        case "whitelist": .green
+        default: .blue
         }
     }
 }
@@ -169,20 +170,20 @@ struct AddIPAccessRuleView: View {
     let zoneId: String
     @ObservedObject var viewModel: IPAccessRulesViewModel
     @Binding var isPresented: Bool
-    
+
     @State private var target = "ip"
     @State private var value = ""
     @State private var mode = "block"
     @State private var notes = ""
     @State private var showingDiscardAlert = false
-    
+
     enum Field { case value, notes }
     @FocusState private var focusedField: Field?
-    
+
     private var hasChanges: Bool {
         !value.isEmpty || !notes.isEmpty
     }
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -193,7 +194,7 @@ struct AddIPAccessRuleView: View {
                         Text("Country").tag("country")
                         Text("ASN").tag("asn")
                     }
-                    
+
                     TextField(target == "country" ? LocalizedStringKey("e.g. US, CN, GB") : (target == "asn" ? LocalizedStringKey("e.g. AS12345") : LocalizedStringKey("e.g. 192.168.1.1")), text: $value)
                         .keyboardType(target == "asn" ? .numberPad : .asciiCapable)
                         .textInputAutocapitalization(.never)
@@ -202,7 +203,7 @@ struct AddIPAccessRuleView: View {
                         .focused($focusedField, equals: .value)
                         .onSubmit { focusedField = .notes }
                 }
-                
+
                 Section(header: Text("Action")) {
                     Picker("Action", selection: $mode) {
                         Text("Block").tag("block")
@@ -212,7 +213,7 @@ struct AddIPAccessRuleView: View {
                         Text("Allow").tag("whitelist")
                     }
                 }
-                
+
                 Section(header: Text("Notes (Optional)")) {
                     TextField("Reason for this rule", text: $notes)
                         .textInputAutocapitalization(.never)
@@ -260,7 +261,7 @@ struct AddIPAccessRuleView: View {
             .interactiveDismissDisabled(hasChanges || viewModel.isCreating)
             .confirmationDialog("Discard Rule?", isPresented: $showingDiscardAlert, titleVisibility: .visible) {
                 Button("Discard", role: .destructive) { isPresented = false }
-                Button("Keep Editing", role: .cancel) { }
+                Button("Keep Editing", role: .cancel) {}
             }
         }
     }

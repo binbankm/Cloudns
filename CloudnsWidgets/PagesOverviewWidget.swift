@@ -5,19 +5,19 @@ import WidgetKit
 
 public struct PagesTimelineProvider: TimelineProvider {
     public typealias Entry = PagesWidgetEntry
-    
+
     public init() {}
-    
-    public func placeholder(in context: Context) -> PagesWidgetEntry {
+
+    public func placeholder(in _: Context) -> PagesWidgetEntry {
         PagesWidgetEntry(date: Date(), snapshot: .placeholder)
     }
-    
-    public func getSnapshot(in context: Context, completion: @escaping (PagesWidgetEntry) -> Void) {
+
+    public func getSnapshot(in _: Context, completion: @escaping (PagesWidgetEntry) -> Void) {
         let snap = WidgetDataStore.shared.loadPagesSnapshot()
         completion(PagesWidgetEntry(date: Date(), snapshot: snap))
     }
-    
-    public func getTimeline(in context: Context, completion: @escaping (Timeline<PagesWidgetEntry>) -> Void) {
+
+    public func getTimeline(in _: Context, completion: @escaping (Timeline<PagesWidgetEntry>) -> Void) {
         let snap = WidgetDataStore.shared.loadPagesSnapshot()
         let entry = PagesWidgetEntry(date: Date(), snapshot: snap)
         let nextUpdate = Calendar.current.date(byAdding: .minute, value: 30, to: Date()) ?? Date()
@@ -31,7 +31,7 @@ public struct PagesTimelineProvider: TimelineProvider {
 public struct PagesWidgetEntry: TimelineEntry {
     public let date: Date
     public let snapshot: PagesWidgetSnapshot
-    
+
     public init(date: Date, snapshot: PagesWidgetSnapshot) {
         self.date = date
         self.snapshot = snapshot
@@ -42,9 +42,9 @@ public struct PagesWidgetEntry: TimelineEntry {
 
 public struct PagesOverviewWidget: Widget {
     public let kind: String = "PagesOverviewWidget"
-    
+
     public init() {}
-    
+
     public var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: PagesTimelineProvider()) { entry in
             PagesOverviewEntryView(entry: entry)
@@ -60,7 +60,7 @@ public struct PagesOverviewWidget: Widget {
 struct PagesOverviewEntryView: View {
     @Environment(\.widgetFamily) var family
     let entry: PagesWidgetEntry
-    
+
     var body: some View {
         Group {
             switch family {

@@ -1,46 +1,47 @@
-import SwiftUI
 import Charts
+import SwiftUI
 
 // MARK: - WorkerAnalyticsView
+
 // Apple HIG Compliant Cloudflare Worker Invocations, Latency & Error Rate Analytics
 
 public struct WorkerAnalyticsView: View {
     public let accountId: String
     public let scriptName: String
-    
+
     @StateObject private var viewModel: WorkerAnalyticsViewModel
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    
+
     // Interactive Scrubbing States
     @State private var selectedPoint: AggregatedWorkerDataPoint?
     @State private var selectedCpuPoint: AggregatedWorkerDataPoint?
-    
+
     public init(accountId: String, scriptName: String) {
         self.accountId = accountId
         self.scriptName = scriptName
         _viewModel = StateObject(wrappedValue: WorkerAnalyticsViewModel(accountId: accountId, scriptName: scriptName))
     }
-    
+
     private var isHourlyData: Bool {
         if let first = viewModel.dataPoints.first {
             return first.timestamp.contains("T") || first.timestamp.contains(":")
         }
         return viewModel.loadedDays == 1
     }
-    
+
     private var chartXRange: ClosedRange<Date> {
         if let first = viewModel.dataPoints.first?.date,
            let last = viewModel.dataPoints.last?.date {
             if first < last {
-                return first...last
+                return first ... last
             } else if first == last {
-                return first.addingTimeInterval(-1800)...last.addingTimeInterval(1800)
+                return first.addingTimeInterval(-1800) ... last.addingTimeInterval(1800)
             }
         }
         let now = Date()
-        return now...now.addingTimeInterval(3600)
+        return now ... now.addingTimeInterval(3600)
     }
-    
+
     public var body: some View {
         VStack(spacing: 0) {
             // 1. Unified Header & Time Range Picker Bar
@@ -48,8 +49,8 @@ public struct WorkerAnalyticsView: View {
                 .padding(.horizontal, 16)
                 .padding(.top, 12)
                 .padding(.bottom, 12)
-            
-            if !viewModel.hasFetchedData && viewModel.isLoading {
+
+            if !viewModel.hasFetchedData, viewModel.isLoading {
                 VStack(spacing: 12) {
                     ProgressView()
                     Text("Loading Worker Analytics…")
@@ -57,7 +58,7 @@ public struct WorkerAnalyticsView: View {
                         .foregroundStyle(.secondary)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.hasFetchedData && viewModel.dataPoints.isEmpty {
+            } else if viewModel.hasFetchedData, viewModel.dataPoints.isEmpty {
                 ScrollView {
                     VStack(spacing: 16) {
                         Spacer(minLength: 40)
@@ -85,13 +86,13 @@ public struct WorkerAnalyticsView: View {
                     VStack(spacing: 16) {
                         // 2. 4 Key Metrics Cards Grid
                         metricsGrid
-                        
+
                         // 3. Invocations & Errors Line & Area Chart with Scrubbing
                         invocationsLineChartCard
-                        
+
                         // 4. CPU Execution Latency Line Chart P50 & P99 with Scrubbing
                         cpuLatencyLineChartCard
-                        
+
                         // 5. Performance Insights Card
                         insightsCard
                     }
@@ -114,22 +115,23 @@ public struct WorkerAnalyticsView: View {
             }
         }
     }
-    
+
     // MARK: - 1. Header Bar
+
     private var headerBar: some View {
         HStack(alignment: .center, spacing: 8) {
             Image(systemName: "curlybraces.square.fill")
                 .foregroundStyle(.purple)
                 .font(.title3)
-            
+
             Text(scriptName)
                 .font(.headline.weight(.semibold))
                 .foregroundStyle(.primary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
-            
+
             Spacer(minLength: 4)
-            
+
             Picker("Range", selection: $viewModel.selectedDays) {
                 Text("24h").tag(1)
                 Text("7d").tag(7)
@@ -150,8 +152,9 @@ public struct WorkerAnalyticsView: View {
         .background(Color(uiColor: .secondarySystemGroupedBackground))
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
-    
+
     // MARK: - 2. 4 Metrics Cards Grid
+
     private var metricsGrid: some View {
         Grid(horizontalSpacing: 8, verticalSpacing: 8) {
             GridRow {
@@ -162,7 +165,7 @@ public struct WorkerAnalyticsView: View {
                     color: .purple,
                     badge: "\(MetricFormatters.compactNumber(viewModel.totalSubrequests)) Subrequests"
                 )
-                
+
                 metricCard(
                     title: "Error Rate",
                     value: (viewModel.errorRatePercentage / 100.0).formatted(.percent.precision(.fractionLength(1))),
@@ -171,7 +174,7 @@ public struct WorkerAnalyticsView: View {
                     badge: "\(MetricFormatters.compactNumber(viewModel.totalErrors)) Errors"
                 )
             }
-            
+
             GridRow {
                 metricCard(
                     title: "Median CPU",
@@ -180,7 +183,7 @@ public struct WorkerAnalyticsView: View {
                     color: .cyan,
                     badge: "50th Percentile"
                 )
-                
+
                 metricCard(
                     title: "Max CPU (P99)",
                     value: "\(viewModel.maxCpuP99.formatted(.number.precision(.fractionLength(2)))) ms",
@@ -191,30 +194,30 @@ public struct WorkerAnalyticsView: View {
             }
         }
     }
-    
+
     private func metricCard(title: LocalizedStringKey, value: String, icon: String, color: Color, badge: LocalizedStringKey) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack(spacing: 6) {
                 ListRowIcon(icon: icon, color: color, size: 24, cornerRadius: 6)
-                
+
                 Text(title)
                     .font(.caption.weight(.medium))
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
-                
+
                 Spacer()
             }
-            
+
             Spacer(minLength: 2)
-            
+
             Text(value)
                 .font(.title2.weight(.bold).monospacedDigit())
                 .foregroundStyle(.primary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.75)
-            
+
             Spacer(minLength: 2)
-            
+
             Text(badge)
                 .font(.caption2)
                 .foregroundStyle(.secondary)
@@ -226,11 +229,11 @@ public struct WorkerAnalyticsView: View {
         .background(Color(uiColor: .secondarySystemGroupedBackground))
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
-    
+
     private var invocationsLineChartCard: some View {
-        let maxReq = viewModel.dataPoints.map { $0.requests }.max() ?? 10
+        let maxReq = viewModel.dataPoints.map(\.requests).max() ?? 10
         let yUpper = max(10.0, Double(maxReq) * 1.18)
-        
+
         return VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .center) {
                 VStack(alignment: .leading, spacing: 2) {
@@ -242,7 +245,7 @@ public struct WorkerAnalyticsView: View {
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(.secondary)
                     }
-                    
+
                     HStack(alignment: .lastTextBaseline, spacing: 6) {
                         Text(verbatim: MetricFormatters.compactNumber(selectedPoint?.requests ?? viewModel.totalRequests))
                             .font(.title.weight(.bold).monospacedDigit())
@@ -250,7 +253,7 @@ public struct WorkerAnalyticsView: View {
                         Text(selectedPoint != nil ? LocalizedStringKey("requests") : LocalizedStringKey("total"))
                             .font(.caption.weight(.medium))
                             .foregroundStyle(.secondary)
-                        
+
                         if let selected = selectedPoint, selected.errors > 0 {
                             Text("(\(selected.errors) errors)")
                                 .font(.caption.weight(.bold))
@@ -258,9 +261,9 @@ public struct WorkerAnalyticsView: View {
                         }
                     }
                 }
-                
+
                 Spacer()
-                
+
                 if let selected = selectedPoint {
                     let dateStr = formattedPointDate(selected)
                     HStack(spacing: 4) {
@@ -282,7 +285,7 @@ public struct WorkerAnalyticsView: View {
                 }
             }
             .frame(minHeight: 48)
-            
+
             Chart {
                 ForEach(viewModel.dataPoints) { pt in
                     AreaMark(
@@ -297,7 +300,7 @@ public struct WorkerAnalyticsView: View {
                         )
                     )
                     .interpolationMethod(.monotone)
-                    
+
                     LineMark(
                         x: .value("Time", pt.date),
                         y: .value("Requests", pt.requests)
@@ -305,7 +308,7 @@ public struct WorkerAnalyticsView: View {
                     .foregroundStyle(Color.purple)
                     .lineStyle(StrokeStyle(lineWidth: 2.4, lineCap: .round, lineJoin: .round))
                     .interpolationMethod(.monotone)
-                    
+
                     if pt.errors > 0 {
                         BarMark(
                             x: .value("Time", pt.date),
@@ -316,12 +319,12 @@ public struct WorkerAnalyticsView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                     }
                 }
-                
+
                 if let selected = selectedPoint {
                     RuleMark(x: .value("Time", selected.date))
                         .foregroundStyle(Color.purple.opacity(0.6))
                         .lineStyle(StrokeStyle(lineWidth: 1.2, dash: [4, 3]))
-                    
+
                     PointMark(
                         x: .value("Time", selected.date),
                         y: .value("Requests", selected.requests)
@@ -347,7 +350,7 @@ public struct WorkerAnalyticsView: View {
             .chartPlotStyle { plot in
                 plot.clipped()
             }
-            .chartYScale(domain: 0...yUpper)
+            .chartYScale(domain: 0 ... yUpper)
             .chartXScale(domain: chartXRange)
             .transaction { $0.animation = nil }
             .chartXAxis {
@@ -387,7 +390,7 @@ public struct WorkerAnalyticsView: View {
                                     let origin = geo[proxy.plotAreaFrame].origin
                                     let locationX = value.location.x - origin.x
                                     guard locationX >= 0, locationX <= proxy.plotAreaSize.width else { return }
-                                    
+
                                     if let date: Date = proxy.value(atX: locationX) {
                                         if let closest = findClosestWorkerPoint(for: date, in: viewModel.dataPoints) {
                                             if selectedPoint?.id != closest.id {
@@ -408,11 +411,11 @@ public struct WorkerAnalyticsView: View {
         .background(Color(uiColor: .secondarySystemGroupedBackground))
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
-    
+
     private var cpuLatencyLineChartCard: some View {
         let maxCpu = viewModel.dataPoints.map { max($0.cpuP50, $0.cpuP99) }.max() ?? 10.0
         let yUpper = max(2.0, maxCpu * 1.18)
-        
+
         return VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .center) {
                 VStack(alignment: .leading, spacing: 2) {
@@ -424,7 +427,7 @@ public struct WorkerAnalyticsView: View {
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(.secondary)
                     }
-                    
+
                     if let selected = selectedCpuPoint {
                         HStack(alignment: .lastTextBaseline, spacing: 8) {
                             Text("\(selected.cpuP50.formatted(.number.precision(.fractionLength(2)))) ms")
@@ -433,10 +436,10 @@ public struct WorkerAnalyticsView: View {
                             Text("P50")
                                 .font(.caption.weight(.bold))
                                 .foregroundStyle(.secondary)
-                            
+
                             Text("•")
                                 .foregroundStyle(.tertiary)
-                            
+
                             Text("\(selected.cpuP99.formatted(.number.precision(.fractionLength(2)))) ms")
                                 .font(.title3.weight(.bold).monospacedDigit())
                                 .foregroundStyle(.orange)
@@ -452,10 +455,10 @@ public struct WorkerAnalyticsView: View {
                             Text("avg P50")
                                 .font(.caption.weight(.medium))
                                 .foregroundStyle(.secondary)
-                            
+
                             Text("•")
                                 .foregroundStyle(.tertiary)
-                            
+
                             Text("\(viewModel.maxCpuP99.formatted(.number.precision(.fractionLength(2)))) ms")
                                 .font(.title3.weight(.bold).monospacedDigit())
                                 .foregroundStyle(.orange)
@@ -465,9 +468,9 @@ public struct WorkerAnalyticsView: View {
                         }
                     }
                 }
-                
+
                 Spacer()
-                
+
                 if let selected = selectedCpuPoint {
                     let dateStr = formattedPointDate(selected)
                     HStack(spacing: 4) {
@@ -494,7 +497,7 @@ public struct WorkerAnalyticsView: View {
                 }
             }
             .frame(minHeight: 48)
-            
+
             Chart {
                 ForEach(viewModel.dataPoints) { pt in
                     LineMark(
@@ -504,7 +507,7 @@ public struct WorkerAnalyticsView: View {
                     .foregroundStyle(Color.cyan)
                     .lineStyle(StrokeStyle(lineWidth: 2.4, lineCap: .round, lineJoin: .round))
                     .interpolationMethod(.monotone)
-                    
+
                     LineMark(
                         x: .value("Time", pt.date),
                         y: .value("CPU P99", pt.cpuP99)
@@ -513,12 +516,12 @@ public struct WorkerAnalyticsView: View {
                     .lineStyle(StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round, dash: [4, 3]))
                     .interpolationMethod(.monotone)
                 }
-                
+
                 if let selected = selectedCpuPoint {
                     RuleMark(x: .value("Time", selected.date))
                         .foregroundStyle(Color.cyan.opacity(0.6))
                         .lineStyle(StrokeStyle(lineWidth: 1.2, dash: [4, 3]))
-                    
+
                     PointMark(
                         x: .value("Time", selected.date),
                         y: .value("CPU P50", selected.cpuP50)
@@ -537,7 +540,7 @@ public struct WorkerAnalyticsView: View {
             .chartPlotStyle { plot in
                 plot.clipped()
             }
-            .chartYScale(domain: 0...yUpper)
+            .chartYScale(domain: 0 ... yUpper)
             .chartXScale(domain: chartXRange)
             .transaction { $0.animation = nil }
             .chartXAxis {
@@ -577,7 +580,7 @@ public struct WorkerAnalyticsView: View {
                                     let origin = geo[proxy.plotAreaFrame].origin
                                     let locationX = value.location.x - origin.x
                                     guard locationX >= 0, locationX <= proxy.plotAreaSize.width else { return }
-                                    
+
                                     if let date: Date = proxy.value(atX: locationX) {
                                         if let closest = findClosestWorkerPoint(for: date, in: viewModel.dataPoints) {
                                             if selectedCpuPoint?.id != closest.id {
@@ -598,14 +601,15 @@ public struct WorkerAnalyticsView: View {
         .background(Color(uiColor: .secondarySystemGroupedBackground))
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
-    
+
     // MARK: - 5. Insights & Summary
+
     private var insightsCard: some View {
         VStack(alignment: .leading, spacing: 8) {
             Label("Worker Performance Summary", systemImage: "sparkles")
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.purple)
-            
+
             HStack {
                 Text("Subrequest Ratio")
                     .font(.caption)
@@ -615,9 +619,9 @@ public struct WorkerAnalyticsView: View {
                 Text("\(ratio.formatted(.number.precision(.fractionLength(1)))) subrequests / req")
                     .font(.caption.weight(.semibold).monospacedDigit())
             }
-            
+
             Divider()
-            
+
             HStack {
                 Text("Execution Health")
                     .font(.caption)
@@ -632,12 +636,13 @@ public struct WorkerAnalyticsView: View {
         .background(Color(uiColor: .secondarySystemGroupedBackground))
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
-    
+
     // MARK: - Helpers
+
     private func formattedPointDate(_ point: AggregatedWorkerDataPoint) -> String {
         DateFormatters.formatChartDetailDate(point.date, isHourly: isHourlyData)
     }
-    
+
     private func findClosestWorkerPoint(for date: Date, in points: [AggregatedWorkerDataPoint]) -> AggregatedWorkerDataPoint? {
         guard !points.isEmpty else { return nil }
         return points.min(by: {

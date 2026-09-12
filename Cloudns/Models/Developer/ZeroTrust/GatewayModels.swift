@@ -13,24 +13,23 @@ public struct GatewayRule: Codable, Identifiable, Equatable, Sendable {
     public let precedence: Int?
     public let createdAt: String?
     public let updatedAt: String?
-    
+
     enum CodingKeys: String, CodingKey {
         case id, name, action, enabled, filters, traffic, identity, precedence
         case createdAt = "created_at"
         case updatedAt = "updated_at"
     }
-    
+
     public init(id: String, name: String, action: String = "block", enabled: Bool = true, traffic: String? = "dns.security.category in {1}", precedence: Int? = 1) {
         self.id = id
         self.name = name
         self.action = action
         self.enabled = enabled
-        self.filters = nil
+        filters = nil
         self.traffic = traffic
-        self.identity = nil
+        identity = nil
         self.precedence = precedence
-        self.createdAt = nil
-        self.updatedAt = nil
+        createdAt = nil
+        updatedAt = nil
     }
-    
 }

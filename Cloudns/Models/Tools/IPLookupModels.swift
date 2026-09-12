@@ -16,14 +16,14 @@ public struct IPLookupResult: Equatable, Sendable {
     public let longitude: Double?
     public let isCloudflareAnycast: Bool
     public let cloudProvider: String?
-    
+
     public var countryFlag: String {
         guard let code = countryCode?.uppercased(), code.count == 2 else { return "🌐" }
         return code.unicodeScalars.compactMap {
-            UnicodeScalar(127397 + $0.value)
+            UnicodeScalar(127_397 + $0.value)
         }.map { String($0) }.joined()
     }
-    
+
     public init(
         query: String,
         ip: String,

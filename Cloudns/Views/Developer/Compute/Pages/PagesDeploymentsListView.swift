@@ -1,25 +1,26 @@
 import SwiftUI
 
 // MARK: - PagesDeploymentsListView
+
 // Apple HIG Compliant Cloudflare Pages Deployment Timeline & Pipeline History
 
 struct PagesDeploymentsListView: View {
     let accountId: String
     let projectName: String
     @ObservedObject var viewModel: PagesProjectDetailViewModel
-    
+
     @State private var selectedEnvFilter = "all" // "all" | "production" | "preview"
     @State private var searchText = ""
     @State private var selectedDeployment: PagesDeployment?
-    
+
     private var productionDeployments: [PagesDeployment] {
         viewModel.deployments.filter { ($0.environment ?? "").lowercased() == "production" }
     }
-    
+
     private var previewDeployments: [PagesDeployment] {
         viewModel.deployments.filter { ($0.environment ?? "").lowercased() != "production" }
     }
-    
+
     private var filteredDeployments: [PagesDeployment] {
         var list = viewModel.deployments
         if selectedEnvFilter == "production" {
@@ -27,20 +28,20 @@ struct PagesDeploymentsListView: View {
         } else if selectedEnvFilter == "preview" {
             list = previewDeployments
         }
-        
+
         if searchText.isEmpty {
             return list
         }
         return list.filter { dep in
             (dep.environment ?? "").localizedStandardContains(searchText) ||
-            (dep.latestStage?.status ?? "").localizedStandardContains(searchText) ||
-            (dep.deploymentTrigger?.metadata?.commitMessage ?? "").localizedStandardContains(searchText) ||
-            (dep.deploymentTrigger?.metadata?.branch ?? "").localizedStandardContains(searchText) ||
-            (dep.deploymentTrigger?.metadata?.commitHash ?? "").localizedStandardContains(searchText) ||
-            (dep.id).localizedStandardContains(searchText)
+                (dep.latestStage?.status ?? "").localizedStandardContains(searchText) ||
+                (dep.deploymentTrigger?.metadata?.commitMessage ?? "").localizedStandardContains(searchText) ||
+                (dep.deploymentTrigger?.metadata?.branch ?? "").localizedStandardContains(searchText) ||
+                (dep.deploymentTrigger?.metadata?.commitHash ?? "").localizedStandardContains(searchText) ||
+                (dep.id).localizedStandardContains(searchText)
         }
     }
-    
+
     var body: some View {
         VStack(spacing: 0) {
             // Environment Filter Bar
@@ -56,7 +57,7 @@ struct PagesDeploymentsListView: View {
             .onChange(of: selectedEnvFilter) { _ in
                 HapticManager.selection()
             }
-            
+
             List {
                 if !filteredDeployments.isEmpty {
                     Section(
@@ -76,14 +77,14 @@ struct PagesDeploymentsListView: View {
                                     Link(destination: url) {
                                         Label("Open Preview in Safari", systemImage: "safari")
                                     }
-                                    
+
                                     Button {
                                         copyToClipboard(urlStr, toast: "Preview URL Copied")
                                     } label: {
                                         Label("Copy Preview URL", systemImage: "doc.on.doc")
                                     }
                                 }
-                                
+
                                 if let hash = dep.deploymentTrigger?.metadata?.commitHash {
                                     Button {
                                         copyToClipboard(hash, toast: "Commit Hash Copied")
@@ -91,7 +92,7 @@ struct PagesDeploymentsListView: View {
                                         Label("Copy Commit Hash", systemImage: "number")
                                     }
                                 }
-                                
+
                                 Button {
                                     copyToClipboard(dep.id, toast: "Deployment ID Copied")
                                 } label: {
@@ -105,7 +106,7 @@ struct PagesDeploymentsListView: View {
                                     }
                                     .tint(.blue)
                                 }
-                                
+
                                 Button {
                                     copyToClipboard(dep.id, toast: "Deployment ID Copied")
                                 } label: {
@@ -154,16 +155,16 @@ struct PagesDeploymentsListView: View {
             }
         }
     }
-    
+
     // MARK: - Deployment Row View
-    
+
     @ViewBuilder
     private func deploymentRow(_ dep: PagesDeployment) -> some View {
         let isProd = (dep.environment ?? "").lowercased() == "production"
         let status = (dep.latestStage?.status ?? "success").lowercased()
         let isSuccess = status == "success"
         let isFailure = status == "failure" || status == "error"
-        
+
         VStack(alignment: .leading, spacing: 8) {
             // Header: Status + Environment Badge + Branch + Commit Hash
             HStack(alignment: .center, spacing: 8) {
@@ -172,7 +173,7 @@ struct PagesDeploymentsListView: View {
                     Image(systemName: isSuccess ? "checkmark.circle.fill" : (isFailure ? "xmark.circle.fill" : "arrow.triangle.2.circlepath"))
                         .font(.caption2)
                         .foregroundStyle(isSuccess ? .green : (isFailure ? .red : .orange))
-                    
+
                     Text(isSuccess ? LocalizedStringKey("Success") : (isFailure ? LocalizedStringKey("Failed") : LocalizedStringKey(status.capitalized)))
                         .font(.caption2.weight(.bold))
                 }
@@ -181,7 +182,7 @@ struct PagesDeploymentsListView: View {
                 .background(isSuccess ? Color.green.opacity(0.12) : (isFailure ? Color.red.opacity(0.12) : Color.orange.opacity(0.12)))
                 .foregroundStyle(isSuccess ? .green : (isFailure ? .red : .orange))
                 .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
-                
+
                 // Environment Badge
                 Text(isProd ? LocalizedStringKey("Production") : LocalizedStringKey("Preview"))
                     .font(.caption2.weight(.medium))
@@ -189,9 +190,9 @@ struct PagesDeploymentsListView: View {
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
                     .background(Capsule().fill((isProd ? Color.blue : Color.purple).opacity(0.12)))
-                
+
                 Spacer()
-                
+
                 // Git Branch
                 if let branch = dep.deploymentTrigger?.metadata?.branch, !branch.isEmpty {
                     HStack(spacing: 3) {
@@ -206,7 +207,7 @@ struct PagesDeploymentsListView: View {
                     .background(Color(.secondarySystemFill))
                     .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                 }
-                
+
                 // Commit Hash
                 if let hash = dep.deploymentTrigger?.metadata?.commitHash, !hash.isEmpty {
                     Text(String(hash.prefix(7)))
@@ -217,13 +218,13 @@ struct PagesDeploymentsListView: View {
                         .background(Color(.secondarySystemFill))
                         .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                 }
-                
+
                 Image(systemName: "chevron.right")
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
                     .accessibilityHidden(true)
             }
-            
+
             // Commit Message
             if let msg = dep.deploymentTrigger?.metadata?.commitMessage, !msg.isEmpty {
                 Text(msg)
@@ -235,7 +236,7 @@ struct PagesDeploymentsListView: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
-            
+
             // Footer: Timestamp + Preview URL indicator
             HStack(spacing: 8) {
                 if let created = dep.createdOn, let date = DateFormatters.parseISO8601(created) {
@@ -247,9 +248,9 @@ struct PagesDeploymentsListView: View {
                     }
                     .foregroundStyle(.secondary)
                 }
-                
+
                 Spacer()
-                
+
                 if let urlStr = dep.url, !urlStr.isEmpty {
                     HStack(spacing: 4) {
                         Image(systemName: "globe")

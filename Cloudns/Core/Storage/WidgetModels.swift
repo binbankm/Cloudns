@@ -14,7 +14,7 @@ public struct ZoneWidgetSnapshot: Codable, Identifiable, Sendable {
     public let isProxied: Bool
     public let isSSLEnabled: Bool
     public let lastUpdated: Date
-    
+
     public init(
         id: String,
         name: String,
@@ -40,32 +40,32 @@ public struct ZoneWidgetSnapshot: Codable, Identifiable, Sendable {
         self.isSSLEnabled = isSSLEnabled
         self.lastUpdated = lastUpdated
     }
-    
+
     public var formattedRequests: String {
         if requests24h >= 1_000_000 {
-            return "\((Double(requests24h) / 1_000_000.0).formatted(.number.precision(.fractionLength(1))))M"
-        } else if requests24h >= 1_000 {
-            return "\((Double(requests24h) / 1_000.0).formatted(.number.precision(.fractionLength(1))))K"
+            "\((Double(requests24h) / 1_000_000.0).formatted(.number.precision(.fractionLength(1))))M"
+        } else if requests24h >= 1000 {
+            "\((Double(requests24h) / 1000.0).formatted(.number.precision(.fractionLength(1))))K"
         } else {
-            return requests24h.formatted(.number)
+            requests24h.formatted(.number)
         }
     }
-    
+
     public var formattedBytes: String {
-        return ByteCountFormatter.string(fromByteCount: Int64(bytes24h), countStyle: .file)
+        ByteCountFormatter.string(fromByteCount: Int64(bytes24h), countStyle: .file)
     }
-    
+
     public var formattedCachedRatio: String {
-        return cachedRatio.formatted(.percent.precision(.fractionLength(0)))
+        cachedRatio.formatted(.percent.precision(.fractionLength(0)))
     }
-    
+
     public static let placeholder = ZoneWidgetSnapshot(
         id: "placeholder-zone-id",
         name: "example.com",
         status: "active",
         plan: "Pro Plan",
-        requests24h: 124500,
-        bytes24h: 2450000000,
+        requests24h: 124_500,
+        bytes24h: 2_450_000_000,
         cachedRatio: 0.78,
         threats24h: 142,
         isProxied: true,
@@ -83,7 +83,7 @@ public struct WorkerWidgetSnapshot: Codable, Identifiable, Sendable {
     public let cpuTimeMs: Double
     public let successRate: Double
     public let lastUpdated: Date
-    
+
     public init(
         id: String,
         name: String,
@@ -101,29 +101,29 @@ public struct WorkerWidgetSnapshot: Codable, Identifiable, Sendable {
         self.successRate = successRate
         self.lastUpdated = lastUpdated
     }
-    
+
     public var formattedRequests: String {
         if requests24h >= 1_000_000 {
-            return "\((Double(requests24h) / 1_000_000.0).formatted(.number.precision(.fractionLength(1))))M"
-        } else if requests24h >= 1_000 {
-            return "\((Double(requests24h) / 1_000.0).formatted(.number.precision(.fractionLength(1))))K"
+            "\((Double(requests24h) / 1_000_000.0).formatted(.number.precision(.fractionLength(1))))M"
+        } else if requests24h >= 1000 {
+            "\((Double(requests24h) / 1000.0).formatted(.number.precision(.fractionLength(1))))K"
         } else {
-            return requests24h.formatted(.number)
+            requests24h.formatted(.number)
         }
     }
-    
+
     public var formattedSuccessRate: String {
-        return successRate.formatted(.percent.precision(.fractionLength(1)))
+        successRate.formatted(.percent.precision(.fractionLength(1)))
     }
-    
+
     public var formattedCpuTime: String {
         if cpuTimeMs >= 1000 {
-            return "\((cpuTimeMs / 1000.0).formatted(.number.precision(.fractionLength(1))))s"
+            "\((cpuTimeMs / 1000.0).formatted(.number.precision(.fractionLength(1))))s"
         } else {
-            return "\(cpuTimeMs.formatted(.number.precision(.fractionLength(1))))ms"
+            "\(cpuTimeMs.formatted(.number.precision(.fractionLength(1))))ms"
         }
     }
-    
+
     public static let placeholder = WorkerWidgetSnapshot(
         id: "placeholder-worker",
         name: "api-service",
@@ -145,7 +145,7 @@ public struct PagesWidgetSnapshot: Codable, Identifiable, Sendable {
     public let requests24h: Int
     public let errors24h: Int
     public let lastUpdated: Date
-    
+
     public init(
         id: String,
         name: String,
@@ -165,17 +165,17 @@ public struct PagesWidgetSnapshot: Codable, Identifiable, Sendable {
         self.errors24h = errors24h
         self.lastUpdated = lastUpdated
     }
-    
+
     public var formattedRequests: String {
         if requests24h >= 1_000_000 {
-            return "\((Double(requests24h) / 1_000_000.0).formatted(.number.precision(.fractionLength(1))))M"
-        } else if requests24h >= 1_000 {
-            return "\((Double(requests24h) / 1_000.0).formatted(.number.precision(.fractionLength(1))))K"
+            "\((Double(requests24h) / 1_000_000.0).formatted(.number.precision(.fractionLength(1))))M"
+        } else if requests24h >= 1000 {
+            "\((Double(requests24h) / 1000.0).formatted(.number.precision(.fractionLength(1))))K"
         } else {
-            return requests24h.formatted(.number)
+            requests24h.formatted(.number)
         }
     }
-    
+
     public static let placeholder = PagesWidgetSnapshot(
         id: "placeholder-pages",
         name: "cloudns-docs",
@@ -195,7 +195,7 @@ public struct CFStatusWidgetSnapshot: Codable, Sendable {
     public let activeIncidentsCount: Int
     public let latestIncidentTitle: String?
     public let lastUpdated: Date
-    
+
     public init(
         indicator: String = "none",
         description: String = "All Systems Operational",
@@ -209,17 +209,17 @@ public struct CFStatusWidgetSnapshot: Codable, Sendable {
         self.latestIncidentTitle = latestIncidentTitle
         self.lastUpdated = lastUpdated
     }
-    
+
     public var isOperational: Bool {
-        return (indicator == "none" || indicator.isEmpty) && activeIncidentsCount == 0
+        (indicator == "none" || indicator.isEmpty) && activeIncidentsCount == 0
     }
-    
+
     public static let placeholder = CFStatusWidgetSnapshot(
         indicator: "none",
         description: "All Systems Operational",
         activeIncidentsCount: 0,
         latestIncidentTitle: nil
     )
-    
+
     public static let operational = placeholder
 }

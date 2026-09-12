@@ -1,7 +1,8 @@
-import SwiftUI
 import Combine
+import SwiftUI
 
 // MARK: - DashboardView
+
 // Native Apple HIG Bento Grid, Swift Charts & Live Infrastructure Fleet Metrics
 
 struct DashboardView: View {
@@ -10,31 +11,31 @@ struct DashboardView: View {
     @State private var showingAccountSheet = false
     @State private var showingAddZone = false
     @ObservedObject private var themeManager = ThemeManager.shared
-    
+
     private var accentColor: Color {
         themeManager.accentColor
     }
-    
+
     var body: some View {
         NavigationStack {
             ZStack {
                 Color(uiColor: .systemGroupedBackground)
                     .ignoresSafeArea()
-                
+
                 ScrollView {
                     VStack(spacing: 16) {
                         // 1. Hero Account Identity Card
                         heroHeaderView
-                        
+
                         // 2. Fleet Metrics Overview Grid (2x2)
                         resourcesOverviewGridView
-                        
+
                         // 3. Interactive Zone Analytics (Swift Charts)
                         DashboardZoneTrafficChartView(viewModel: viewModel)
-                        
+
                         // 4. Quick Diagnostics & Operations Deck
                         quickCommandDeckView
-                        
+
                         // 5. Recent Active Domains Section
                         activeZonesSectionView
                     }
@@ -89,8 +90,9 @@ struct DashboardView: View {
             }
         }
     }
-    
+
     // MARK: - 1. Hero Header View
+
     private var heroHeaderView: some View {
         VStack(alignment: .leading, spacing: 12) {
             // Top Row: Greeting & Identity
@@ -99,28 +101,28 @@ struct DashboardView: View {
                     Image(systemName: greetingIcon)
                         .font(.caption2.weight(.semibold))
                         .foregroundStyle(greetingIconColor)
-                    
+
                     Text(viewModel.timeGreeting)
                         .font(.caption.weight(.medium))
                         .foregroundStyle(.secondary)
                 }
-                
+
                 Text(viewModel.selectedAccount?.name ?? (accountManager.activeEmail.isEmpty ? String(localized: "Cloudflare Account") : accountManager.activeEmail))
                     .font(.title3.weight(.bold))
                     .foregroundStyle(.primary)
                     .lineLimit(1)
-                
-                if !accountManager.activeEmail.isEmpty && viewModel.selectedAccount?.name != accountManager.activeEmail {
+
+                if !accountManager.activeEmail.isEmpty, viewModel.selectedAccount?.name != accountManager.activeEmail {
                     Text(accountManager.activeEmail)
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }
             }
-            
+
             Divider()
                 .opacity(0.6)
-            
+
             // Bottom Meta Bar: Account ID Capsule & Architecture Level
             HStack(spacing: 8) {
                 if let accountId = viewModel.selectedAccount?.id, !accountId.isEmpty {
@@ -135,11 +137,11 @@ struct DashboardView: View {
                                 .background(accentColor.opacity(0.18))
                                 .foregroundStyle(accentColor)
                                 .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
-                            
+
                             Text(accountId.prefix(8) + "..." + accountId.suffix(4))
                                 .font(.caption2.monospacedDigit())
                                 .foregroundStyle(.secondary)
-                            
+
                             Image(systemName: "doc.on.doc")
                                 .font(.caption2)
                                 .foregroundStyle(.secondary.opacity(0.8))
@@ -152,14 +154,14 @@ struct DashboardView: View {
                     .buttonStyle(.plain)
                     .accessibilityLabel("Account ID: \(accountId), tap to copy")
                 }
-                
+
                 Spacer(minLength: 4)
-                
+
                 HStack(spacing: 4) {
                     Image(systemName: "shield.checkerboard")
                         .font(.caption2.weight(.semibold))
                         .foregroundStyle(.blue)
-                    
+
                     Text("Zero Trust Edge")
                         .font(.caption2.weight(.medium))
                         .foregroundStyle(.secondary)
@@ -181,30 +183,31 @@ struct DashboardView: View {
                 .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 2)
         )
     }
-    
+
     private var greetingIcon: String {
         let hour = Calendar.current.component(.hour, from: Date())
         switch hour {
-        case 5..<12:
+        case 5 ..< 12:
             return "sun.max.fill"
-        case 12..<18:
+        case 12 ..< 18:
             return "sun.haze.fill"
         default:
             return "moon.stars.fill"
         }
     }
-    
+
     private var greetingIconColor: Color {
         let hour = Calendar.current.component(.hour, from: Date())
         switch hour {
-        case 5..<18:
+        case 5 ..< 18:
             return .orange
         default:
             return .indigo
         }
     }
-    
+
     // MARK: - 2. Fleet Metrics Overview Cards Grid (2x2)
+
     private var resourcesOverviewGridView: some View {
         LazyVGrid(columns: [GridItem(.adaptive(minimum: 155, maximum: 240), spacing: 12)], spacing: 12) {
             NavigationLink {
@@ -221,7 +224,7 @@ struct DashboardView: View {
             }
             .buttonStyle(.plain)
             .hoverEffect(.lift)
-            
+
             NavigationLink {
                 DeveloperHubView(embeddedInNavigation: true)
             } label: {
@@ -236,7 +239,7 @@ struct DashboardView: View {
             }
             .buttonStyle(.plain)
             .hoverEffect(.lift)
-            
+
             NavigationLink {
                 if let accId = viewModel.selectedAccount?.id, !accId.isEmpty {
                     KVBrowserView(accountId: accId)
@@ -255,7 +258,7 @@ struct DashboardView: View {
             }
             .buttonStyle(.plain)
             .hoverEffect(.lift)
-            
+
             NavigationLink {
                 if let accId = viewModel.selectedAccount?.id, !accId.isEmpty {
                     TunnelsListView(accountId: accId)
@@ -276,17 +279,18 @@ struct DashboardView: View {
             .hoverEffect(.lift)
         }
     }
-    
+
     // MARK: - 3. Quick Operations Deck (Grid)
+
     private var quickCommandDeckView: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Text("Quick Diagnostics & Tools")
                     .font(.footnote.weight(.semibold))
                     .foregroundStyle(.secondary)
-                
+
                 Spacer()
-                
+
                 NavigationLink(destination: NetworkToolsView(embeddedInNavigation: true)) {
                     HStack(spacing: 3) {
                         Text("All Tools")
@@ -298,7 +302,7 @@ struct DashboardView: View {
                 }
             }
             .padding(.horizontal, 2)
-            
+
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 4), spacing: 14) {
                 Button {
                     HapticManager.selection()
@@ -307,37 +311,37 @@ struct DashboardView: View {
                     QuickDeckButton(icon: "plus.circle.fill", color: accentColor, title: "Add Domain")
                 }
                 .buttonStyle(.plain)
-                
+
                 NavigationLink(destination: DNSDigToolView()) {
                     QuickDeckButton(icon: "arrow.triangle.2.circlepath.circle.fill", color: .blue, title: "DNS Dig")
                 }
                 .buttonStyle(.plain)
-                
+
                 NavigationLink(destination: CFTraceToolView()) {
                     QuickDeckButton(icon: "antenna.radiowaves.left.and.right", color: .purple, title: "Edge Trace")
                 }
                 .buttonStyle(.plain)
-                
+
                 NavigationLink(destination: CertInspectToolView()) {
                     QuickDeckButton(icon: "lock.shield.fill", color: .cyan, title: "SSL Check")
                 }
                 .buttonStyle(.plain)
-                
+
                 NavigationLink(destination: IPLookupToolView()) {
                     QuickDeckButton(icon: "network.badge.shield.half.filled", color: .indigo, title: "IP / ASN")
                 }
                 .buttonStyle(.plain)
-                
+
                 NavigationLink(destination: WhoisToolView()) {
                     QuickDeckButton(icon: "magnifyingglass", color: .teal, title: "WHOIS")
                 }
                 .buttonStyle(.plain)
-                
+
                 NavigationLink(destination: EdgeLatencyTestView()) {
                     QuickDeckButton(icon: "speedometer", color: .orange, title: "Latency Test")
                 }
                 .buttonStyle(.plain)
-                
+
                 NavigationLink(destination: CIDRCalculatorView()) {
                     QuickDeckButton(icon: "rectangle.split.3x3.fill", color: .green, title: "CIDR Calc")
                 }
@@ -353,17 +357,18 @@ struct DashboardView: View {
             )
         }
     }
-    
+
     // MARK: - 4. Recent Domains Section
+
     private var activeZonesSectionView: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Text("Recent Domains")
                     .font(.footnote.weight(.semibold))
                     .foregroundStyle(.secondary)
-                
+
                 Spacer()
-                
+
                 NavigationLink(destination: ZonesListView(embeddedInNavigation: true)) {
                     HStack(spacing: 3) {
                         Text(viewModel.hasFetchedData ? LocalizedStringKey("See All (\(viewModel.zones.count))") : LocalizedStringKey("See All"))
@@ -375,7 +380,7 @@ struct DashboardView: View {
                 }
             }
             .padding(.horizontal, 2)
-            
+
             if !viewModel.hasFetchedData {
                 HStack {
                     Spacer()
@@ -398,26 +403,26 @@ struct DashboardView: View {
                             )
                             .frame(width: 64, height: 64)
                             .shadow(color: accentColor.opacity(0.25), radius: 8, x: 0, y: 4)
-                        
+
                         Image(systemName: "globe.badge.plus")
                             .font(.system(size: 28, weight: .semibold))
                             .symbolRenderingMode(.hierarchical)
                             .foregroundStyle(.white)
                     }
                     .accessibilityHidden(true)
-                    
+
                     VStack(spacing: 4) {
                         Text("No Domains Added")
                             .font(.headline)
                             .foregroundStyle(.primary)
-                        
+
                         Text("Add your first domain to start managing DNS records and edge security.")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 24)
                     }
-                    
+
                     Button {
                         HapticManager.selection()
                         showingAddZone = true
@@ -445,23 +450,23 @@ struct DashboardView: View {
                         } label: {
                             HStack(spacing: 12) {
                                 AccountAvatarView(identifier: zone.name, size: 36, showShadow: false)
-                                
+
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(verbatim: zone.name)
                                         .font(.body.weight(.semibold))
                                         .foregroundStyle(.primary)
                                         .lineLimit(1)
-                                    
+
                                     Text(zone.plan?.name ?? String(localized: "Free Plan"))
                                         .font(.caption2)
                                         .foregroundStyle(.secondary)
                                 }
-                                
+
                                 Spacer(minLength: 8)
-                                
+
                                 // 24h Traffic Sparkline mini chart
                                 ZoneRowSparklineView(zoneId: zone.id, cached: viewModel.sparklines[zone.id])
-                                
+
                                 Image(systemName: "chevron.right")
                                     .font(.caption2.weight(.semibold))
                                     .foregroundStyle(.tertiary)
@@ -472,7 +477,7 @@ struct DashboardView: View {
                             .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
-                        
+
                         if index < viewModel.recentZones.count - 1 {
                             Divider()
                                 .padding(.leading, 62)
@@ -499,7 +504,7 @@ struct DashboardMetricCardView: View {
     let value: String
     let subtitle: LocalizedStringKey
     let badge: LocalizedStringKey
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .center) {
@@ -519,9 +524,9 @@ struct DashboardMetricCardView: View {
                         .foregroundStyle(.white)
                 }
                 .accessibilityHidden(true)
-                
+
                 Spacer()
-                
+
                 Text(badge)
                     .font(.caption2.weight(.medium))
                     .foregroundStyle(.secondary)
@@ -531,24 +536,24 @@ struct DashboardMetricCardView: View {
                     .clipShape(Capsule())
                     .lineLimit(1)
             }
-            
+
             Spacer(minLength: 4)
-            
+
             Text(value)
                 .font(Font.system(.title2, design: .rounded).weight(.bold))
                 .monospacedDigit()
                 .foregroundStyle(Color.primary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.80)
-            
+
             Spacer(minLength: 4)
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.primary)
                     .lineLimit(1)
-                
+
                 Text(subtitle)
                     .font(.caption2)
                     .foregroundStyle(.secondary)
@@ -572,7 +577,7 @@ struct QuickDeckButton: View {
     let icon: String
     let color: Color
     let title: LocalizedStringKey
-    
+
     var body: some View {
         VStack(spacing: 6) {
             ZStack {
@@ -586,14 +591,14 @@ struct QuickDeckButton: View {
                     )
                     .frame(width: 44, height: 44)
                     .shadow(color: color.opacity(0.20), radius: 4, x: 0, y: 2)
-                
+
                 Image(systemName: icon)
                     .symbolRenderingMode(.hierarchical)
                     .font(.system(size: 20, weight: .semibold))
                     .foregroundStyle(.white)
             }
             .accessibilityHidden(true)
-            
+
             Text(title)
                 .font(.caption2.weight(.medium))
                 .foregroundStyle(.primary)

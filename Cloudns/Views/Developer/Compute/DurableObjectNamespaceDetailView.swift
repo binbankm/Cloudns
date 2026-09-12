@@ -1,17 +1,18 @@
 import SwiftUI
 
 // MARK: - DurableObjectNamespaceDetailView
+
 // Apple HIG Compliant Cloudflare Durable Objects Namespace Detail & Instance Inspector
 
 struct DurableObjectNamespaceDetailView: View {
     let accountId: String
     let namespace: DurableObjectNamespace
-    
+
     @State private var objects: [DurableObjectInstance] = []
     @State private var nextCursor: String?
     @State private var isLoading = false
     @State private var errorMessage: String?
-    
+
     var body: some View {
         List {
             Section(header: Text("Namespace Details")) {
@@ -27,14 +28,14 @@ struct DurableObjectNamespaceDetailView: View {
                         Label("Copy Namespace ID", systemImage: "doc.on.doc")
                     }
                 }
-                
+
                 if let scr = namespace.script {
                     LabeledContent("Bound Worker Script") {
                         Text(scr)
                             .font(.subheadline.monospaced())
                     }
                 }
-                
+
                 if let cls = namespace.class {
                     HStack {
                         Text("Exported Class")
@@ -46,9 +47,9 @@ struct DurableObjectNamespaceDetailView: View {
                     }
                 }
             }
-            
+
             Section(header: Text("Active Instances (\(objects.count))"), footer: Text("Instances are spun up on-demand at the edge nearest to incoming coordination requests.")) {
-                if isLoading && objects.isEmpty {
+                if isLoading, objects.isEmpty {
                     HStack {
                         Spacer()
                         ProgressView("Loading instances…")
@@ -91,21 +92,20 @@ struct DurableObjectNamespaceDetailView: View {
             await fetchObjects()
         }
     }
-    
-    @ViewBuilder
+
     private func instanceRow(_ obj: DurableObjectInstance) -> some View {
         HStack(spacing: 8) {
             Image(systemName: "circle.circle.fill")
                 .foregroundStyle(obj.hasStoredData == true ? .green : .secondary)
                 .font(.caption)
                 .accessibilityHidden(true)
-            
+
             Text(obj.id)
                 .font(.caption.monospaced())
                 .foregroundStyle(.primary)
-            
+
             Spacer()
-            
+
             if obj.hasStoredData == true {
                 Text("Persistent Data")
                     .font(.caption2.weight(.medium))
@@ -117,16 +117,16 @@ struct DurableObjectNamespaceDetailView: View {
         }
         .padding(.vertical, 2)
     }
-    
+
     private func fetchObjects() async {
         isLoading = true
         errorMessage = nil
         do {
             let res = try await DurableObjectService.shared.listDOObjects(accountId: accountId, namespaceId: namespace.id)
-            self.objects = res.items
-            self.nextCursor = res.cursor
+            objects = res.items
+            nextCursor = res.cursor
         } catch {
-            self.errorMessage = error.localizedDescription
+            errorMessage = error.localizedDescription
         }
         isLoading = false
     }

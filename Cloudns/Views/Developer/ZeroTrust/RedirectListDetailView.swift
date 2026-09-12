@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - RedirectListDetailView
+
 // Apple HIG Compliant Cloudflare Bulk Redirect List Inspector & URL Item Mapper
 
 struct RedirectListDetailView: View {
@@ -12,29 +13,31 @@ struct RedirectListDetailView: View {
     @State private var showingAddSheet = false
     @State private var itemToDelete: RedirectListItem?
     @State private var showingDeleteConfirm = false
-    
+
     private var filteredItems: [RedirectListItem] {
-        if searchText.isEmpty { return items }
+        if searchText.isEmpty {
+            return items
+        }
         let query = searchText.lowercased()
         return items.filter { item in
             item.redirect.sourceUrl.lowercased().contains(query) ||
-            item.redirect.targetUrl.lowercased().contains(query)
+                item.redirect.targetUrl.lowercased().contains(query)
         }
     }
-    
+
     var body: some View {
         List {
             Section("List Metadata") {
                 LabeledContent("Name", value: list.name)
                     .font(.body)
-                
+
                 LabeledContent("List ID") {
                     Text(list.id)
                         .font(.caption.monospaced())
                         .foregroundStyle(.secondary)
                 }
             }
-            
+
             if !filteredItems.isEmpty {
                 Section("Redirect Items (\(filteredItems.count))") {
                     ForEach(filteredItems) { item in
@@ -45,15 +48,15 @@ struct RedirectListDetailView: View {
                                 } label: {
                                     Label("Copy Source URL", systemImage: "doc.on.doc")
                                 }
-                                
+
                                 Button {
                                     copyToClipboard(item.redirect.targetUrl, toast: "Target URL Copied")
                                 } label: {
                                     Label("Copy Target URL", systemImage: "link")
                                 }
-                                
+
                                 Divider()
-                                
+
                                 Button(role: .destructive) {
                                     HapticManager.impact(.medium)
                                     itemToDelete = item
@@ -134,17 +137,17 @@ struct RedirectListDetailView: View {
             await fetchItems()
         }
     }
-    
+
     private func fetchItems() async {
         isLoading = true
         do {
-            self.items = try await BulkRedirectService.shared.listRedirectListItems(accountId: accountId, listId: list.id)
+            items = try await BulkRedirectService.shared.listRedirectListItems(accountId: accountId, listId: list.id)
         } catch {
-            self.items = []
+            items = []
         }
         isLoading = false
     }
-    
+
     private func deleteItem(id: String) async {
         do {
             _ = try await BulkRedirectService.shared.deleteRedirectListItems(accountId: accountId, listId: list.id, itemIds: [id])
@@ -154,8 +157,7 @@ struct RedirectListDetailView: View {
             HapticManager.notification(.error)
         }
     }
-    
-    @ViewBuilder
+
     private func redirectItemRow(_ item: RedirectListItem) -> some View {
         VStack(alignment: .leading, spacing: 3) {
             HStack {
@@ -166,7 +168,7 @@ struct RedirectListDetailView: View {
                     .font(.caption2.weight(.bold))
                     .foregroundStyle(.indigo)
             }
-            
+
             HStack(spacing: 6) {
                 Image(systemName: "arrow.turn.down.right")
                     .font(.caption2)
@@ -188,7 +190,7 @@ struct AddRedirectItemSheetView: View {
     let listId: String
     let onSaved: () -> Void
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var sourceUrl = ""
     @State private var targetUrl = ""
     @State private var statusCode = 301
@@ -196,7 +198,7 @@ struct AddRedirectItemSheetView: View {
     @State private var subpathMatching = false
     @State private var isSaving = false
     @State private var errorMessage: String?
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -207,7 +209,7 @@ struct AddRedirectItemSheetView: View {
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .submitLabel(.next)
-                    
+
                     TextField("Target URL (e.g. https://example.com/new)", text: $targetUrl)
                         .font(.body.monospaced())
                         .keyboardType(.URL)
@@ -215,7 +217,7 @@ struct AddRedirectItemSheetView: View {
                         .autocorrectionDisabled()
                         .submitLabel(.done)
                 }
-                
+
                 Section("Redirect Behavior") {
                     Picker("Status Code", selection: $statusCode) {
                         Text("301 (Permanent)").tag(301)
@@ -223,11 +225,11 @@ struct AddRedirectItemSheetView: View {
                         Text("307 (Temporary Redirect)").tag(307)
                         Text("308 (Permanent Redirect)").tag(308)
                     }
-                    
+
                     Toggle("Preserve Query String", isOn: $preserveQueryString)
                     Toggle("Subpath Matching", isOn: $subpathMatching)
                 }
-                
+
                 if let err = errorMessage {
                     Section {
                         Text(verbatim: err)

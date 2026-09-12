@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - SettingsView
+
 // Apple HIG Compliant Settings Hub (iOS 16.0+)
 
 struct SettingsView: View {
@@ -10,7 +11,7 @@ struct SettingsView: View {
     @AppStorage(AppStorageKey.hapticsEnabled) private var hapticsEnabled = true
     @AppStorage(AppStorageKey.isLoggedIn) private var isLoggedIn = false
     @Environment(\.openURL) private var openURL
-    
+
     @State private var showingLogoutAlert = false
     @State private var showingClearCacheAlert = false
     @State private var showingAccountSheet = false
@@ -19,15 +20,16 @@ struct SettingsView: View {
     @ObservedObject private var iconManager = AppIconManager.shared
     @ObservedObject private var themeManager = ThemeManager.shared
     @ObservedObject private var authManager = AppAuthManager.shared
-    
+
     private var biometryIcon: String {
         authManager.biometryIcon
     }
-    
+
     var body: some View {
         NavigationStack {
             List {
                 // MARK: - Profile Card Section
+
                 Section {
                     Button {
                         HapticManager.impact(.light)
@@ -35,7 +37,7 @@ struct SettingsView: View {
                     } label: {
                         HStack(spacing: 12) {
                             AccountAvatarView(identifier: accountManager.activeEmail, size: 52)
-                            
+
                             VStack(alignment: .leading, spacing: 3) {
                                 Text("Active Account")
                                     .font(.caption2.weight(.medium))
@@ -44,7 +46,7 @@ struct SettingsView: View {
                                     .background(themeManager.accentColor.opacity(0.14))
                                     .foregroundStyle(themeManager.accentColor)
                                     .clipShape(Capsule())
-                                
+
                                 if accountManager.activeEmail.isEmpty {
                                     Text("No Account Selected")
                                         .font(.body.weight(.medium))
@@ -56,14 +58,14 @@ struct SettingsView: View {
                                         .foregroundStyle(.primary)
                                         .lineLimit(1)
                                 }
-                                
+
                                 Text("Tap to switch or add accounts")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
-                            
+
                             Spacer()
-                            
+
                             Image(systemName: "chevron.right")
                                 .font(.caption.weight(.semibold))
                                 .foregroundStyle(.tertiary)
@@ -78,13 +80,14 @@ struct SettingsView: View {
                         .listRowInsets(EdgeInsets())
                         .accessibilityHidden(true)
                 }
-                
+
                 // MARK: - Cloudflare Operations & Status
+
                 Section {
                     NavigationLink(destination: CloudflareStatusView()) {
                         HStack(spacing: 12) {
                             ListRowIcon(icon: "antenna.radiowaves.left.and.right", color: .green)
-                            
+
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("System Status")
                                     .font(.body.weight(.medium))
@@ -96,11 +99,11 @@ struct SettingsView: View {
                         }
                         .padding(.vertical, 2)
                     }
-                    
+
                     NavigationLink(destination: AuditLogsView()) {
                         HStack(spacing: 12) {
                             ListRowIcon(icon: "list.bullet.rectangle.portrait.fill", color: .blue)
-                            
+
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Audit Logs")
                                     .font(.body.weight(.medium))
@@ -115,8 +118,9 @@ struct SettingsView: View {
                 } header: {
                     Text("Cloudflare Services")
                 }
-                
+
                 // MARK: - Security Section
+
                 Section {
                     NavigationLink {
                         AppLockSettingsView()
@@ -127,9 +131,9 @@ struct SettingsView: View {
                                 color: .green,
                                 title: "App Lock"
                             )
-                            
+
                             Spacer()
-                            
+
                             Text(isAppLockEnabled ? LocalizedStringKey("On") : LocalizedStringKey("Off"))
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
@@ -138,8 +142,9 @@ struct SettingsView: View {
                 } header: {
                     Text("Security")
                 }
-                
+
                 // MARK: - Preferences & Appearance Section
+
                 Section {
                     Picker(selection: $themePreference) {
                         Text("Follow System").tag("system")
@@ -157,7 +162,7 @@ struct SettingsView: View {
                     .onChange(of: themePreference) { _ in
                         HapticManager.impact(.light)
                     }
-                    
+
                     NavigationLink {
                         ThemeColorPickerView()
                     } label: {
@@ -178,7 +183,7 @@ struct SettingsView: View {
                             }
                         }
                     }
-                    
+
                     NavigationLink {
                         AppIconPickerView()
                     } label: {
@@ -194,7 +199,7 @@ struct SettingsView: View {
                                 .foregroundStyle(.secondary)
                         }
                     }
-                    
+
                     Picker(selection: $appLanguage) {
                         Text("Follow System").tag("system")
                         Text("English").tag("en")
@@ -221,7 +226,7 @@ struct SettingsView: View {
                     .onChange(of: appLanguage) { _ in
                         HapticManager.selection()
                     }
-                    
+
                     Toggle(isOn: $hapticsEnabled) {
                         SettingsRowView(
                             icon: "hand.tap.fill",
@@ -234,7 +239,7 @@ struct SettingsView: View {
                             HapticManager.impact(.medium)
                         }
                     }
-                    
+
                     Button {
                         HapticManager.impact(.medium)
                         showingClearCacheAlert = true
@@ -260,8 +265,9 @@ struct SettingsView: View {
                 } header: {
                     Text("Preferences")
                 }
-                
+
                 // MARK: - Support
+
                 Section {
                     NavigationLink(destination: FeedbackView()) {
                         SettingsRowView(
@@ -270,7 +276,7 @@ struct SettingsView: View {
                             title: "Feedback & Diagnostics"
                         )
                     }
-                    
+
                     Button(action: {
                         if let url = URL(string: "https://github.com/binbankm/Cloudns") {
                             openURL(url)
@@ -283,7 +289,7 @@ struct SettingsView: View {
                         )
                     }
                     .foregroundStyle(.primary)
-                    
+
                     Button(action: {
                         if let url = URL(string: "https://www.cloudflare.com/privacypolicy/") {
                             openURL(url)
@@ -299,8 +305,9 @@ struct SettingsView: View {
                 } header: {
                     Text("About & Support")
                 }
-                
+
                 // MARK: - Log Out Section
+
                 Section(footer: appVersionFooter) {
                     Button(role: .destructive, action: {
                         HapticManager.impact(.medium)
@@ -348,17 +355,18 @@ struct SettingsView: View {
         }
         .tint(themeManager.accentColor)
     }
-    
+
     // MARK: - Version Footer
+
     private var appVersionFooter: some View {
         let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
         let buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
-        
+
         return VStack(spacing: 2) {
             Text("Cloudns v\(appVersion) (\(buildNumber))")
                 .font(.caption)
                 .foregroundStyle(.secondary)
-            
+
             Text("Designed for Cloudflare Edge & Zero Trust")
                 .font(.caption2)
                 .foregroundStyle(.tertiary)
@@ -375,17 +383,11 @@ struct SettingsRowView: View {
     let icon: String
     let color: Color
     let title: LocalizedStringKey
-    
-    init(icon: String, color: Color, title: LocalizedStringKey) {
-        self.icon = icon
-        self.color = color
-        self.title = title
-    }
-    
+
     var body: some View {
         HStack(spacing: 12) {
             ListRowIcon(icon: icon, color: color)
-            
+
             Text(title)
                 .font(.body.weight(.medium))
                 .foregroundStyle(.primary)

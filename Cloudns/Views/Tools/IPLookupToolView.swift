@@ -1,12 +1,13 @@
 import SwiftUI
 
 // MARK: - IPLookupToolView
+
 // Apple HIG Compliant IP Geolocation, BGP & ASN Lookup
 
 struct IPLookupToolView: View {
     @StateObject private var viewModel = IPLookupViewModel()
     @FocusState private var isFieldFocused: Bool
-    
+
     var body: some View {
         List {
             // 1. Input Section
@@ -15,7 +16,7 @@ struct IPLookupToolView: View {
                     Image(systemName: "location.circle.fill")
                         .foregroundStyle(.tint)
                         .accessibilityHidden(true)
-                    
+
                     TextField("e.g. 1.1.1.1 or 104.21.45.12", text: $viewModel.ipInput)
                         .keyboardType(.numbersAndPunctuation)
                         .textInputAutocapitalization(.never)
@@ -26,7 +27,7 @@ struct IPLookupToolView: View {
                         .onSubmit {
                             performQuery()
                         }
-                    
+
                     if !viewModel.ipInput.isEmpty {
                         Button {
                             viewModel.ipInput = ""
@@ -40,7 +41,7 @@ struct IPLookupToolView: View {
                         .accessibilityLabel("Clear Input")
                     }
                 }
-                
+
                 Button {
                     performQuery()
                 } label: {
@@ -62,8 +63,8 @@ struct IPLookupToolView: View {
             } footer: {
                 Text("Queries BGP routing registries, Autonomous System Numbers (ASN), ISP names & physical geolocation coordinates.")
             }
-            
-            if viewModel.isLoading && viewModel.lookupResult == nil {
+
+            if viewModel.isLoading, viewModel.lookupResult == nil {
                 Section {
                     HStack {
                         Spacer()
@@ -77,12 +78,12 @@ struct IPLookupToolView: View {
                 Section("IP Identification") {
                     identificationRows(result: result)
                 }
-                
+
                 // 3. ASN Section
                 Section("Autonomous System (ASN)") {
                     asnRows(result: result)
                 }
-                
+
                 // 4. Geolocation Section
                 Section("Geographical Location") {
                     geoRows(result: result)
@@ -109,34 +110,35 @@ struct IPLookupToolView: View {
         .navigationTitle("IP & ASN Lookup")
         .navigationBarTitleDisplayMode(.inline)
     }
-    
+
     private func performQuery() {
         isFieldFocused = false
         HapticManager.impact(.light)
         Task { await viewModel.queryIP() }
     }
-    
+
     // MARK: - 2. Identification Rows
+
     @ViewBuilder
     private func identificationRows(result: IPLookupResult) -> some View {
         HStack {
             Text(result.countryFlag)
                 .font(.title2)
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(result.ip)
                     .font(.headline.monospacedDigit())
                     .foregroundStyle(.primary)
-                
+
                 if let city = result.city, let country = result.country {
                     Text("\(city), \(country)")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
             }
-            
+
             Spacer()
-            
+
             Button {
                 copyToClipboard(result.ip, toast: "IP Copied")
             } label: {
@@ -153,7 +155,7 @@ struct IPLookupToolView: View {
                 Label("Copy IP Address", systemImage: "doc.on.doc")
             }
         }
-        
+
         if let cloud = result.cloudProvider {
             HStack {
                 Image(systemName: result.isCloudflareAnycast ? "bolt.shield.fill" : "cloud.fill")
@@ -173,8 +175,9 @@ struct IPLookupToolView: View {
             }
         }
     }
-    
+
     // MARK: - 3. ASN Rows
+
     @ViewBuilder
     private func asnRows(result: IPLookupResult) -> some View {
         if let asn = result.asn {
@@ -195,7 +198,7 @@ struct IPLookupToolView: View {
                 }
             }
         }
-        
+
         if let org = result.org {
             HStack {
                 Text("Organization")
@@ -208,8 +211,9 @@ struct IPLookupToolView: View {
             }
         }
     }
-    
+
     // MARK: - 4. Geolocation Rows
+
     @ViewBuilder
     private func geoRows(result: IPLookupResult) -> some View {
         if let country = result.country {

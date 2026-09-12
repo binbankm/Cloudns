@@ -14,40 +14,40 @@ protocol SnippetServiceProtocol: Sendable {
 /// Concrete domain service for Cloudflare Snippets
 final class SnippetService: SnippetServiceProtocol {
     static let shared = SnippetService()
-    
+
     private let client = HTTPNetworkClient.shared
     private let factory = AuthenticatedRequestFactory.shared
     private let wafRulesService = WAFRulesService.shared
-    
+
     private init() {}
-    
+
     func getSnippets(zoneId: String) async throws -> [SnippetItem] {
         let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/snippets")
         let (snips, _): ([SnippetItem]?, ResultInfo?) = try await client.performRequest(request)
         return snips ?? []
     }
-    
+
     func getSnippetRuleset(zoneId: String) async throws -> (rulesetId: String?, rules: [WAFRule]) {
         let rs = try? await wafRulesService.fetchRulesetByPhase(zoneId: zoneId, phase: "http_request_snippet")
         return (rs?.id, rs?.rules ?? [])
     }
-    
+
     func deleteSnippet(zoneId: String, snippetName: String) async throws {
         let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/snippets/\(snippetName)", method: "DELETE")
         struct Res: Codable { let id: String? }
         let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
     }
-    
+
     func deleteSnippetRule(zoneId: String, rulesetId: String, ruleId: String) async throws {
         try await wafRulesService.deleteWAFRule(zoneId: zoneId, rulesetId: rulesetId, ruleId: ruleId)
     }
-    
+
     func getSnippetContent(zoneId: String, name: String) async throws -> String {
         let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/snippets/\(name)/content", contentType: "")
         let data = try await client.performDataRequest(request)
         return String(data: data, encoding: .utf8) ?? ""
     }
-    
+
     func putSnippet(zoneId: String, name: String, code: String) async throws {
         let boundary = "Boundary-\(UUID().uuidString)"
         var body = Data()
@@ -56,7 +56,7 @@ final class SnippetService: SnippetServiceProtocol {
         body.append(Data("Content-Type: application/javascript\r\n\r\n".utf8))
         body.append(Data(code.utf8))
         body.append(Data("\r\n--\(boundary)--\r\n".utf8))
-        
+
         let request = try factory.createAuthenticatedRequest(
             path: "zones/\(zoneId)/snippets/\(name)",
             method: "PUT",
@@ -66,7 +66,7 @@ final class SnippetService: SnippetServiceProtocol {
         struct Res: Codable { let snippet_name: String? }
         let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
     }
-    
+
     func bindSnippetRule(zoneId: String, snippetName: String, expression: String, description: String?) async throws {
         let rs = try? await wafRulesService.fetchRulesetByPhase(zoneId: zoneId, phase: "http_request_snippet")
         let param = ActionParameters(snippet: ActionParameters.SnippetRef(name: snippetName))

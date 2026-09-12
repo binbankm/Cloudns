@@ -13,18 +13,18 @@ protocol AnalyticsServiceProtocol: Sendable {
 /// Concrete domain service for Cloudflare Zone Analytics
 final class AnalyticsService: AnalyticsServiceProtocol {
     static let shared = AnalyticsService()
-    
+
     private let client = HTTPNetworkClient.shared
     private let factory = AuthenticatedRequestFactory.shared
-    
+
     private init() {}
-    
+
     func getFleetAnalytics(zoneTags: [String]) async throws -> [FleetHourlyMetric] {
         guard !zoneTags.isEmpty else { return [] }
         let targetTags = Array(zoneTags.prefix(20))
         let pastDate = Calendar.current.date(byAdding: .hour, value: -24, to: Date()) ?? Date()
         let dateString = DateFormatters.formatISO8601(pastDate)
-        
+
         var querySubfields = ""
         for (index, tag) in targetTags.enumerated() {
             querySubfields += """
@@ -43,7 +43,7 @@ final class AnalyticsService: AnalyticsServiceProtocol {
             }
             """
         }
-        
+
         let query = """
         query {
           viewer {
@@ -51,21 +51,22 @@ final class AnalyticsService: AnalyticsServiceProtocol {
           }
         }
         """
-        
+
         let payload: [String: Any] = ["query": query]
         let data = try JSONSerialization.data(withJSONObject: payload)
         let request = try factory.createAuthenticatedRequest(path: "graphql", method: "POST", body: data)
         let rawData = try await client.performDataRequest(request)
-        
+
         guard let json = try? JSONSerialization.jsonObject(with: rawData) as? [String: Any],
               let dataObj = json["data"] as? [String: Any],
-              let viewerObj = dataObj["viewer"] as? [String: Any] else {
+              let viewerObj = dataObj["viewer"] as? [String: Any]
+        else {
             return []
         }
-        
+
         // Aggregate across zones by datetime
         var timelineMap: [String: (date: Date, requests: Double, bytes: Double, cached: Double, threats: Double)] = [:]
-        
+
         for index in targetTags.indices {
             if let zoneArray = viewerObj["z_\(index)"] as? [[String: Any]],
                let firstZone = zoneArray.first,
@@ -78,10 +79,10 @@ final class AnalyticsService: AnalyticsServiceProtocol {
                         let bytes = (sum["bytes"] as? NSNumber)?.doubleValue ?? 0
                         let cached = (sum["cachedRequests"] as? NSNumber)?.doubleValue ?? 0
                         let threats = (sum["threats"] as? NSNumber)?.doubleValue ?? 0
-                        
+
                         let date = DateFormatters.parseISO8601(dtStr) ?? Date()
                         let hourKey = DateFormatters.formatHour(date)
-                        
+
                         if let current = timelineMap[hourKey] {
                             timelineMap[hourKey] = (
                                 date: current.date,
@@ -103,7 +104,7 @@ final class AnalyticsService: AnalyticsServiceProtocol {
                 }
             }
         }
-        
+
         let sorted = timelineMap.values.sorted { $0.date < $1.date }
         return sorted.map { item in
             FleetHourlyMetric(
@@ -116,14 +117,14 @@ final class AnalyticsService: AnalyticsServiceProtocol {
             )
         }
     }
-    
+
     /// Batch-fetches 24-hour traffic sparkline data for multiple zones using GraphQL aliases
     func getBatchZonesSparklines(zoneTags: [String]) async throws -> [String: ZoneSparklineCache] {
         guard !zoneTags.isEmpty else { return [:] }
         let targetTags = Array(zoneTags.prefix(30))
         let pastDate = Calendar.current.date(byAdding: .hour, value: -24, to: Date()) ?? Date()
         let dateString = DateFormatters.formatISO8601(pastDate)
-        
+
         var querySubfields = ""
         for (index, tag) in targetTags.enumerated() {
             querySubfields += """
@@ -139,7 +140,7 @@ final class AnalyticsService: AnalyticsServiceProtocol {
             }
             """
         }
-        
+
         let query = """
         query {
           viewer {
@@ -147,18 +148,19 @@ final class AnalyticsService: AnalyticsServiceProtocol {
           }
         }
         """
-        
+
         let payload: [String: Any] = ["query": query]
         let data = try JSONSerialization.data(withJSONObject: payload)
         let request = try factory.createAuthenticatedRequest(path: "graphql", method: "POST", body: data)
         let rawData = try await client.performDataRequest(request)
-        
+
         guard let json = try? JSONSerialization.jsonObject(with: rawData) as? [String: Any],
               let dataObj = json["data"] as? [String: Any],
-              let viewerObj = dataObj["viewer"] as? [String: Any] else {
+              let viewerObj = dataObj["viewer"] as? [String: Any]
+        else {
             return [:]
         }
-        
+
         var result: [String: ZoneSparklineCache] = [:]
         for (index, tag) in targetTags.enumerated() {
             if let zoneArray = viewerObj["z_\(index)"] as? [[String: Any]],
@@ -179,15 +181,15 @@ final class AnalyticsService: AnalyticsServiceProtocol {
         }
         return result
     }
-    
+
     /// Fetches primary zone analytics data for the specified time range
     func getDashboardAnalytics(zoneTag: String, days: Int) async throws -> AnalyticsViewerData {
         let query: String
-        
+
         if days == 1 {
             let pastDate = Calendar.current.date(byAdding: .hour, value: -24, to: Date()) ?? Date()
             let dateString = DateFormatters.formatISO8601(pastDate)
-            
+
             query = """
             query {
               viewer {
@@ -217,7 +219,7 @@ final class AnalyticsService: AnalyticsServiceProtocol {
         } else {
             let pastDate = Calendar.current.date(byAdding: .day, value: -days, to: Date()) ?? Date()
             let dateString = DateFormatters.formatYearMonthDay(pastDate)
-            
+
             query = """
             query {
               viewer {
@@ -245,12 +247,12 @@ final class AnalyticsService: AnalyticsServiceProtocol {
             }
             """
         }
-        
+
         let payload: [String: Any] = ["query": query]
         let data = try JSONSerialization.data(withJSONObject: payload)
         let request = try factory.createAuthenticatedRequest(path: "graphql", method: "POST", body: data)
         let rawData = try await client.performDataRequest(request)
-        
+
         do {
             let decoded = try JSONDecoder().decode(GraphQLResponse<AnalyticsViewerData>.self, from: rawData)
             if let errors = decoded.errors, !errors.isEmpty, decoded.data == nil {
@@ -266,25 +268,24 @@ final class AnalyticsService: AnalyticsServiceProtocol {
             throw APIError.decodingError(error.localizedDescription)
         }
     }
-    
+
     func fetchGraphQLAnalytics(zoneTag: String, days: Int) async throws -> AnalyticsViewerData {
         try await getDashboardAnalytics(zoneTag: zoneTag, days: days)
     }
-    
+
     /// Fetches Worker invocation volume and performance metrics (GraphQL workersInvocationsAdaptive)
     func getWorkerAnalytics(accountId: String, scriptName: String, days: Int) async throws -> [WorkerAnalyticsItem] {
-        let pastDate: Date
-        if days == 1 {
-            pastDate = Calendar.current.date(byAdding: .hour, value: -24, to: Date()) ?? Date()
+        let pastDate: Date = if days == 1 {
+            Calendar.current.date(byAdding: .hour, value: -24, to: Date()) ?? Date()
         } else {
-            pastDate = Calendar.current.date(byAdding: .day, value: -days, to: Date()) ?? Date()
+            Calendar.current.date(byAdding: .day, value: -days, to: Date()) ?? Date()
         }
         let startDateString = DateFormatters.formatISO8601(pastDate)
         let endDateString = DateFormatters.formatISO8601(Date())
-        
+
         let dimension = (days == 1) ? "datetimeHour" : "date"
         let orderBy = (days == 1) ? "datetimeHour_ASC" : "date_ASC"
-        
+
         let query = """
         query {
           viewer {
@@ -329,12 +330,12 @@ final class AnalyticsService: AnalyticsServiceProtocol {
           }
         }
         """
-        
+
         let payload: [String: Any] = ["query": query]
         let data = try JSONSerialization.data(withJSONObject: payload)
         let request = try factory.createAuthenticatedRequest(path: "graphql", method: "POST", body: data)
         let rawData = try await client.performDataRequest(request)
-        
+
         do {
             let decoded = try JSONDecoder().decode(GraphQLResponse<WorkerAnalyticsViewerData>.self, from: rawData)
             if let errors = decoded.errors, !errors.isEmpty, decoded.data == nil {
@@ -343,7 +344,7 @@ final class AnalyticsService: AnalyticsServiceProtocol {
             let firstAccount = decoded.data?.viewer.accounts?.first
             let series = firstAccount?.series ?? firstAccount?.workersInvocationsAdaptive ?? []
             let quantiles = firstAccount?.summary?.first?.quantiles
-            
+
             // Attach summary quantiles to series items if needed
             if let quantiles, !series.isEmpty {
                 return series.map { item in
@@ -361,7 +362,7 @@ final class AnalyticsService: AnalyticsServiceProtocol {
             throw APIError.decodingError(error.localizedDescription)
         }
     }
-    
+
     /// Fetches Pages Functions invocation volume and performance metrics
     func getPagesAnalytics(accountId: String, projectName: String, days: Int) async throws -> [WorkerAnalyticsItem] {
         // First try standard workersInvocationsAdaptive with scriptName
@@ -369,20 +370,19 @@ final class AnalyticsService: AnalyticsServiceProtocol {
         if let items, !items.isEmpty {
             return items
         }
-        
+
         // Fallback: Query pagesFunctionsInvocationsAdaptiveGroups with proper dimensions
-        let pastDate: Date
-        if days == 1 {
-            pastDate = Calendar.current.date(byAdding: .hour, value: -24, to: Date()) ?? Date()
+        let pastDate: Date = if days == 1 {
+            Calendar.current.date(byAdding: .hour, value: -24, to: Date()) ?? Date()
         } else {
-            pastDate = Calendar.current.date(byAdding: .day, value: -days, to: Date()) ?? Date()
+            Calendar.current.date(byAdding: .day, value: -days, to: Date()) ?? Date()
         }
         let startDateString = DateFormatters.formatISO8601(pastDate)
         let endDateString = DateFormatters.formatISO8601(Date())
-        
+
         let dimension = (days == 1) ? "datetimeHour" : "date"
         let orderBy = (days == 1) ? "datetimeHour_ASC" : "date_ASC"
-        
+
         let query = """
         query {
           viewer {
@@ -408,12 +408,12 @@ final class AnalyticsService: AnalyticsServiceProtocol {
           }
         }
         """
-        
+
         let payload: [String: Any] = ["query": query]
         let data = try JSONSerialization.data(withJSONObject: payload)
         let request = try factory.createAuthenticatedRequest(path: "graphql", method: "POST", body: data)
         let rawData = try await client.performDataRequest(request)
-        
+
         do {
             let decoded = try JSONDecoder().decode(GraphQLResponse<WorkerAnalyticsViewerData>.self, from: rawData)
             let list = decoded.data?.viewer.accounts?.first?.pagesFunctionsInvocationsAdaptiveGroups ?? []

@@ -1,21 +1,22 @@
 import SwiftUI
 
 // MARK: - CacheRulesView
+
 // Apple HIG Compliant Cloudflare Cache Rules & Edge TTL Engine
 
 struct CacheRulesView: View {
     let zoneId: String
-    
+
     @StateObject private var viewModel: CacheRulesViewModel
     @State private var showingAddSheet = false
     @State private var ruleToDelete: WAFRule?
     @State private var showingDeleteConfirm = false
-    
+
     init(zoneId: String) {
         self.zoneId = zoneId
         _viewModel = StateObject(wrappedValue: CacheRulesViewModel(zoneId: zoneId))
     }
-    
+
     var body: some View {
         List {
             if !viewModel.rules.isEmpty {
@@ -34,7 +35,7 @@ struct CacheRulesView: View {
                             } label: {
                                 Label("Copy Expression", systemImage: "doc.on.doc")
                             }
-                            
+
                             if let desc = rule.description, !desc.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                                 Button {
                                     copyToClipboard(desc, toast: "Rule Name Copied")
@@ -42,9 +43,9 @@ struct CacheRulesView: View {
                                     Label("Copy Rule Name", systemImage: "tag")
                                 }
                             }
-                            
+
                             Divider()
-                            
+
                             Button(role: .destructive) {
                                 ruleToDelete = rule
                                 showingDeleteConfirm = true
@@ -137,7 +138,7 @@ struct CacheRulesView: View {
 struct CacheRuleCardView: View {
     let rule: WAFRule
     let onToggle: () -> Void
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
@@ -152,10 +153,10 @@ struct CacheRuleCardView: View {
                 Toggle(isOn: Binding(
                     get: { rule.enabled },
                     set: { _ in onToggle() }
-                )) { }
-                .labelsHidden()
+                )) {}
+                    .labelsHidden()
             }
-            
+
             Text(verbatim: rule.expression)
                 .font(.caption.monospaced())
                 .foregroundStyle(.secondary)
@@ -163,7 +164,7 @@ struct CacheRuleCardView: View {
                 .background(Color(.secondarySystemBackground))
                 .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                 .lineLimit(2)
-            
+
             if let cache = rule.action_parameters?.cache {
                 Text(cache ? LocalizedStringKey("Active") : LocalizedStringKey("Bypass Cache"))
                     .font(.caption2.weight(.medium))

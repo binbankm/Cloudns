@@ -1,6 +1,6 @@
+import Combine
 import Foundation
 import SwiftUI
-import Combine
 
 struct DeveloperHubSnapshot: Codable, Sendable {
     let workers: [WorkerScript]
@@ -20,10 +20,10 @@ final class DeveloperHubViewModel: BaseLoadableViewModel {
     private let kvService: KVServiceProtocol
     private let d1Service: D1ServiceProtocol
     private let tunnelService: TunnelServiceProtocol
-    
+
     @Published var accounts: [Account] = []
     @Published var selectedAccount: Account?
-    
+
     @Published var workers: [WorkerScript] = []
     @Published var pagesProjects: [PagesProject] = []
     @Published var r2Buckets: [R2Bucket] = []
@@ -31,7 +31,7 @@ final class DeveloperHubViewModel: BaseLoadableViewModel {
     @Published var d1Databases: [D1Database] = []
     @Published var tunnels: [CFTunnel] = []
     private var cancellables = Set<AnyCancellable>()
-    
+
     init(
         zoneService: ZoneServiceProtocol = ZoneService.shared,
         workerService: WorkerServiceProtocol = WorkerService.shared,
@@ -49,7 +49,7 @@ final class DeveloperHubViewModel: BaseLoadableViewModel {
         self.d1Service = d1Service
         self.tunnelService = tunnelService
         super.init()
-        
+
         NotificationCenter.default.publisher(for: .developerResourceMutated)
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in
@@ -59,38 +59,40 @@ final class DeveloperHubViewModel: BaseLoadableViewModel {
             }
             .store(in: &cancellables)
     }
-    
+
     var activeTunnelCount: Int {
-        tunnels.filter { $0.isHealthy }.count
+        tunnels.filter(\.isHealthy).count
     }
-    
+
     func resetState() {
-        self.accounts = []
-        self.selectedAccount = nil
-        self.workers = []
-        self.pagesProjects = []
-        self.r2Buckets = []
-        self.kvNamespaces = []
-        self.d1Databases = []
-        self.tunnels = []
-        self.resetLoadingState()
+        accounts = []
+        selectedAccount = nil
+        workers = []
+        pagesProjects = []
+        r2Buckets = []
+        kvNamespaces = []
+        d1Databases = []
+        tunnels = []
+        resetLoadingState()
     }
-    
+
     func fetchOverview(isRefresh: Bool = false) async {
-        if !isRefresh && hasFetchedData && !isStale { return }
-        
-        let scopedKey = SWRCacheStore.accountScopedKey("developer_hub_overview_snapshot")
-        
-        if !hasFetchedData, let cached = await SWRCacheStore.shared.get(forKey: scopedKey, as: DeveloperHubSnapshot.self) {
-            self.workers = cached.workers
-            self.pagesProjects = cached.pagesProjects
-            self.r2Buckets = cached.r2Buckets
-            self.kvNamespaces = cached.kvNamespaces
-            self.d1Databases = cached.d1Databases
-            self.tunnels = cached.tunnels
-            self.hasFetchedData = true
+        if !isRefresh, hasFetchedData, !isStale {
+            return
         }
-        
+
+        let scopedKey = SWRCacheStore.accountScopedKey("developer_hub_overview_snapshot")
+
+        if !hasFetchedData, let cached = await SWRCacheStore.shared.get(forKey: scopedKey, as: DeveloperHubSnapshot.self) {
+            workers = cached.workers
+            pagesProjects = cached.pagesProjects
+            r2Buckets = cached.r2Buckets
+            kvNamespaces = cached.kvNamespaces
+            d1Databases = cached.d1Databases
+            tunnels = cached.tunnels
+            hasFetchedData = true
+        }
+
         await executeLoadingTask(clearError: true) {
             if self.selectedAccount == nil || self.accounts.isEmpty || isRefresh {
                 if let fetchedAccounts = try? await self.zoneService.getAccounts(), !fetchedAccounts.isEmpty {
@@ -101,20 +103,20 @@ final class DeveloperHubViewModel: BaseLoadableViewModel {
                     self.selectedAccount = Account(id: zoneAccount.id, name: zoneAccount.name ?? String(localized: "Cloudflare Account"))
                 }
             }
-            
+
             guard let accountId = self.selectedAccount?.id, !accountId.isEmpty else {
                 return
             }
-            
-            async let fetchWorkers = (try? await self.workerService.getWorkers(accountId: accountId)) ?? []
-            async let fetchPages = (try? await self.pagesService.getPagesProjects(accountId: accountId)) ?? []
-            async let fetchR2 = (try? await self.r2Service.getR2Buckets(accountId: accountId)) ?? []
-            async let fetchKV = (try? await self.kvService.getKVNamespaces(accountId: accountId)) ?? []
-            async let fetchD1 = (try? await self.d1Service.getD1Databases(accountId: accountId)) ?? []
-            async let fetchTunnels = (try? await self.tunnelService.getTunnels(accountId: accountId)) ?? []
-            
+
+            async let fetchWorkers = await (try? self.workerService.getWorkers(accountId: accountId)) ?? []
+            async let fetchPages = await (try? self.pagesService.getPagesProjects(accountId: accountId)) ?? []
+            async let fetchR2 = await (try? self.r2Service.getR2Buckets(accountId: accountId)) ?? []
+            async let fetchKV = await (try? self.kvService.getKVNamespaces(accountId: accountId)) ?? []
+            async let fetchD1 = await (try? self.d1Service.getD1Databases(accountId: accountId)) ?? []
+            async let fetchTunnels = await (try? self.tunnelService.getTunnels(accountId: accountId)) ?? []
+
             let (w, p, r, k, d, t) = await (fetchWorkers, fetchPages, fetchR2, fetchKV, fetchD1, fetchTunnels)
-            
+
             self.workers = w
             self.pagesProjects = p
             self.r2Buckets = r
@@ -123,7 +125,7 @@ final class DeveloperHubViewModel: BaseLoadableViewModel {
             self.tunnels = t
             self.hasFetchedData = true
             self.lastFetchTime = Date()
-            
+
             let snapshot = DeveloperHubSnapshot(
                 workers: w,
                 pagesProjects: p,
@@ -133,7 +135,7 @@ final class DeveloperHubViewModel: BaseLoadableViewModel {
                 tunnels: t
             )
             await SWRCacheStore.shared.set(snapshot, forKey: scopedKey)
-            
+
             if let firstWorker = w.first {
                 WidgetDataStore.shared.syncWorkerWithAnalytics(script: firstWorker, accountId: accountId)
             }

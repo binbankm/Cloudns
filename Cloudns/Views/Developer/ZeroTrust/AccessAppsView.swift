@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - AccessAppsView
+
 // Apple HIG Compliant Cloudflare Zero Trust Access Protected Applications
 
 struct AccessAppsView: View {
@@ -9,12 +10,12 @@ struct AccessAppsView: View {
     @State private var appToDelete: AccessApp?
     @State private var showingDeleteAlert = false
     @State private var showingAddSheet = false
-    
+
     init(accountId: String) {
         self.accountId = accountId
         _viewModel = StateObject(wrappedValue: AccessAppsViewModel(accountId: accountId))
     }
-    
+
     var body: some View {
         List {
             if !viewModel.filteredApps.isEmpty {
@@ -30,15 +31,15 @@ struct AccessAppsView: View {
                             } label: {
                                 Label("Copy Domain", systemImage: "doc.on.doc")
                             }
-                            
+
                             Button {
                                 copyToClipboard(app.name, toast: "App Name Copied")
                             } label: {
                                 Label("Copy App Name", systemImage: "tag")
                             }
-                            
+
                             Divider()
-                            
+
                             Button(role: .destructive) {
                                 HapticManager.impact(.medium)
                                 appToDelete = app
@@ -117,24 +118,23 @@ struct AccessAppsView: View {
             }
         }
     }
-    
-    @ViewBuilder
+
     private func appRow(_ app: AccessApp) -> some View {
         HStack(spacing: 12) {
             ListRowIcon(icon: "lock.shield.fill", color: .blue)
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(app.name)
                     .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
-                
+
                 Text(app.domain)
                     .font(.caption2.monospaced())
                     .foregroundStyle(.secondary)
             }
-            
+
             Spacer()
-            
+
             if let type = app.type {
                 Text(type.capitalized)
                     .font(.caption2.weight(.medium))
@@ -153,13 +153,13 @@ struct AccessAppsView: View {
 struct AddAccessAppSheetView: View {
     @ObservedObject var viewModel: AccessAppsViewModel
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var name = ""
     @State private var domain = ""
     @State private var sessionDuration = "24h"
     @State private var isCreating = false
     @State private var errorMessage: String?
-    
+
     let durationOptions = [
         ("15 Minutes", "15m"),
         ("1 Hour", "1h"),
@@ -167,7 +167,7 @@ struct AddAccessAppSheetView: View {
         ("7 Days", "168h"),
         ("1 Month", "720h")
     ]
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -176,7 +176,7 @@ struct AddAccessAppSheetView: View {
                         .font(.body)
                         .textInputAutocapitalization(.words)
                         .submitLabel(.next)
-                    
+
                     TextField("Domain (e.g. jira.example.com)", text: $domain)
                         .font(.body.monospaced())
                         .keyboardType(.URL)
@@ -184,7 +184,7 @@ struct AddAccessAppSheetView: View {
                         .autocorrectionDisabled()
                         .submitLabel(.done)
                 }
-                
+
                 Section("Session Settings") {
                     Picker("Session Duration", selection: $sessionDuration) {
                         ForEach(durationOptions, id: \.1) { label, value in
@@ -192,7 +192,7 @@ struct AddAccessAppSheetView: View {
                         }
                     }
                 }
-                
+
                 if let err = errorMessage {
                     Section {
                         Text(verbatim: err)

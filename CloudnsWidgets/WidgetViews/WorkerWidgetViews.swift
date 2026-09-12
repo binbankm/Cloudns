@@ -5,11 +5,11 @@ import WidgetKit
 
 public struct WorkerSmallWidgetView: View {
     let snapshot: WorkerWidgetSnapshot
-    
+
     public init(snapshot: WorkerWidgetSnapshot) {
         self.snapshot = snapshot
     }
-    
+
     public var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             // Header: Worker Icon + Name + Active Dot
@@ -17,22 +17,22 @@ public struct WorkerSmallWidgetView: View {
                 Image(systemName: "bolt.fill")
                     .font(.caption.bold())
                     .foregroundStyle(.orange)
-                
+
                 Text(snapshot.name)
                     .font(.caption.weight(.bold))
                     .foregroundStyle(.primary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
-                
+
                 Spacer(minLength: 0)
-                
+
                 Circle()
                     .fill(Color.green)
                     .frame(width: 7, height: 7)
             }
-            
+
             Spacer(minLength: 0)
-            
+
             // 2x2 Metric Grid (Requests, Success Rate, CPU Time, Errors)
             VStack(spacing: 6) {
                 HStack(spacing: 6) {
@@ -42,7 +42,7 @@ public struct WorkerSmallWidgetView: View {
                         icon: "play.circle.fill",
                         color: .orange
                     )
-                    
+
                     metricCard(
                         title: "Success",
                         value: snapshot.formattedSuccessRate,
@@ -50,7 +50,7 @@ public struct WorkerSmallWidgetView: View {
                         color: .green
                     )
                 }
-                
+
                 HStack(spacing: 6) {
                     metricCard(
                         title: "CPU Time",
@@ -58,7 +58,7 @@ public struct WorkerSmallWidgetView: View {
                         icon: "stopwatch.fill",
                         color: .blue
                     )
-                    
+
                     metricCard(
                         title: "Errors",
                         value: "\(snapshot.errors24h)",
@@ -71,21 +71,20 @@ public struct WorkerSmallWidgetView: View {
         .padding(11)
         .widgetURL(URL(string: "cloudns://developer/workers/\(snapshot.id)"))
     }
-    
-    @ViewBuilder
+
     private func metricCard(title: LocalizedStringKey, value: String, icon: String, color: Color) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             HStack(spacing: 3) {
                 Image(systemName: icon)
                     .font(.system(size: 8))
                     .foregroundStyle(color)
-                
+
                 Text(title)
                     .font(.system(size: 9, weight: .medium))
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
             }
-            
+
             Text(value)
                 .font(.system(size: 13, weight: .bold, design: .rounded))
                 .foregroundStyle(.primary)
@@ -104,11 +103,11 @@ public struct WorkerSmallWidgetView: View {
 
 public struct WorkerMediumWidgetView: View {
     let snapshot: WorkerWidgetSnapshot
-    
+
     public init(snapshot: WorkerWidgetSnapshot) {
         self.snapshot = snapshot
     }
-    
+
     public var body: some View {
         HStack(spacing: 14) {
             // Left Column: Worker Identity & Badge
@@ -117,20 +116,20 @@ public struct WorkerMediumWidgetView: View {
                     Image(systemName: "bolt.fill")
                         .font(.body.weight(.bold))
                         .foregroundStyle(.orange)
-                    
+
                     Text(snapshot.name)
                         .font(.headline.weight(.bold))
                         .foregroundStyle(.primary)
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
                 }
-                
+
                 Text("Cloudflare Worker")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
-                
+
                 Spacer(minLength: 0)
-                
+
                 HStack(spacing: 5) {
                     Circle()
                         .fill(Color.green)
@@ -138,7 +137,7 @@ public struct WorkerMediumWidgetView: View {
                     Text("Active")
                         .font(.caption2.weight(.semibold))
                         .foregroundStyle(.secondary)
-                    
+
                     HStack(spacing: 2) {
                         Image(systemName: "server.rack")
                             .font(.system(size: 8))
@@ -153,10 +152,10 @@ public struct WorkerMediumWidgetView: View {
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            
+
             Divider()
                 .padding(.vertical, 2)
-            
+
             // Right Column: 2x2 Metric Grid
             VStack(spacing: 6) {
                 HStack(spacing: 6) {
@@ -166,7 +165,7 @@ public struct WorkerMediumWidgetView: View {
                         icon: "play.circle.fill",
                         color: .orange
                     )
-                    
+
                     metricTile(
                         title: "Success Rate",
                         value: snapshot.formattedSuccessRate,
@@ -174,7 +173,7 @@ public struct WorkerMediumWidgetView: View {
                         color: .green
                     )
                 }
-                
+
                 HStack(spacing: 6) {
                     metricTile(
                         title: "Avg CPU Time",
@@ -182,7 +181,7 @@ public struct WorkerMediumWidgetView: View {
                         icon: "stopwatch.fill",
                         color: .blue
                     )
-                    
+
                     metricTile(
                         title: "24h Errors",
                         value: "\(snapshot.errors24h)",
@@ -196,21 +195,20 @@ public struct WorkerMediumWidgetView: View {
         .padding(12)
         .widgetURL(URL(string: "cloudns://developer/workers/\(snapshot.id)"))
     }
-    
-    @ViewBuilder
+
     private func metricTile(title: LocalizedStringKey, value: String, icon: String, color: Color) -> some View {
         VStack(alignment: .leading, spacing: 1) {
             HStack(spacing: 3) {
                 Image(systemName: icon)
                     .font(.system(size: 8))
                     .foregroundStyle(color)
-                
+
                 Text(title)
                     .font(.system(size: 9, weight: .medium))
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
             }
-            
+
             Text(value)
                 .font(.system(size: 14, weight: .bold, design: .rounded))
                 .foregroundStyle(.primary)

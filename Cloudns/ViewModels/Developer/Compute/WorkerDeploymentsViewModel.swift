@@ -1,40 +1,42 @@
+import Combine
 import Foundation
 import SwiftUI
-import Combine
 
 @MainActor
 final class WorkerDeploymentsViewModel: BaseLoadableViewModel {
     let accountId: String
     let scriptName: String
     private let workerService: WorkerServiceProtocol
-    
+
     @Published var deployments: [WorkerDeployment] = []
     @Published var searchText: String = ""
     @Published var isRollingBack: Bool = false
-    
+
     init(accountId: String, scriptName: String, workerService: WorkerServiceProtocol = WorkerService.shared) {
         self.accountId = accountId
         self.scriptName = scriptName
         self.workerService = workerService
         super.init()
     }
-    
+
     var filteredDeployments: [WorkerDeployment] {
-        if searchText.isEmpty { return deployments }
+        if searchText.isEmpty {
+            return deployments
+        }
         return deployments.filter {
             ($0.number.map { "\($0)" } ?? "").localizedStandardContains(searchText) ||
-            ($0.annotations?.message ?? "").localizedStandardContains(searchText) ||
-            ($0.authorEmail ?? "").localizedStandardContains(searchText) ||
-            $0.displaySource.localizedStandardContains(searchText)
+                ($0.annotations?.message ?? "").localizedStandardContains(searchText) ||
+                ($0.authorEmail ?? "").localizedStandardContains(searchText) ||
+                $0.displaySource.localizedStandardContains(searchText)
         }
     }
-    
+
     func fetchDeployments() async {
         await executeLoadingTask {
             self.deployments = try await self.workerService.getWorkerDeployments(accountId: self.accountId, scriptName: self.scriptName)
         }
     }
-    
+
     func rollback(deployment: WorkerDeployment) async -> Bool {
         isRollingBack = true
         do {

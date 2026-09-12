@@ -1,18 +1,18 @@
+import Combine
 import Foundation
 import SwiftUI
-import Combine
 
 @MainActor
 final class CloudflareStatusViewModel: BaseLoadableViewModel {
     @Published var summary: CFStatusSummary?
-    
+
     private let statusService: CloudflareStatusServiceProtocol
-    
+
     init(statusService: CloudflareStatusServiceProtocol = CloudflareStatusService.shared) {
         self.statusService = statusService
         super.init()
     }
-    
+
     func fetchStatus() async {
         await executeLoadingTask {
             let res = try await self.statusService.fetchCloudflareStatus()

@@ -1,46 +1,52 @@
 import SwiftUI
 
 // MARK: - PagesVariablesView
+
 // Apple HIG Compliant Cloudflare Pages Environment Variables & Secrets Vault
 
 struct PagesVariablesView: View {
     let accountId: String
     let project: PagesProject
     @State private var selectedEnv = "production" // "production" | "preview"
-    
+
     // Environment Variables State
     @State private var productionEnvVars: [String: PagesEnvVarValue] = [:]
     @State private var previewEnvVars: [String: PagesEnvVarValue] = [:]
-    
+
     // Sheets & Alerts
     @State private var showingAddVariableSheet = false
     @State private var variableToEdit: (name: String, value: PagesEnvVarValue)?
     @State private var varNameToDelete: String?
     @State private var showingDeleteAlert = false
     @State private var isDeleting = false
-    
+
     init(accountId: String, project: PagesProject) {
         self.accountId = accountId
         self.project = project
         _productionEnvVars = State(initialValue: project.deploymentConfigs?.production?.envVars ?? [:])
         _previewEnvVars = State(initialValue: project.deploymentConfigs?.preview?.envVars ?? [:])
     }
-    
+
     private var currentEnvVars: [String: PagesEnvVarValue] {
         selectedEnv == "production" ? productionEnvVars : previewEnvVars
     }
-    
+
     private var plainVariables: [String: PagesEnvVarValue] {
         currentEnvVars.filter { !$0.value.isSecret }
     }
-    
+
     private var secretVariables: [String: PagesEnvVarValue] {
-        currentEnvVars.filter { $0.value.isSecret }
+        currentEnvVars.filter(\.value.isSecret)
     }
-    
-    private var prodCount: Int { productionEnvVars.count }
-    private var prevCount: Int { previewEnvVars.count }
-    
+
+    private var prodCount: Int {
+        productionEnvVars.count
+    }
+
+    private var prevCount: Int {
+        previewEnvVars.count
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             envPickerBar
@@ -116,8 +122,7 @@ struct PagesVariablesView: View {
             }
         }
     }
-    
-    @ViewBuilder
+
     private var envPickerBar: some View {
         Picker("Environment", selection: $selectedEnv) {
             Text("Production (\(prodCount))").tag("production")
@@ -131,8 +136,7 @@ struct PagesVariablesView: View {
             HapticManager.selection()
         }
     }
-    
-    @ViewBuilder
+
     private var contentList: some View {
         List {
             if !plainVariables.isEmpty {
@@ -152,7 +156,7 @@ struct PagesVariablesView: View {
                                 } label: {
                                     Label("Copy Name", systemImage: "doc.on.doc")
                                 }
-                                
+
                                 if let v = val.value, !v.isEmpty {
                                     Button {
                                         copyToClipboard(v, toast: "Variable Value Copied")
@@ -160,9 +164,9 @@ struct PagesVariablesView: View {
                                         Label("Copy Value", systemImage: "doc.on.doc.fill")
                                     }
                                 }
-                                
+
                                 Divider()
-                                
+
                                 Button(role: .destructive) {
                                     HapticManager.impact(.medium)
                                     varNameToDelete = key
@@ -185,7 +189,7 @@ struct PagesVariablesView: View {
                     }
                 }
             }
-            
+
             if !secretVariables.isEmpty {
                 Section(header: Text("Encrypted Secrets (\(secretVariables.count))")) {
                     ForEach(Array(secretVariables.keys.sorted()), id: \.self) { key in
@@ -203,9 +207,9 @@ struct PagesVariablesView: View {
                                 } label: {
                                     Label("Copy Name", systemImage: "doc.on.doc")
                                 }
-                                
+
                                 Divider()
-                                
+
                                 Button(role: .destructive) {
                                     HapticManager.impact(.medium)
                                     varNameToDelete = key
@@ -239,21 +243,20 @@ struct PagesVariablesView: View {
             emptyAction: { showingAddVariableSheet = true }
         )
     }
-    
-    @ViewBuilder
+
     private func variableRow(key: String, value: PagesEnvVarValue) -> some View {
         HStack(spacing: 12) {
             ListRowIcon(
                 icon: value.isSecret ? "lock.fill" : "textformat",
                 color: value.isSecret ? .purple : .blue
             )
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 6) {
                     Text(key)
                         .font(.body.monospaced().weight(.semibold))
                         .foregroundStyle(.primary)
-                    
+
                     if value.isSecret {
                         Text("Secret")
                             .font(.caption2.weight(.medium))
@@ -263,7 +266,7 @@ struct PagesVariablesView: View {
                             .background(Capsule().fill(Color.purple.opacity(0.12)))
                     }
                 }
-                
+
                 if value.isSecret {
                     Text("••••••••••••••••")
                         .font(.caption.monospaced())
@@ -275,9 +278,9 @@ struct PagesVariablesView: View {
                         .lineLimit(1)
                 }
             }
-            
+
             Spacer()
-            
+
             Image(systemName: "chevron.right")
                 .font(.caption2.weight(.semibold))
                 .foregroundStyle(.tertiary)
@@ -286,15 +289,15 @@ struct PagesVariablesView: View {
         .padding(.vertical, 2)
         .contentShape(Rectangle())
     }
-    
+
     private func deleteVariable(name: String) {
         guard !isDeleting else { return }
         isDeleting = true
-        
+
         Task {
             var updated = currentEnvVars
             updated.removeValue(forKey: name)
-            
+
             do {
                 try await PagesService.shared.updatePagesEnvVars(
                     accountId: accountId,
@@ -302,7 +305,7 @@ struct PagesVariablesView: View {
                     environment: selectedEnv,
                     envVars: updated
                 )
-                
+
                 await MainActor.run {
                     if selectedEnv == "production" {
                         productionEnvVars.removeValue(forKey: name)
@@ -345,14 +348,14 @@ struct PagesAddVariableSheetView: View {
     var initialValue: String = ""
     var initialIsSecret: Bool = false
     let onSave: ([String: PagesEnvVarValue]) -> Void
-    
+
     @Environment(\.dismiss) private var dismiss
     @State private var name: String
     @State private var value: String
     @State private var isSecret: Bool
     @State private var isSaving = false
     @State private var errorMessage: String?
-    
+
     init(
         accountId: String,
         projectName: String,
@@ -375,7 +378,7 @@ struct PagesAddVariableSheetView: View {
         _value = State(initialValue: initialValue)
         _isSecret = State(initialValue: initialIsSecret)
     }
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -386,14 +389,14 @@ struct PagesAddVariableSheetView: View {
                         .textInputAutocapitalization(.characters)
                         .autocorrectionDisabled()
                         .disabled(!initialName.isEmpty)
-                    
+
                     TextField("Value", text: $value)
                         .font(.body)
                         .autocorrectionDisabled()
-                    
+
                     Toggle("Encrypt Value (Secret)", isOn: $isSecret)
                 }
-                
+
                 if let err = errorMessage {
                     Section {
                         HStack(spacing: 8) {

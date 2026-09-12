@@ -1,27 +1,28 @@
 import SwiftUI
 
 // MARK: - DeveloperHubView
+
 // Apple HIG Compliant Compute, Storage & AI Command Center
 
 struct DeveloperHubView: View {
     @StateObject private var viewModel = DeveloperHubViewModel()
-    
+
     /// Safe accountId – always resolved from a validated Account object.
     /// Never passes an empty string to child views.
     private var accountId: String {
         viewModel.selectedAccount?.id ?? ""
     }
-    
+
     private var isAccountReady: Bool {
         !(viewModel.selectedAccount?.id ?? "").isEmpty
     }
-    
+
     let embeddedInNavigation: Bool
-    
+
     init(embeddedInNavigation: Bool = false) {
         self.embeddedInNavigation = embeddedInNavigation
     }
-    
+
     var body: some View {
         if embeddedInNavigation {
             hubContent
@@ -33,7 +34,7 @@ struct DeveloperHubView: View {
             }
         }
     }
-    
+
     private var hubContent: some View {
         contentView
             .navigationTitle("Developer Hub")
@@ -54,11 +55,11 @@ struct DeveloperHubView: View {
                 await viewModel.fetchOverview(isRefresh: false)
             }
     }
-    
-    @ViewBuilder
+
     private var contentView: some View {
         List {
             // MARK: - Compute
+
             Section("Compute & Applications") {
                 NavigationLink {
                     WorkersListView(accountId: accountId)
@@ -71,7 +72,7 @@ struct DeveloperHubView: View {
                     )
                 }
                 .disabled(!isAccountReady)
-                
+
                 NavigationLink {
                     PagesProjectsListView(accountId: accountId)
                 } label: {
@@ -83,7 +84,7 @@ struct DeveloperHubView: View {
                     )
                 }
                 .disabled(!isAccountReady)
-                
+
                 NavigationLink {
                     QueuesView(accountId: accountId)
                 } label: {
@@ -96,7 +97,7 @@ struct DeveloperHubView: View {
                     )
                 }
                 .disabled(!isAccountReady)
-                
+
                 NavigationLink {
                     DurableObjectsView(accountId: accountId)
                 } label: {
@@ -110,8 +111,9 @@ struct DeveloperHubView: View {
                 }
                 .disabled(!isAccountReady)
             }
-            
+
             // MARK: - Storage
+
             Section("Storage & Databases") {
                 NavigationLink {
                     R2BucketsView(accountId: accountId)
@@ -124,7 +126,7 @@ struct DeveloperHubView: View {
                     )
                 }
                 .disabled(!isAccountReady)
-                
+
                 NavigationLink {
                     KVBrowserView(accountId: accountId)
                 } label: {
@@ -136,7 +138,7 @@ struct DeveloperHubView: View {
                     )
                 }
                 .disabled(!isAccountReady)
-                
+
                 NavigationLink {
                     HyperdriveView(accountId: accountId)
                 } label: {
@@ -150,8 +152,9 @@ struct DeveloperHubView: View {
                 }
                 .disabled(!isAccountReady)
             }
-            
+
             // MARK: - Zero Trust & Connectivity
+
             Section("Zero Trust & Connectivity") {
                 NavigationLink {
                     TunnelsListView(accountId: accountId)
@@ -164,7 +167,7 @@ struct DeveloperHubView: View {
                     )
                 }
                 .disabled(!isAccountReady)
-                
+
                 NavigationLink {
                     AccessAppsView(accountId: accountId)
                 } label: {
@@ -176,7 +179,7 @@ struct DeveloperHubView: View {
                     )
                 }
                 .disabled(!isAccountReady)
-                
+
                 NavigationLink {
                     GatewayRulesView(accountId: accountId)
                 } label: {
@@ -189,8 +192,9 @@ struct DeveloperHubView: View {
                 }
                 .disabled(!isAccountReady)
             }
-            
+
             // MARK: - Account Rules & Bulk Redirects
+
             Section("Account Rules & Routing") {
                 NavigationLink {
                     BulkRedirectListsView(accountId: accountId)
@@ -203,7 +207,7 @@ struct DeveloperHubView: View {
                     )
                 }
                 .disabled(!isAccountReady)
-                
+
                 NavigationLink {
                     AlertingView(accountId: accountId)
                 } label: {
@@ -216,8 +220,9 @@ struct DeveloperHubView: View {
                 }
                 .disabled(!isAccountReady)
             }
-            
+
             // MARK: - AI Platform
+
             Section("AI & Machine Learning") {
                 NavigationLink {
                     WorkersAIView(accountId: accountId)
@@ -230,7 +235,7 @@ struct DeveloperHubView: View {
                     )
                 }
                 .disabled(!isAccountReady)
-                
+
                 NavigationLink {
                     AIGatewayView(accountId: accountId)
                 } label: {
@@ -243,8 +248,9 @@ struct DeveloperHubView: View {
                 }
                 .disabled(!isAccountReady)
             }
-            
+
             // MARK: - Security & Verification
+
             Section("Security & Verification") {
                 NavigationLink {
                     TurnstileWidgetsView(accountId: accountId)
@@ -275,18 +281,18 @@ struct DeveloperHubRowView: View {
     let subtitle: LocalizedStringKey
     var badgeText: String?
     var badgeColor: Color = .purple
-    
+
     var body: some View {
         HStack(spacing: 12) {
             ListRowIcon(icon: icon, color: iconColor)
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 6) {
                     Text(title)
                         .font(.body.weight(.medium))
                         .foregroundStyle(.primary)
-                    
-                    if let badgeText = badgeText {
+
+                    if let badgeText {
                         Text(badgeText)
                             .font(.caption2.weight(.bold))
                             .foregroundStyle(badgeColor)
@@ -295,13 +301,13 @@ struct DeveloperHubRowView: View {
                             .background(Capsule().fill(badgeColor.opacity(0.12)))
                     }
                 }
-                
+
                 Text(subtitle)
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
             }
-            
+
             Spacer()
         }
         .padding(.vertical, 2)

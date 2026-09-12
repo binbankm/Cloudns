@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - TunnelDetailView
+
 // Apple HIG Compliant Cloudflare Zero Trust Tunnel Inspector & Ingress Rules
 
 struct TunnelDetailView: View {
@@ -8,19 +9,19 @@ struct TunnelDetailView: View {
     let tunnel: CFTunnel
     @StateObject private var viewModel: TunnelDetailViewModel
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var showingAddIngressSheet = false
     @State private var showingDeleteAlert = false
     @State private var isTokenRevealed = false
     @State private var ingressIndexToDelete: Int?
     @State private var showingDeleteIngressAlert = false
-    
+
     init(accountId: String, tunnel: CFTunnel) {
         self.accountId = accountId
         self.tunnel = tunnel
         _viewModel = StateObject(wrappedValue: TunnelDetailViewModel(accountId: accountId, tunnel: tunnel))
     }
-    
+
     var body: some View {
         contentView
             .navigationTitle(tunnel.name)
@@ -83,15 +84,15 @@ struct TunnelDetailView: View {
                 }
             }
     }
-    
-    @ViewBuilder
+
     private var contentView: some View {
         List {
             // MARK: - Overview
+
             Section("Tunnel Overview") {
                 LabeledContent("Tunnel Name", value: tunnel.name)
                     .font(.body)
-                
+
                 LabeledContent("Status") {
                     Text((tunnel.status ?? "Active").capitalized)
                         .font(.caption2.weight(.medium))
@@ -100,15 +101,16 @@ struct TunnelDetailView: View {
                         .padding(.vertical, 2)
                         .background(Capsule().fill((tunnel.isHealthy ? Color.green : Color.red).opacity(0.12)))
                 }
-                
+
                 LabeledContent("UUID") {
                     Text(tunnel.id)
                         .font(.caption2.monospaced())
                         .foregroundStyle(.secondary)
                 }
             }
-            
+
             // MARK: - Connector Token / Install Command
+
             if let token = viewModel.token, !token.isEmpty {
                 Section {
                     HStack {
@@ -130,7 +132,7 @@ struct TunnelDetailView: View {
                             }
                         }
                         .buttonStyle(.plain)
-                        
+
                         Button {
                             HapticManager.impact(.light)
                             withAnimation(.easeInOut(duration: 0.2)) {
@@ -154,8 +156,9 @@ struct TunnelDetailView: View {
                     Text("Run this command on your server or container to attach cloudflared to this tunnel.")
                 }
             }
-            
+
             // MARK: - Ingress Public Routing Rules
+
             Section {
                 if viewModel.ingressRules.isEmpty {
                     Text("No public ingress hostnames configured.")
@@ -184,7 +187,7 @@ struct TunnelDetailView: View {
                                     .font(.subheadline.weight(.medium))
                                     .foregroundStyle(.secondary)
                             }
-                            
+
                             if let svc = rule.service {
                                 HStack(spacing: 6) {
                                     Image(systemName: "arrow.right.circle.fill")
@@ -213,10 +216,10 @@ struct TunnelDetailView: View {
                                     Label("Copy Origin Service", systemImage: "server.rack")
                                 }
                             }
-                            
+
                             if rule.hostname != nil {
                                 Divider()
-                                
+
                                 Button(role: .destructive) {
                                     ingressIndexToDelete = index
                                     showingDeleteIngressAlert = true
@@ -253,8 +256,9 @@ struct TunnelDetailView: View {
             } footer: {
                 Text("Traffic arriving at these public hostnames will be routed to your local private services.")
             }
-            
+
             // MARK: - Connectors
+
             if let conns = tunnel.connections, !conns.isEmpty {
                 Section("Active Connectors (\(conns.count))") {
                     ForEach(conns) { conn in
@@ -269,22 +273,22 @@ struct TunnelDetailView: View {
                                         .foregroundStyle(.blue)
                                         .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                                 }
-                                
+
                                 if let ip = conn.originIp {
                                     Text(ip)
                                         .font(.caption.monospaced())
                                         .foregroundStyle(.primary)
                                 }
-                                
+
                                 Spacer()
-                                
+
                                 if let arch = conn.arch {
                                     Text(arch)
                                         .font(.caption2)
                                         .foregroundStyle(.secondary)
                                 }
                             }
-                            
+
                             if let ver = conn.version {
                                 Text("cloudflared v\(ver)")
                                     .font(.caption2)
@@ -295,8 +299,9 @@ struct TunnelDetailView: View {
                     }
                 }
             }
-            
+
             // MARK: - Danger Zone
+
             Section {
                 Button(role: .destructive) {
                     HapticManager.impact(.medium)
@@ -316,12 +321,12 @@ struct TunnelDetailView: View {
 struct AddIngressRuleSheetView: View {
     @ObservedObject var viewModel: TunnelDetailViewModel
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var hostname = ""
     @State private var path = ""
     @State private var service = "http://localhost:8080"
     @State private var isSaving = false
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -332,7 +337,7 @@ struct AddIngressRuleSheetView: View {
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .submitLabel(.next)
-                    
+
                     TextField("Path (Optional, e.g. /api)", text: $path)
                         .font(.body.monospaced())
                         .keyboardType(.URL)
@@ -344,7 +349,7 @@ struct AddIngressRuleSheetView: View {
                 } footer: {
                     Text("Incoming requests to this public domain and path will route through the tunnel.")
                 }
-                
+
                 Section {
                     TextField("http://localhost:8080", text: $service)
                         .font(.body.monospaced())

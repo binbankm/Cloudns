@@ -6,8 +6,10 @@ struct EmailRoutingSettings: Codable, Equatable, Sendable {
     let name: String?
     let enabled: Bool?
     let status: String?
-    
-    var isEnabled: Bool { enabled ?? false }
+
+    var isEnabled: Bool {
+        enabled ?? false
+    }
 }
 
 struct EmailRoutingMatcher: Codable, Equatable, Sendable {
@@ -29,22 +31,22 @@ struct EmailRoutingRule: Codable, Identifiable, Equatable, Sendable {
     let priority: Int?
     let matchers: [EmailRoutingMatcher]
     let actions: [EmailRoutingAction]
-    
+
     enum CodingKeys: String, CodingKey {
         case id, tag, name, enabled, priority, matchers, actions
     }
-    
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
-        self.tag = try container.decodeIfPresent(String.self, forKey: .tag)
-        self.name = try container.decodeIfPresent(String.self, forKey: .name)
-        self.enabled = try container.decodeIfPresent(Bool.self, forKey: .enabled)
-        self.priority = try container.decodeIfPresent(Int.self, forKey: .priority)
-        self.matchers = try container.decodeIfPresent([EmailRoutingMatcher].self, forKey: .matchers) ?? []
-        self.actions = try container.decodeIfPresent([EmailRoutingAction].self, forKey: .actions) ?? []
+        id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
+        tag = try container.decodeIfPresent(String.self, forKey: .tag)
+        name = try container.decodeIfPresent(String.self, forKey: .name)
+        enabled = try container.decodeIfPresent(Bool.self, forKey: .enabled)
+        priority = try container.decodeIfPresent(Int.self, forKey: .priority)
+        matchers = try container.decodeIfPresent([EmailRoutingMatcher].self, forKey: .matchers) ?? []
+        actions = try container.decodeIfPresent([EmailRoutingAction].self, forKey: .actions) ?? []
     }
-    
+
     init(id: String, tag: String? = nil, name: String? = nil, enabled: Bool? = true, priority: Int? = 0, matchers: [EmailRoutingMatcher] = [], actions: [EmailRoutingAction] = []) {
         self.id = id
         self.tag = tag
@@ -54,13 +56,15 @@ struct EmailRoutingRule: Codable, Identifiable, Equatable, Sendable {
         self.matchers = matchers
         self.actions = actions
     }
-    
-    var isEnabled: Bool { enabled ?? false }
-    
+
+    var isEnabled: Bool {
+        enabled ?? false
+    }
+
     var matchAddress: String? {
         matchers.first(where: { $0.type == "literal" })?.value
     }
-    
+
     var actionSummary: String {
         guard let action = actions.first else { return "No action" }
         switch action.type {
@@ -70,13 +74,14 @@ struct EmailRoutingRule: Codable, Identifiable, Equatable, Sendable {
         default: return action.type
         }
     }
-    
+
     var forwardTo: String? {
         actions.first(where: { $0.type == "forward" })?.value?.joined(separator: ", ")
     }
-    
-    var isCatchAll: Bool { matchers.contains { $0.type == "all" } }
-    
+
+    var isCatchAll: Bool {
+        matchers.contains { $0.type == "all" }
+    }
 }
 
 struct EmailRoutingRuleInput: Codable, Sendable {
@@ -84,7 +89,7 @@ struct EmailRoutingRuleInput: Codable, Sendable {
     let enabled: Bool
     let matchers: [EmailRoutingMatcher]
     let actions: [EmailRoutingAction]
-    
+
     static func forward(name: String?, to matchAddress: String, destination: String, enabled: Bool) -> EmailRoutingRuleInput {
         .init(
             name: name,
@@ -101,8 +106,10 @@ struct EmailDestinationAddress: Codable, Identifiable, Equatable, Sendable {
     let email: String
     let verified: String?
     let created: String?
-    
-    var isVerified: Bool { verified != nil }
+
+    var isVerified: Bool {
+        verified != nil
+    }
 }
 
 struct EmailDestinationCreate: Codable, Sendable {

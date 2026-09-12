@@ -1,5 +1,5 @@
-import Foundation
 import Combine
+import Foundation
 import SwiftUI
 
 @MainActor
@@ -12,48 +12,49 @@ final class DashboardViewModel: BaseLoadableViewModel {
     private let r2Service: R2ServiceProtocol
     private let d1Service: D1ServiceProtocol
     private let dashboardService: DashboardServiceProtocol
-    
+
     @Published var accounts: [Account] = []
     @Published var selectedAccount: Account?
-    
+
     @Published var zones: [Zone] = []
     @Published var workers: [WorkerScript] = []
     @Published var pages: [PagesProject] = []
     @Published var tunnels: [CFTunnel] = []
-    
+
     @Published var kvCount: Int = 0
     @Published var r2Count: Int = 0
     @Published var d1Count: Int = 0
-    
+
     @Published var sparklines: [String: ZoneSparklineCache] = [:]
     @Published var recentZones: [Zone] = []
-    
+
     // MARK: - Global Fleet Trend Analytics
+
     @Published var fleetMetrics: [FleetHourlyMetric] = []
     @Published var selectedChartMetric: DashboardChartMetric = .requests
     @Published var isFetchingFleetAnalytics: Bool = false
-    
-    public var totalFleetRequests24h: Double {
+
+    var totalFleetRequests24h: Double {
         fleetMetrics.reduce(0) { $0 + $1.requests }
     }
-    
-    public var totalFleetBandwidth24h: Double {
+
+    var totalFleetBandwidth24h: Double {
         fleetMetrics.reduce(0) { $0 + $1.bytes }
     }
-    
-    public var averageCacheHitRate24h: Double {
+
+    var averageCacheHitRate24h: Double {
         let totalReqs = totalFleetRequests24h
         guard totalReqs > 0 else { return 0 }
         let totalCached = fleetMetrics.reduce(0) { $0 + $1.cachedRequests }
         return min(1.0, totalCached / totalReqs)
     }
-    
-    public var totalThreats24h: Double {
+
+    var totalThreats24h: Double {
         fleetMetrics.reduce(0) { $0 + $1.threats }
     }
-    
+
     private var cancellables = Set<AnyCancellable>()
-    
+
     init(
         zoneService: ZoneServiceProtocol = ZoneService.shared,
         workerService: WorkerServiceProtocol = WorkerService.shared,
@@ -73,14 +74,14 @@ final class DashboardViewModel: BaseLoadableViewModel {
         self.d1Service = d1Service
         self.dashboardService = dashboardService
         super.init()
-        
+
         NotificationCenter.default.publisher(for: .recentZonesDidUpdate)
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in
                 self?.refreshRecentZones()
             }
             .store(in: &cancellables)
-            
+
         NotificationCenter.default.publisher(for: .zoneUpdated)
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in
@@ -89,7 +90,7 @@ final class DashboardViewModel: BaseLoadableViewModel {
                 }
             }
             .store(in: &cancellables)
-            
+
         NotificationCenter.default.publisher(for: .zoneCreated)
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in
@@ -98,7 +99,7 @@ final class DashboardViewModel: BaseLoadableViewModel {
                 }
             }
             .store(in: &cancellables)
-            
+
         NotificationCenter.default.publisher(for: .developerResourceMutated)
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in
@@ -107,16 +108,16 @@ final class DashboardViewModel: BaseLoadableViewModel {
                 }
             }
             .store(in: &cancellables)
-            
+
         NotificationCenter.default.publisher(for: .zoneDeleted)
             .receive(on: RunLoop.main)
             .sink { [weak self] notif in
-                guard let self = self else { return }
+                guard let self else { return }
                 if let deletedId = notif.userInfo?["zoneId"] as? String {
-                    self.zones.removeAll { $0.id == deletedId }
-                    self.recentZones.removeAll { $0.id == deletedId }
-                    self.sparklines.removeValue(forKey: deletedId)
-                    self.refreshRecentZones()
+                    zones.removeAll { $0.id == deletedId }
+                    recentZones.removeAll { $0.id == deletedId }
+                    sparklines.removeValue(forKey: deletedId)
+                    refreshRecentZones()
                 } else {
                     Task { [weak self] in
                         await self?.fetchDashboard(isRefresh: true)
@@ -125,71 +126,71 @@ final class DashboardViewModel: BaseLoadableViewModel {
             }
             .store(in: &cancellables)
     }
-    
-    public func refreshRecentZones() {
-        self.recentZones = RecentZonesManager.shared.getRecentZones(from: self.zones, limit: 3)
-        self.fetchRecentSparklines()
-        self.syncTopZoneToWidget()
+
+    func refreshRecentZones() {
+        recentZones = RecentZonesManager.shared.getRecentZones(from: zones, limit: 3)
+        fetchRecentSparklines()
+        syncTopZoneToWidget()
     }
-    
+
     var activeZonesCount: Int {
         zones.filter { $0.status.lowercased() == "active" }.count
     }
-    
+
     var healthyTunnelsCount: Int {
-        tunnels.filter { $0.isHealthy }.count
+        tunnels.filter(\.isHealthy).count
     }
-    
+
     var totalStorageCount: Int {
         kvCount + r2Count + d1Count
     }
-    
+
     var timeGreeting: LocalizedStringKey {
         let hour = Calendar.current.component(.hour, from: Date())
         switch hour {
-        case 5..<12: return "Good Morning"
-        case 12..<18: return "Good Afternoon"
+        case 5 ..< 12: return "Good Morning"
+        case 12 ..< 18: return "Good Afternoon"
         default: return "Good Evening"
         }
     }
-    
+
     func resetState() {
-        self.zones = []
-        self.workers = []
-        self.pages = []
-        self.tunnels = []
-        self.kvCount = 0
-        self.r2Count = 0
-        self.d1Count = 0
-        self.sparklines = [:]
-        self.resetLoadingState()
+        zones = []
+        workers = []
+        pages = []
+        tunnels = []
+        kvCount = 0
+        r2Count = 0
+        d1Count = 0
+        sparklines = [:]
+        resetLoadingState()
     }
-    
+
     func fetchDashboard(isRefresh: Bool = false) async {
         let scopedKey = SWRCacheStore.accountScopedKey("dashboard_overview_snapshot")
-        
+
         if !hasFetchedData, let cached = await SWRCacheStore.shared.get(forKey: scopedKey, as: DashboardSnapshot.self) {
-            self.zones = cached.zones
-            self.workers = cached.workers
-            self.pages = cached.pages
-            self.tunnels = cached.tunnels
-            self.kvCount = cached.kvCount
-            self.r2Count = cached.r2Count
-            self.d1Count = cached.d1Count
-            self.hasFetchedData = true
-            self.refreshRecentZones()
-            self.syncTopZoneToWidget()
-            self.syncTopWorkerToWidget()
-            self.syncTopPagesToWidget()
-            
+            zones = cached.zones
+            workers = cached.workers
+            pages = cached.pages
+            tunnels = cached.tunnels
+            kvCount = cached.kvCount
+            r2Count = cached.r2Count
+            d1Count = cached.d1Count
+            hasFetchedData = true
+            refreshRecentZones()
+            syncTopZoneToWidget()
+            syncTopWorkerToWidget()
+            syncTopPagesToWidget()
+
             let chartKey = SWRCacheStore.accountScopedKey("dashboard_fleet_metrics")
             if let cachedMetrics = await SWRCacheStore.shared.get(forKey: chartKey, as: [FleetHourlyMetric].self), !cachedMetrics.isEmpty {
-                self.fleetMetrics = cachedMetrics
+                fleetMetrics = cachedMetrics
             }
         }
-        
+
         await executeLoadingTask(clearError: isRefresh) {
-            let fetchedAccounts = (try? await self.zoneService.getAccounts()) ?? []
+            let fetchedAccounts = await (try? self.zoneService.getAccounts()) ?? []
             if !fetchedAccounts.isEmpty {
                 self.accounts = fetchedAccounts
                 let activeEmail = UserDefaults.standard.string(forKey: AppStorageKey.activeAccountEmail) ?? ""
@@ -199,7 +200,7 @@ final class DashboardViewModel: BaseLoadableViewModel {
                     self.selectedAccount = fetchedAccounts.first
                 }
             }
-            
+
             if let fetchedZones = try? await self.zoneService.getZones().0 {
                 self.zones = fetchedZones
                 self.refreshRecentZones()
@@ -208,7 +209,7 @@ final class DashboardViewModel: BaseLoadableViewModel {
                     self.selectedAccount = Account(id: zoneAccount.id, name: zoneAccount.name ?? String(localized: "Cloudflare Account"))
                 }
             }
-            
+
             if let accountId = self.selectedAccount?.id, !accountId.isEmpty {
                 async let fetchW = try? self.workerService.getWorkers(accountId: accountId)
                 async let fetchP = try? self.pagesService.getPagesProjects(accountId: accountId)
@@ -216,17 +217,29 @@ final class DashboardViewModel: BaseLoadableViewModel {
                 async let fetchK = try? self.kvService.getKVNamespaces(accountId: accountId)
                 async let fetchR = try? self.r2Service.getR2Buckets(accountId: accountId)
                 async let fetchD = try? self.d1Service.getD1Databases(accountId: accountId)
-                
+
                 let (w, p, t, k, r, d) = await (fetchW, fetchP, fetchT, fetchK, fetchR, fetchD)
-                
-                if let w { self.workers = w }
-                if let p { self.pages = p }
-                if let t { self.tunnels = t }
-                if let k { self.kvCount = k.count }
-                if let r { self.r2Count = r.count }
-                if let d { self.d1Count = d.count }
+
+                if let w {
+                    self.workers = w
+                }
+                if let p {
+                    self.pages = p
+                }
+                if let t {
+                    self.tunnels = t
+                }
+                if let k {
+                    self.kvCount = k.count
+                }
+                if let r {
+                    self.r2Count = r.count
+                }
+                if let d {
+                    self.d1Count = d.count
+                }
             }
-            
+
             if !self.zones.isEmpty || !self.workers.isEmpty || !self.pages.isEmpty || self.selectedAccount != nil {
                 let snapshot = DashboardSnapshot(
                     zones: self.zones,
@@ -245,15 +258,15 @@ final class DashboardViewModel: BaseLoadableViewModel {
             }
         }
     }
-    
-    public func fetchFleetAnalytics() {
-        let activeZoneIds = zones.filter { $0.status.lowercased() == "active" }.map { $0.id }
+
+    func fetchFleetAnalytics() {
+        let activeZoneIds = zones.filter { $0.status.lowercased() == "active" }.map(\.id)
         guard !activeZoneIds.isEmpty else { return }
-        
+
         Task {
             self.isFetchingFleetAnalytics = true
             defer { self.isFetchingFleetAnalytics = false }
-            
+
             if let metrics = try? await self.dashboardService.getFleetMetrics(zoneTags: activeZoneIds), !metrics.isEmpty {
                 self.fleetMetrics = metrics
                 let chartKey = SWRCacheStore.accountScopedKey("dashboard_fleet_metrics")
@@ -261,11 +274,11 @@ final class DashboardViewModel: BaseLoadableViewModel {
             }
         }
     }
-    
+
     private func fetchRecentSparklines() {
-        let activeRecentIds = recentZones.filter { $0.status.lowercased() == "active" }.map { $0.id }
+        let activeRecentIds = recentZones.filter { $0.status.lowercased() == "active" }.map(\.id)
         guard !activeRecentIds.isEmpty else { return }
-        
+
         Task {
             var cachedMap: [String: ZoneSparklineCache] = [:]
             for id in activeRecentIds {
@@ -277,7 +290,7 @@ final class DashboardViewModel: BaseLoadableViewModel {
             if !cachedMap.isEmpty {
                 self.sparklines.merge(cachedMap) { _, new in new }
             }
-            
+
             if let batchMap = try? await self.dashboardService.getSparklines(zoneTags: activeRecentIds) {
                 self.sparklines.merge(batchMap) { _, new in new }
                 for (id, cache) in batchMap {
@@ -287,17 +300,17 @@ final class DashboardViewModel: BaseLoadableViewModel {
             }
         }
     }
-    
+
     private func syncTopZoneToWidget() {
         guard let topZone = recentZones.first ?? zones.first else { return }
         WidgetDataStore.shared.syncZoneWithAnalytics(zone: topZone)
     }
-    
+
     private func syncTopWorkerToWidget() {
         guard let accountId = selectedAccount?.id, let topWorker = workers.first else { return }
         WidgetDataStore.shared.syncWorkerWithAnalytics(script: topWorker, accountId: accountId)
     }
-    
+
     private func syncTopPagesToWidget() {
         guard let accountId = selectedAccount?.id, let topPage = pages.first else { return }
         WidgetDataStore.shared.syncPagesWithAnalytics(project: topPage, accountId: accountId)

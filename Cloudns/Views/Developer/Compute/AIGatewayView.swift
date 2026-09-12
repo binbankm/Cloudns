@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - AIGatewayView
+
 // Apple HIG Compliant Cloudflare AI Gateway Catalog & Lifecycle Management
 
 struct AIGatewayView: View {
@@ -9,12 +10,12 @@ struct AIGatewayView: View {
     @State private var showingCreateSheet = false
     @State private var gatewayToDelete: AIGateway?
     @State private var showingDeleteAlert = false
-    
+
     init(accountId: String) {
         self.accountId = accountId
         _viewModel = StateObject(wrappedValue: AIGatewaysViewModel(accountId: accountId))
     }
-    
+
     var body: some View {
         List {
             if !viewModel.filteredGateways.isEmpty {
@@ -29,9 +30,9 @@ struct AIGatewayView: View {
                             } label: {
                                 Label("Copy Gateway ID", systemImage: "doc.on.doc")
                             }
-                            
+
                             Divider()
-                            
+
                             Button(role: .destructive) {
                                 gatewayToDelete = gw
                                 showingDeleteAlert = true
@@ -117,24 +118,23 @@ struct AIGatewayView: View {
             }
         }
     }
-    
-    @ViewBuilder
+
     private func gatewayRow(_ gw: AIGateway) -> some View {
         HStack(spacing: 12) {
             ListRowIcon(icon: "brain.head.profile", color: .pink)
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(gw.name ?? gw.id)
                     .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
-                
+
                 Text(gw.id)
                     .font(.caption.monospaced())
                     .foregroundStyle(.secondary)
             }
-            
+
             Spacer()
-            
+
             if gw.collectLogs == true {
                 Text("Active")
                     .font(.caption2.weight(.medium))
@@ -153,11 +153,11 @@ struct AIGatewayView: View {
 struct AIGatewayCreateSheetView: View {
     @ObservedObject var viewModel: AIGatewaysViewModel
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var gatewayId = ""
     @State private var isCreating = false
     @State private var errorMessage: String?
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -168,7 +168,7 @@ struct AIGatewayCreateSheetView: View {
                         .autocorrectionDisabled()
                         .font(.body.monospaced())
                 }
-                
+
                 if let err = errorMessage {
                     Section {
                         HStack(spacing: 8) {

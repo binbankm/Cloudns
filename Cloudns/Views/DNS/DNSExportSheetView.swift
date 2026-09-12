@@ -4,20 +4,22 @@ import UniformTypeIdentifiers
 // MARK: - TextDocument (FileDocument for Export)
 
 struct TextDocument: FileDocument {
-    static var readableContentTypes: [UTType] { [.plainText] }
-    
+    static var readableContentTypes: [UTType] {
+        [.plainText]
+    }
+
     var url: URL?
-    
+
     init(url: URL?) {
         self.url = url
     }
-    
-    init(configuration: ReadConfiguration) throws {
+
+    init(configuration _: ReadConfiguration) throws {
         // Not used for exporting
     }
-    
-    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
-        if let url = url {
+
+    func fileWrapper(configuration _: WriteConfiguration) throws -> FileWrapper {
+        if let url {
             return try FileWrapper(url: url)
         }
         return FileWrapper(regularFileWithContents: Data())
@@ -25,6 +27,7 @@ struct TextDocument: FileDocument {
 }
 
 // MARK: - DNSExportSheetView
+
 // Apple HIG Compliant DNS Zone File Exporter (iOS 16+ ShareLink Integrated)
 
 struct DNSExportSheetView: View {
@@ -33,22 +36,22 @@ struct DNSExportSheetView: View {
     let records: [DNSRecord]
     @ObservedObject var viewModel: DNSRecordsViewModel
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var exportedContent: String = ""
     @State private var exportedFileURL: URL?
     @State private var isLoading = true
     @State private var showingFileExporter = false
-    
+
     @ObservedObject private var themeManager = ThemeManager.shared
-    
+
     private var accentColor: Color {
         themeManager.accentColor
     }
-    
+
     private var contentLines: [String] {
         exportedContent.components(separatedBy: "\n")
     }
-    
+
     var body: some View {
         NavigationStack {
             List {
@@ -68,6 +71,7 @@ struct DNSExportSheetView: View {
                     }
                 } else {
                     // MARK: - Summary Section
+
                     Section(header: Text("Zone File Summary")) {
                         LabeledContent {
                             Text("\(records.count) Records")
@@ -80,11 +84,12 @@ struct DNSExportSheetView: View {
                         } label: {
                             Label("Zone Name", systemImage: "globe")
                         }
-                        
+
                         LabeledContent("Format", value: "BIND RFC 1035")
                     }
-                    
+
                     // MARK: - Export Actions
+
                     Section(header: Text("Actions")) {
                         Button {
                             copyToClipboard(exportedContent, toast: "BIND Zone File Copied")
@@ -92,7 +97,7 @@ struct DNSExportSheetView: View {
                             Label("Copy All Records", systemImage: "doc.on.doc")
                                 .foregroundStyle(accentColor)
                         }
-                        
+
                         if let url = exportedFileURL {
                             ShareLink(
                                 item: url,
@@ -103,7 +108,7 @@ struct DNSExportSheetView: View {
                                     .foregroundStyle(accentColor)
                             }
                         }
-                        
+
                         Button {
                             HapticManager.impact(.light)
                             showingFileExporter = true
@@ -112,8 +117,9 @@ struct DNSExportSheetView: View {
                                 .foregroundStyle(accentColor)
                         }
                     }
-                    
+
                     // MARK: - Zone File Content Preview
+
                     Section(
                         header: HStack {
                             Text("Zone File Content")
@@ -132,7 +138,7 @@ struct DNSExportSheetView: View {
                                             .font(.caption2.monospacedDigit())
                                             .foregroundStyle(Color(.tertiaryLabel))
                                             .frame(width: 24, alignment: .trailing)
-                                        
+
                                         Text(verbatim: line)
                                             .font(.caption.monospaced())
                                             .foregroundStyle(lineColor(for: line))
@@ -180,7 +186,7 @@ struct DNSExportSheetView: View {
             }
         }
     }
-    
+
     private func lineColor(for line: String) -> Color {
         let trimmed = line.trimmingCharacters(in: .whitespaces)
         if trimmed.hasPrefix(";") {
@@ -192,7 +198,7 @@ struct DNSExportSheetView: View {
         }
         return .primary
     }
-    
+
     private func loadExportedContent() async {
         isLoading = true
         do {

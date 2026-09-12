@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - HyperdriveView
+
 // Apple HIG Compliant Cloudflare Hyperdrive Regional Database Accelerators
 
 struct HyperdriveView: View {
@@ -9,12 +10,12 @@ struct HyperdriveView: View {
     @State private var showingCreateSheet = false
     @State private var configToDelete: HyperdriveConfig?
     @State private var showingDeleteAlert = false
-    
+
     init(accountId: String) {
         self.accountId = accountId
         _viewModel = StateObject(wrappedValue: HyperdriveViewModel(accountId: accountId))
     }
-    
+
     var body: some View {
         List {
             if !viewModel.configs.isEmpty {
@@ -29,15 +30,15 @@ struct HyperdriveView: View {
                             } label: {
                                 Label("Copy Name", systemImage: "doc.on.doc")
                             }
-                            
+
                             Button {
                                 copyToClipboard(config.id, toast: "Config ID Copied")
                             } label: {
                                 Label("Copy Config ID", systemImage: "link")
                             }
-                            
+
                             Divider()
-                            
+
                             Button(role: .destructive) {
                                 HapticManager.impact(.medium)
                                 configToDelete = config
@@ -109,17 +110,16 @@ struct HyperdriveView: View {
             }
         }
     }
-    
-    @ViewBuilder
+
     private func configRow(_ config: HyperdriveConfig) -> some View {
         HStack(alignment: .center, spacing: 12) {
             ListRowIcon(icon: "bolt.horizontal.fill", color: .green)
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(config.name)
                     .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
-                
+
                 if let origin = config.origin, let host = origin.host {
                     let dbName = origin.database ?? ""
                     let dbScheme = origin.scheme ?? "postgres"
@@ -130,9 +130,9 @@ struct HyperdriveView: View {
                         .lineLimit(1)
                 }
             }
-            
+
             Spacer()
-            
+
             let schemeName = (config.origin?.scheme ?? "postgres").uppercased()
             Text(schemeName)
                 .font(.caption2.weight(.medium))
@@ -150,7 +150,7 @@ struct HyperdriveView: View {
 struct CreateHyperdriveSheetView: View {
     @ObservedObject var viewModel: HyperdriveViewModel
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var name = ""
     @State private var host = ""
     @State private var port = "5432"
@@ -159,7 +159,7 @@ struct CreateHyperdriveSheetView: View {
     @State private var password = ""
     @State private var scheme = "postgres"
     @State private var isSaving = false
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -169,28 +169,28 @@ struct CreateHyperdriveSheetView: View {
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                 }
-                
+
                 Section("Origin Database") {
                     TextField("Host (e.g. db.example.com)", text: $host)
                         .font(.body.monospaced())
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
-                    
+
                     TextField("Port", text: $port)
                         .font(.body.monospacedDigit())
                         .keyboardType(.numberPad)
-                    
+
                     TextField("Database Name", text: $database)
                         .font(.body.monospaced())
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
-                    
+
                     TextField("User", text: $user)
                         .font(.body)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
-                    
+
                     SecureField("Password", text: $password)
                         .font(.body)
                 }

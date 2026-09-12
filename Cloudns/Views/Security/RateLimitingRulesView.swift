@@ -1,16 +1,17 @@
 import SwiftUI
 
 // MARK: - RateLimitingRulesView
+
 // Apple HIG Compliant Cloudflare Rate Limiting Rules Engine
 
 struct RateLimitingRulesView: View {
     let zoneId: String
-    
+
     @StateObject private var viewModel = RateLimitingViewModel()
     @State private var showingAddSheet = false
     @State private var ruleToDelete: WAFRule?
     @State private var showingDeleteConfirm = false
-    
+
     var body: some View {
         List {
             if !viewModel.rules.isEmpty {
@@ -29,7 +30,7 @@ struct RateLimitingRulesView: View {
                             } label: {
                                 Label("Copy Expression", systemImage: "doc.on.doc")
                             }
-                            
+
                             if let desc = rule.description {
                                 Button {
                                     copyToClipboard(desc, toast: "Rule Name Copied")
@@ -37,9 +38,9 @@ struct RateLimitingRulesView: View {
                                     Label("Copy Rule Name", systemImage: "tag")
                                 }
                             }
-                            
+
                             Divider()
-                            
+
                             Button(role: .destructive) {
                                 HapticManager.impact(.medium)
                                 ruleToDelete = rule

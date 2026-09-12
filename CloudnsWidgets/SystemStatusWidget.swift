@@ -5,17 +5,17 @@ import WidgetKit
 
 struct StatusTimelineProvider: TimelineProvider {
     typealias Entry = StatusWidgetEntry
-    
-    func placeholder(in context: Context) -> StatusWidgetEntry {
+
+    func placeholder(in _: Context) -> StatusWidgetEntry {
         StatusWidgetEntry(date: Date(), snapshot: .placeholder)
     }
-    
-    func getSnapshot(in context: Context, completion: @escaping (StatusWidgetEntry) -> Void) {
+
+    func getSnapshot(in _: Context, completion: @escaping (StatusWidgetEntry) -> Void) {
         let snapshot = WidgetDataStore.shared.loadStatusSnapshot()
         completion(StatusWidgetEntry(date: Date(), snapshot: snapshot))
     }
-    
-    func getTimeline(in context: Context, completion: @escaping (Timeline<StatusWidgetEntry>) -> Void) {
+
+    func getTimeline(in _: Context, completion: @escaping (Timeline<StatusWidgetEntry>) -> Void) {
         let snapshot = WidgetDataStore.shared.loadStatusSnapshot()
         let currentDate = Date()
         let interval: TimeInterval = snapshot.description.isEmpty ? 5 : 900
@@ -37,9 +37,9 @@ struct StatusWidgetEntry: TimelineEntry {
 
 public struct SystemStatusWidget: Widget {
     public let kind: String = "SystemStatusWidget"
-    
+
     public init() {}
-    
+
     public var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: StatusTimelineProvider()) { entry in
             StatusOverviewEntryView(entry: entry)
@@ -59,7 +59,7 @@ public struct SystemStatusWidget: Widget {
 struct StatusOverviewEntryView: View {
     @Environment(\.widgetFamily) var family
     let entry: StatusWidgetEntry
-    
+
     var body: some View {
         switch family {
         case .systemSmall:

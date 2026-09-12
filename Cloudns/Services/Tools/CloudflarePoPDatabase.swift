@@ -7,7 +7,7 @@ public struct CloudflarePoPInfo: Sendable {
     public let flag: String
     public let region: String
     public let airport: String
-    
+
     public init(code: String, city: String, country: String, flag: String, region: String, airport: String) {
         self.code = code
         self.city = city
@@ -20,14 +20,14 @@ public struct CloudflarePoPInfo: Sendable {
 
 public final class CloudflarePoPDatabase: Sendable {
     public static let shared = CloudflarePoPDatabase()
-    
+
     private let pops: [String: CloudflarePoPInfo]
-    
+
     private init() {
         var dict: [String: CloudflarePoPInfo] = [:]
-        
+
         let allItems = Self.loadAsiaPops() + Self.loadAmericasPops() + Self.loadEuropePops() + Self.loadOtherPops()
-        
+
         for item in allItems {
             let info = CloudflarePoPInfo(
                 code: item.0,
@@ -39,17 +39,17 @@ public final class CloudflarePoPDatabase: Sendable {
             )
             dict[item.0.uppercased()] = info
         }
-        
-        self.pops = dict
+
+        pops = dict
     }
-    
+
     public func getPoP(code: String?) -> CloudflarePoPInfo? {
         guard let code = code?.trimmingCharacters(in: .whitespacesAndNewlines).uppercased(), !code.isEmpty else {
             return nil
         }
         return pops[code]
     }
-    
+
     private static func loadAsiaPops() -> [(String, String, String, String, String, String)] {
         [
             ("HKG", "Hong Kong", "Hong Kong", "🇭🇰", "Asia Pacific", "Hong Kong International Airport"),
@@ -82,7 +82,7 @@ public final class CloudflarePoPDatabase: Sendable {
             ("BWN", "Bandar Seri Begawan", "Brunei", "🇧🇳", "Asia Pacific", "Brunei International Airport")
         ]
     }
-    
+
     private static func loadAmericasPops() -> [(String, String, String, String, String, String)] {
         [
             ("SFO", "San Francisco", "United States", "🇺🇸", "North America", "San Francisco International Airport"),
@@ -127,7 +127,7 @@ public final class CloudflarePoPDatabase: Sendable {
             ("LIM", "Lima", "Peru", "🇵🇪", "South America", "Jorge Chávez International Airport")
         ]
     }
-    
+
     private static func loadEuropePops() -> [(String, String, String, String, String, String)] {
         [
             ("LHR", "London", "United Kingdom", "🇬🇧", "Europe", "London Heathrow Airport"),
@@ -166,7 +166,7 @@ public final class CloudflarePoPDatabase: Sendable {
             ("SAW", "Istanbul", "Turkey", "🇹🇷", "Europe", "Sabiha Gökçen Airport")
         ]
     }
-    
+
     private static func loadOtherPops() -> [(String, String, String, String, String, String)] {
         [
             ("SYD", "Sydney", "Australia", "🇦🇺", "Oceania", "Sydney Kingsford Smith Airport"),

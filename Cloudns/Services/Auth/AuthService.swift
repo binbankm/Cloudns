@@ -11,12 +11,12 @@ protocol AuthServiceProtocol: Sendable {
 /// Concrete domain service for Cloudflare authentication and account management
 final class AuthService: AuthServiceProtocol {
     static let shared = AuthService()
-    
+
     private let client = HTTPNetworkClient.shared
     private let factory = AuthenticatedRequestFactory.shared
-    
+
     private init() {}
-    
+
     /// Validates user email and Global API Key credentials
     @discardableResult
     func verifyCredentials(email: String, apiKey: String) async throws -> [Zone] {
@@ -32,12 +32,12 @@ final class AuthService: AuthServiceProtocol {
         let (zones, _): ([Zone]?, ResultInfo?) = try await client.performRequest(request)
         return zones ?? []
     }
-    
+
     /// Verifies credentials and retrieves associated Cloudflare accounts
     func verifyToken() async throws -> [Account] {
         try await getAccounts()
     }
-    
+
     /// Fetches all accounts associated with active credentials
     func getAccounts() async throws -> [Account] {
         let request = try factory.createAuthenticatedRequest(path: "accounts")

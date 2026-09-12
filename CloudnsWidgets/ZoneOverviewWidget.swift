@@ -5,17 +5,17 @@ import WidgetKit
 
 struct ZoneTimelineProvider: TimelineProvider {
     typealias Entry = ZoneWidgetEntry
-    
-    func placeholder(in context: Context) -> ZoneWidgetEntry {
+
+    func placeholder(in _: Context) -> ZoneWidgetEntry {
         ZoneWidgetEntry(date: Date(), snapshot: .placeholder)
     }
-    
-    func getSnapshot(in context: Context, completion: @escaping (ZoneWidgetEntry) -> Void) {
+
+    func getSnapshot(in _: Context, completion: @escaping (ZoneWidgetEntry) -> Void) {
         let snapshot = WidgetDataStore.shared.loadZoneSnapshot()
         completion(ZoneWidgetEntry(date: Date(), snapshot: snapshot))
     }
-    
-    func getTimeline(in context: Context, completion: @escaping (Timeline<ZoneWidgetEntry>) -> Void) {
+
+    func getTimeline(in _: Context, completion: @escaping (Timeline<ZoneWidgetEntry>) -> Void) {
         let snapshot = WidgetDataStore.shared.loadZoneSnapshot()
         let currentDate = Date()
         let interval: TimeInterval = (snapshot.name == "example.com" || snapshot.id == "placeholder-zone-id") ? 5 : 900
@@ -37,9 +37,9 @@ struct ZoneWidgetEntry: TimelineEntry {
 
 public struct ZoneOverviewWidget: Widget {
     public let kind: String = "ZoneOverviewWidget"
-    
+
     public init() {}
-    
+
     public var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: ZoneTimelineProvider()) { entry in
             ZoneOverviewEntryView(entry: entry)
@@ -60,7 +60,7 @@ public struct ZoneOverviewWidget: Widget {
 struct ZoneOverviewEntryView: View {
     @Environment(\.widgetFamily) var family
     let entry: ZoneWidgetEntry
-    
+
     var body: some View {
         Group {
             switch family {
@@ -91,18 +91,18 @@ extension View {
     @ViewBuilder
     func widgetBackground() -> some View {
         if #available(iOS 17.0, *) {
-            self.containerBackground(for: .widget) {
+            containerBackground(for: .widget) {
                 Color(.systemBackground)
             }
         } else {
-            self.background(Color(.systemBackground))
+            background(Color(.systemBackground))
         }
     }
-    
+
     @ViewBuilder
     func accessoryWidgetBackground() -> some View {
         if #available(iOS 17.0, *) {
-            self.containerBackground(.clear, for: .widget)
+            containerBackground(.clear, for: .widget)
         } else {
             self
         }

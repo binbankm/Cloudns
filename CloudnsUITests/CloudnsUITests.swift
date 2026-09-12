@@ -8,16 +8,14 @@
 import XCTest
 
 final class CloudnsUITests: XCTestCase {
-
     override func setUpWithError() throws {
         continueAfterFailure = false
     }
 
-    override func tearDownWithError() throws {
-    }
+    override func tearDownWithError() throws {}
 
     @MainActor
-    func testAppLaunchAndMainTabSwitching() throws {
+    func testAppLaunchAndMainTabSwitching() {
         let app = XCUIApplication()
         app.launch()
 
@@ -40,7 +38,7 @@ final class CloudnsUITests: XCTestCase {
     }
 
     @MainActor
-    func testDiagnosticToolsListPresentation() throws {
+    func testDiagnosticToolsListPresentation() {
         let app = XCUIApplication()
         app.launch()
 
@@ -58,7 +56,7 @@ final class CloudnsUITests: XCTestCase {
     }
 
     @MainActor
-    func testLaunchPerformance() throws {
+    func testLaunchPerformance() {
         measure(metrics: [XCTApplicationLaunchMetric()]) {
             XCUIApplication().launch()
         }

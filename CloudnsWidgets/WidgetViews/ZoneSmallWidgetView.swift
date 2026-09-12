@@ -5,11 +5,11 @@ import WidgetKit
 
 public struct ZoneSmallWidgetView: View {
     let snapshot: ZoneWidgetSnapshot
-    
+
     public init(snapshot: ZoneWidgetSnapshot) {
         self.snapshot = snapshot
     }
-    
+
     public var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             // Header: Domain Icon + Name + Status Indicator
@@ -17,21 +17,21 @@ public struct ZoneSmallWidgetView: View {
                 Image(systemName: "globe")
                     .font(.caption.bold())
                     .foregroundStyle(.blue)
-                
+
                 Text(snapshot.name)
                     .font(.caption.weight(.bold))
                     .foregroundStyle(.primary)
                     .lineLimit(1)
-                
+
                 Spacer(minLength: 0)
-                
+
                 Circle()
                     .fill(snapshot.status == "active" ? Color.green : Color.orange)
                     .frame(width: 7, height: 7)
             }
-            
+
             Spacer(minLength: 0)
-            
+
             // 2x2 Metric Grid (All 4 Core Metrics)
             VStack(spacing: 6) {
                 // Row 1: Requests & Bandwidth
@@ -42,7 +42,7 @@ public struct ZoneSmallWidgetView: View {
                         icon: "chart.line.uptrend.xyaxis",
                         color: .blue
                     )
-                    
+
                     metricCard(
                         title: "Bandwidth",
                         value: snapshot.formattedBytes,
@@ -50,7 +50,7 @@ public struct ZoneSmallWidgetView: View {
                         color: .indigo
                     )
                 }
-                
+
                 // Row 2: Cached & Threats
                 HStack(spacing: 6) {
                     metricCard(
@@ -59,7 +59,7 @@ public struct ZoneSmallWidgetView: View {
                         icon: "bolt.fill",
                         color: .orange
                     )
-                    
+
                     metricCard(
                         title: "Threats",
                         value: "\(snapshot.threats24h)",
@@ -72,21 +72,20 @@ public struct ZoneSmallWidgetView: View {
         .padding(11)
         .widgetURL(URL(string: "cloudns://zone/\(snapshot.id)"))
     }
-    
-    @ViewBuilder
+
     private func metricCard(title: LocalizedStringKey, value: String, icon: String, color: Color) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             HStack(spacing: 3) {
                 Image(systemName: icon)
                     .font(.system(size: 8))
                     .foregroundStyle(color)
-                
+
                 Text(title)
                     .font(.system(size: 9, weight: .medium))
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
             }
-            
+
             Text(value)
                 .font(.system(size: 13, weight: .bold, design: .rounded))
                 .foregroundStyle(.primary)

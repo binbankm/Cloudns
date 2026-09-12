@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - TurnstileWidgetsView
+
 // Apple HIG Compliant Cloudflare Turnstile Smart Captcha Management
 
 struct TurnstileWidgetsView: View {
@@ -9,12 +10,12 @@ struct TurnstileWidgetsView: View {
     @State private var showingCreateSheet = false
     @State private var widgetToDelete: TurnstileWidget?
     @State private var showingDeleteAlert = false
-    
+
     init(accountId: String) {
         self.accountId = accountId
         _viewModel = StateObject(wrappedValue: TurnstileViewModel(accountId: accountId))
     }
-    
+
     var body: some View {
         List {
             if !viewModel.widgets.isEmpty {
@@ -29,15 +30,15 @@ struct TurnstileWidgetsView: View {
                             } label: {
                                 Label("Copy Sitekey", systemImage: "doc.on.doc")
                             }
-                            
+
                             Button {
                                 copyToClipboard(widget.name, toast: "Widget Name Copied")
                             } label: {
                                 Label("Copy Name", systemImage: "tag")
                             }
-                            
+
                             Divider()
-                            
+
                             Button(role: .destructive) {
                                 HapticManager.impact(.medium)
                                 widgetToDelete = widget
@@ -119,24 +120,24 @@ struct TurnstileWidgetsView: View {
 
 struct TurnstileWidgetRowView: View {
     let widget: TurnstileWidget
-    
+
     var body: some View {
         HStack(spacing: 12) {
             ListRowIcon(icon: "checkmark.shield.fill", color: .green)
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(widget.name)
                     .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
-                
+
                 Text("Sitekey: \(widget.sitekey)")
                     .font(.caption2.monospaced())
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
             }
-            
+
             Spacer()
-            
+
             Text((widget.mode ?? "managed").capitalized)
                 .font(.caption2.weight(.medium))
                 .foregroundStyle(.blue)
@@ -153,15 +154,15 @@ struct TurnstileWidgetRowView: View {
 struct CreateTurnstileWidgetSheetView: View {
     @ObservedObject var viewModel: TurnstileViewModel
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var name = ""
     @State private var domainsText = ""
     @State private var mode = "managed"
     @State private var isCreating = false
     @State private var errorMessage: String?
-    
+
     let modes = ["managed", "non-interactive", "invisible"]
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -170,7 +171,7 @@ struct CreateTurnstileWidgetSheetView: View {
                         .font(.body)
                         .submitLabel(.next)
                 }
-                
+
                 Section {
                     TextField("example.com, app.example.com", text: $domainsText)
                         .font(.body.monospaced())
@@ -183,7 +184,7 @@ struct CreateTurnstileWidgetSheetView: View {
                 } footer: {
                     Text("Comma or newline separated list of hostnames (e.g. example.com, app.example.com).")
                 }
-                
+
                 Section("Verification Mode") {
                     Picker("Mode", selection: $mode) {
                         ForEach(modes, id: \.self) { m in
@@ -192,7 +193,7 @@ struct CreateTurnstileWidgetSheetView: View {
                     }
                     .pickerStyle(.segmented)
                 }
-                
+
                 if let err = errorMessage {
                     Section {
                         Text(verbatim: err)
@@ -217,7 +218,7 @@ struct CreateTurnstileWidgetSheetView: View {
                             let domains = domainsText.components(separatedBy: CharacterSet(charactersIn: ",\n "))
                                 .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
                                 .filter { !$0.isEmpty }
-                            
+
                             do {
                                 _ = try await viewModel.createWidget(
                                     name: name.trimmingCharacters(in: .whitespaces),

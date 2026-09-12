@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - WorkerDeploymentsView
+
 // Apple HIG Compliant Cloudflare Worker Deployment Timeline & Rollback Engine
 
 struct WorkerDeploymentsView: View {
@@ -9,13 +10,13 @@ struct WorkerDeploymentsView: View {
     @StateObject private var viewModel: WorkerDeploymentsViewModel
     @State private var deploymentToRollback: WorkerDeployment?
     @State private var showingRollbackAlert = false
-    
+
     init(accountId: String, scriptName: String) {
         self.accountId = accountId
         self.scriptName = scriptName
         _viewModel = StateObject(wrappedValue: WorkerDeploymentsViewModel(accountId: accountId, scriptName: scriptName))
     }
-    
+
     var body: some View {
         List {
             if !viewModel.filteredDeployments.isEmpty {
@@ -35,13 +36,13 @@ struct WorkerDeploymentsView: View {
                                         Label("Rollback to Version #\(dep.number ?? 1)", systemImage: "arrow.counterclockwise")
                                     }
                                 }
-                                
+
                                 Button {
                                     copyToClipboard(dep.id, toast: "Deployment ID Copied")
                                 } label: {
                                     Label("Copy Deployment ID", systemImage: "doc.on.doc")
                                 }
-                                
+
                                 if let author = dep.authorEmail ?? dep.author, !author.isEmpty {
                                     Button {
                                         copyToClipboard(author, toast: "Author Email Copied")
@@ -61,7 +62,7 @@ struct WorkerDeploymentsView: View {
                                     }
                                     .tint(.orange)
                                 }
-                                
+
                                 Button {
                                     copyToClipboard(dep.id, toast: "Deployment ID Copied")
                                 } label: {
@@ -128,9 +129,9 @@ struct WorkerDeploymentsView: View {
             }
         }
     }
-    
+
     // MARK: - Row Subview
-    @ViewBuilder
+
     private func deploymentRow(_ dep: WorkerDeployment, isLatest: Bool) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             // Header: Version + Status + Source
@@ -139,7 +140,7 @@ struct WorkerDeploymentsView: View {
                     Image(systemName: isLatest ? "checkmark.circle.fill" : "circle.fill")
                         .font(.caption2)
                         .foregroundStyle(isLatest ? .green : .secondary)
-                    
+
                     Text("v\(dep.number ?? 1)")
                         .font(.subheadline.monospacedDigit().weight(.bold))
                 }
@@ -148,7 +149,7 @@ struct WorkerDeploymentsView: View {
                 .background(isLatest ? Color.green.opacity(0.12) : Color(.secondarySystemFill))
                 .foregroundStyle(isLatest ? Color.green : Color.primary)
                 .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                
+
                 if isLatest {
                     Text("Active")
                         .font(.caption2.weight(.medium))
@@ -157,9 +158,9 @@ struct WorkerDeploymentsView: View {
                         .padding(.vertical, 2)
                         .background(Capsule().fill(Color.green.opacity(0.12)))
                 }
-                
+
                 Spacer()
-                
+
                 HStack(spacing: 4) {
                     Image(systemName: sourceIcon(for: dep.source))
                         .font(.caption2)
@@ -172,7 +173,7 @@ struct WorkerDeploymentsView: View {
                 .background(Color(.secondarySystemFill))
                 .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
             }
-            
+
             // Annotation message
             if let msg = dep.annotations?.message, !msg.isEmpty {
                 Text(msg)
@@ -180,7 +181,7 @@ struct WorkerDeploymentsView: View {
                     .foregroundStyle(.primary)
                     .lineLimit(2)
             }
-            
+
             // Footer: Timestamp + Author + ID
             HStack(spacing: 8) {
                 if let created = dep.createdOn, let date = DateFormatters.parseISO8601(created) {
@@ -192,12 +193,12 @@ struct WorkerDeploymentsView: View {
                     }
                     .foregroundStyle(.secondary)
                 }
-                
+
                 if let author = dep.authorEmail ?? dep.author, !author.isEmpty {
                     Text("•")
                         .font(.caption2)
                         .foregroundStyle(.tertiary)
-                    
+
                     HStack(spacing: 4) {
                         Image(systemName: "person.circle")
                             .font(.caption2)
@@ -207,9 +208,9 @@ struct WorkerDeploymentsView: View {
                     }
                     .foregroundStyle(.secondary)
                 }
-                
+
                 Spacer()
-                
+
                 Text(dep.id.prefix(7))
                     .font(.caption2.monospacedDigit())
                     .foregroundStyle(.tertiary)
@@ -217,14 +218,24 @@ struct WorkerDeploymentsView: View {
         }
         .padding(.vertical, 2)
     }
-    
+
     private func sourceIcon(for source: String?) -> String {
         guard let s = source?.lowercased() else { return "cloud" }
-        if s.contains("wrangler") { return "terminal.fill" }
-        if s.contains("dash") { return "macwindow" }
-        if s.contains("git") { return "arrow.triangle.branch" }
-        if s.contains("rollback") { return "arrow.counterclockwise" }
-        if s.contains("api") { return "network" }
+        if s.contains("wrangler") {
+            return "terminal.fill"
+        }
+        if s.contains("dash") {
+            return "macwindow"
+        }
+        if s.contains("git") {
+            return "arrow.triangle.branch"
+        }
+        if s.contains("rollback") {
+            return "arrow.counterclockwise"
+        }
+        if s.contains("api") {
+            return "network"
+        }
         return "cloud"
     }
 }

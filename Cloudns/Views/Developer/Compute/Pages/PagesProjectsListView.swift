@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - PagesProjectsListView (Pure List - No Tags)
+
 // Apple HIG Compliant Cloudflare Pages Overview
 
 struct PagesProjectsListView: View {
@@ -9,12 +10,12 @@ struct PagesProjectsListView: View {
     @State private var showingCreatePagesSheet = false
     @State private var pagesProjectToDelete: PagesProject?
     @State private var showingDeletePagesAlert = false
-    
+
     init(accountId: String) {
         self.accountId = accountId
         _viewModel = StateObject(wrappedValue: WorkersViewModel(accountId: accountId))
     }
-    
+
     var body: some View {
         List {
             if !viewModel.filteredPages.isEmpty {
@@ -33,15 +34,15 @@ struct PagesProjectsListView: View {
                                     Label("Copy Subdomain", systemImage: "link")
                                 }
                             }
-                            
+
                             Button {
                                 copyToClipboard(page.name, toast: "Project Name Copied")
                             } label: {
                                 Label("Copy Project Name", systemImage: "doc.on.doc")
                             }
-                            
+
                             Divider()
-                            
+
                             Button(role: .destructive) {
                                 HapticManager.impact(.medium)
                                 pagesProjectToDelete = page
@@ -122,26 +123,25 @@ struct PagesProjectsListView: View {
             }
         }
     }
-    
-    @ViewBuilder
+
     private func pagesRow(_ page: PagesProject) -> some View {
         HStack(alignment: .center, spacing: 12) {
             ListRowIcon(icon: "macwindow", color: .purple)
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(page.name)
                     .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
-                
+
                 if let sub = page.subdomain {
                     Text(sub)
                         .font(.caption.monospacedDigit())
                         .foregroundStyle(.secondary)
                 }
             }
-            
+
             Spacer()
-            
+
             if let branch = page.productionBranch {
                 HStack(spacing: 3) {
                     Image(systemName: "arrow.triangle.branch")
@@ -164,12 +164,12 @@ struct PagesProjectsListView: View {
 struct PagesCreateProjectSheetView: View {
     @ObservedObject var viewModel: WorkersViewModel
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var name = ""
     @State private var branch = "main"
     @State private var isCreating = false
     @State private var errorMessage: String?
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -179,14 +179,14 @@ struct PagesCreateProjectSheetView: View {
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                 }
-                
+
                 Section(header: Text("Production Branch")) {
                     TextField("main", text: $branch)
                         .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                 }
-                
+
                 if let err = errorMessage {
                     Section {
                         Text(verbatim: err)

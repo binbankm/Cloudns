@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - ZoneDetailView
+
 // Apple HIG Compliant Domain Overview & Navigation Hub (iOS 16.0+)
 
 struct ZoneDetailView: View {
@@ -9,8 +10,8 @@ struct ZoneDetailView: View {
     @Environment(\.dismiss) private var dismiss
 
     init(zone: Zone) {
-        self.initialZone = zone
-        self._zone = State(initialValue: zone)
+        initialZone = zone
+        _zone = State(initialValue: zone)
     }
 
     var body: some View {
@@ -20,7 +21,7 @@ struct ZoneDetailView: View {
                 LabeledContent("Status") {
                     statusBadge
                 }
-                
+
                 if let planName = zone.plan?.displayName {
                     LabeledContent("Plan") {
                         Text(planName)
@@ -28,7 +29,7 @@ struct ZoneDetailView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
-                
+
                 if let type = zone.type {
                     LabeledContent("Setup Type") {
                         Text(type.uppercased())
@@ -36,7 +37,7 @@ struct ZoneDetailView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
-                
+
                 if let nsArray = zone.nameServers, !nsArray.isEmpty {
                     ForEach(Array(nsArray.enumerated()), id: \.offset) { index, ns in
                         LabeledContent {
@@ -49,7 +50,7 @@ struct ZoneDetailView: View {
                                         .foregroundStyle(.secondary)
                                         .lineLimit(1)
                                         .minimumScaleFactor(0.8)
-                                    
+
                                     Image(systemName: "doc.on.doc")
                                         .font(.caption2)
                                         .foregroundStyle(.tint)
@@ -254,14 +255,14 @@ struct ZoneDetailView: View {
             WidgetDataStore.shared.syncZoneWithAnalytics(zone: zone)
         }
     }
-    
+
     @ViewBuilder
     private var statusBadge: some View {
         let status = zone.status.lowercased()
         let isPending = status == "pending"
         let isActive = status == "active"
         let color: Color = isActive ? .green : (isPending ? .orange : .secondary)
-        
+
         Text(zone.status.capitalized)
             .font(.caption2.weight(.medium))
             .padding(.horizontal, 7)
@@ -270,13 +271,13 @@ struct ZoneDetailView: View {
             .foregroundStyle(color)
             .clipShape(Capsule())
     }
-    
+
     private func refreshZoneDetails() async {
         do {
             let updated = try await ZoneService.shared.getZoneDetails(zoneId: initialZone.id)
             await MainActor.run {
                 withAnimation {
-                    self.zone = updated
+                    zone = updated
                 }
                 RecentZonesManager.shared.recordVisit(zoneId: updated.id)
                 WidgetDataStore.shared.syncZoneWithAnalytics(zone: updated)
@@ -323,7 +324,7 @@ struct ZoneNavRowView<Destination: View>: View {
                         Text(title)
                             .font(.body)
                             .foregroundStyle(.primary)
-                        
+
                         if let badgeText {
                             Text(badgeText)
                                 .font(.caption2.weight(.bold))
@@ -334,7 +335,7 @@ struct ZoneNavRowView<Destination: View>: View {
                                 .clipShape(Capsule())
                         }
                     }
-                    
+
                     Text(subtitle)
                         .font(.caption)
                         .foregroundStyle(.secondary)

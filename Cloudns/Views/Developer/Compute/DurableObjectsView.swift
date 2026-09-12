@@ -1,17 +1,18 @@
 import SwiftUI
 
 // MARK: - DurableObjectsView
+
 // Apple HIG Compliant Cloudflare Durable Objects Namespace Browser
 
 struct DurableObjectsView: View {
     let accountId: String
     @StateObject private var viewModel: DurableObjectsViewModel
-    
+
     init(accountId: String) {
         self.accountId = accountId
         _viewModel = StateObject(wrappedValue: DurableObjectsViewModel(accountId: accountId))
     }
-    
+
     var body: some View {
         List {
             if !viewModel.filteredNamespaces.isEmpty {
@@ -26,7 +27,7 @@ struct DurableObjectsView: View {
                             } label: {
                                 Label("Copy Namespace ID", systemImage: "doc.on.doc")
                             }
-                            
+
                             if let s = ns.script {
                                 Button {
                                     copyToClipboard(s, toast: "Script Name Copied")
@@ -71,26 +72,25 @@ struct DurableObjectsView: View {
             }
         }
     }
-    
-    @ViewBuilder
+
     private func nsRow(_ ns: DurableObjectNamespace) -> some View {
         HStack(spacing: 12) {
             ListRowIcon(icon: "cube.fill", color: .cyan)
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(ns.displayName)
                     .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
-                
+
                 if let s = ns.script {
                     Text("Script: \(s)")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
             }
-            
+
             Spacer()
-            
+
             if let cls = ns.class {
                 Text(cls)
                     .font(.caption2.weight(.medium))

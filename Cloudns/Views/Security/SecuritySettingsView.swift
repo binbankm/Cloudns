@@ -1,26 +1,28 @@
 import SwiftUI
 
 // MARK: - SecuritySettingsView
+
 // Apple HIG Compliant Cloudflare Threat Defense, Security Level & Bot Management
 
 struct SecuritySettingsView: View {
     let zoneId: String
-    
+
     @StateObject private var viewModel = SecurityViewModel()
     @State private var showUnderAttackAlert = false
-    
+
     var body: some View {
         List {
             // MARK: - Hero Header
+
             Section {
                 VStack(spacing: 12) {
                     HeroHeaderEmblemView(icon: "shield.checkerboard", primaryColor: .red, secondaryColor: .orange)
-                    .padding(.top, 4)
-                    
+                        .padding(.top, 4)
+
                     Text("Security Settings")
                         .font(.title2.weight(.bold))
                         .foregroundStyle(.primary)
-                    
+
                     Text("Configure threat defense, visitor challenges, and bot protection.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
@@ -32,14 +34,15 @@ struct SecuritySettingsView: View {
             }
             .listRowBackground(Color.clear)
             .listRowInsets(EdgeInsets())
-            
+
             // MARK: - Emergency Defense
+
             Section(
                 header: Text("Emergency Defense"),
                 footer: Text("Under Attack Mode executes JS challenges for every visitor to stop active DDoS attacks.")
             ) {
                 let isUnderAttack = viewModel.securityLevel == "under_attack"
-                
+
                 Toggle(isOn: Binding(
                     get: { isUnderAttack },
                     set: { enabled in
@@ -79,8 +82,9 @@ struct SecuritySettingsView: View {
                 .tint(Color.red)
                 .disabled(!viewModel.hasFetchedData)
             }
-            
+
             // MARK: - Standard Threat Defense
+
             Section(
                 header: Text("Threat Defense Level"),
                 footer: Text("Adjust the sensitivity threshold for presenting challenge pages to suspicious visitors.")
@@ -115,7 +119,7 @@ struct SecuritySettingsView: View {
                     .labelsHidden()
                 }
                 .disabled(!viewModel.hasFetchedData)
-                
+
                 // Challenge TTL
                 HStack(spacing: 12) {
                     ListRowIcon(icon: "hourglass", color: .orange)
@@ -144,13 +148,13 @@ struct SecuritySettingsView: View {
                         Text("1 hour").tag(3600)
                         Text("2 hours").tag(7200)
                         Text("1 day").tag(86400)
-                        Text("1 year").tag(31536000)
+                        Text("1 year").tag(31_536_000)
                     }
                     .pickerStyle(.menu)
                     .labelsHidden()
                 }
                 .disabled(!viewModel.hasFetchedData)
-                
+
                 // Browser Integrity Check
                 Toggle(isOn: Binding(
                     get: { viewModel.browserCheck },
@@ -175,8 +179,9 @@ struct SecuritySettingsView: View {
                 }
                 .disabled(!viewModel.hasFetchedData)
             }
-            
+
             // MARK: - Bot Protection
+
             Section(
                 header: Text("Bot Defense"),
                 footer: Text("Cloudflare Bot Fight Mode matches IP reputation and behavioral analysis to block automated attack bots.")
@@ -239,20 +244,20 @@ struct SecuritySettingsView: View {
                     ToastManager.shared.showSuccess("Under Attack Mode Enabled", icon: "flame.fill")
                 }
             }
-            Button("Cancel", role: .cancel) { }
+            Button("Cancel", role: .cancel) {}
         } message: {
             Text("Are you sure you want to enable I'm Under Attack Mode? All visitors will receive challenge pages.")
         }
     }
-    
+
     private func securityLevelDescription(_ level: String) -> LocalizedStringKey {
         switch level {
-        case "essentially_off": return "Essentially Off"
-        case "low": return "Low (Fewest challenges)"
-        case "medium": return "Medium (Balanced)"
-        case "high": return "High (Most secure)"
-        case "under_attack": return "I'm Under Attack!"
-        default: return "Configuring…"
+        case "essentially_off": "Essentially Off"
+        case "low": "Low (Fewest challenges)"
+        case "medium": "Medium (Balanced)"
+        case "high": "High (Most secure)"
+        case "under_attack": "I'm Under Attack!"
+        default: "Configuring…"
         }
     }
 }

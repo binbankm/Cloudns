@@ -36,32 +36,32 @@ public enum AnyJSONValue: Codable, Equatable, Sendable, CustomStringConvertible 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         switch self {
-        case .string(let s): try container.encode(s)
-        case .int(let i): try container.encode(i)
-        case .double(let d): try container.encode(d)
-        case .bool(let b): try container.encode(b)
-        case .array(let a): try container.encode(a)
-        case .dictionary(let d): try container.encode(d)
+        case let .string(s): try container.encode(s)
+        case let .int(i): try container.encode(i)
+        case let .double(d): try container.encode(d)
+        case let .bool(b): try container.encode(b)
+        case let .array(a): try container.encode(a)
+        case let .dictionary(d): try container.encode(d)
         case .null: try container.encodeNil()
         }
     }
 
     public var description: String {
         switch self {
-        case .string(let s): return s
-        case .int(let i): return String(i)
-        case .double(let d): return String(d)
-        case .bool(let b): return b ? "true" : "false"
-        case .array(let arr): return arr.map { $0.description }.joined(separator: ", ")
-        case .dictionary(let dict):
-            return dict.map { "\($0.key): \($0.value.description)" }.joined(separator: "\n")
-        case .null: return "null"
+        case let .string(s): s
+        case let .int(i): String(i)
+        case let .double(d): String(d)
+        case let .bool(b): b ? "true" : "false"
+        case let .array(arr): arr.map(\.description).joined(separator: ", ")
+        case let .dictionary(dict):
+            dict.map { "\($0.key): \($0.value.description)" }.joined(separator: "\n")
+        case .null: "null"
         }
     }
 
     public var prettyJSONString: String {
         switch self {
-        case .string(let s): return s
+        case let .string(s): return s
         case .dictionary, .array:
             if let data = try? JSONSerialization.data(withJSONObject: rawObject, options: [.prettyPrinted, .sortedKeys]),
                let str = String(data: data, encoding: .utf8) {
@@ -75,28 +75,28 @@ public enum AnyJSONValue: Codable, Equatable, Sendable, CustomStringConvertible 
 
     public var rawObject: Any {
         switch self {
-        case .string(let s): return s
-        case .int(let i): return i
-        case .double(let d): return d
-        case .bool(let b): return b
-        case .array(let a): return a.map { $0.rawObject }
-        case .dictionary(let d): return d.mapValues { $0.rawObject }
-        case .null: return NSNull()
+        case let .string(s): s
+        case let .int(i): i
+        case let .double(d): d
+        case let .bool(b): b
+        case let .array(a): a.map(\.rawObject)
+        case let .dictionary(d): d.mapValues { $0.rawObject }
+        case .null: NSNull()
         }
     }
 
     public var stringValue: String? {
         switch self {
-        case .string(let s): return s
-        case .int(let i): return String(i)
-        case .double(let d): return String(d)
-        case .bool(let b): return b ? "true" : "false"
-        default: return nil
+        case let .string(s): s
+        case let .int(i): String(i)
+        case let .double(d): String(d)
+        case let .bool(b): b ? "true" : "false"
+        default: nil
         }
     }
 
     public subscript(key: String) -> AnyJSONValue? {
-        if case .dictionary(let dict) = self {
+        if case let .dictionary(dict) = self {
             return dict[key]
         }
         return nil
@@ -108,7 +108,7 @@ public enum AnyJSONValue: Codable, Equatable, Sendable, CustomStringConvertible 
 public struct AuditZone: Codable, Equatable, Sendable {
     public let id: String?
     public let name: String?
-    
+
     public init(id: String? = nil, name: String? = nil) {
         self.id = id
         self.name = name
@@ -120,7 +120,7 @@ public struct AuditActor: Codable, Equatable, Sendable {
     public let email: String?
     public let type: String?
     public let ip: String?
-    
+
     public init(id: String?, email: String?, type: String?, ip: String?) {
         self.id = id
         self.email = email
@@ -133,7 +133,7 @@ public struct AuditAction: Codable, Equatable, Sendable {
     public let type: String?
     public let result: Bool?
     public let info: String?
-    
+
     public init(type: String?, result: Bool?, info: String? = nil) {
         self.type = type
         self.result = result
@@ -145,7 +145,7 @@ public struct AuditResource: Codable, Equatable, Sendable {
     public let type: String?
     public let id: String?
     public let scope: String?
-    
+
     public init(type: String?, id: String?, scope: String? = nil) {
         self.type = type
         self.id = id
@@ -166,14 +166,14 @@ public struct AuditLog: Codable, Identifiable, Equatable, Sendable {
     public let oldValue: AnyJSONValue?
     public let oldValueJson: [String: AnyJSONValue]?
     public let metadata: [String: AnyJSONValue]?
-    
+
     enum CodingKeys: String, CodingKey {
         case id, actor, action, when, resource, zone, interface
         case newValue, newValueJson
         case oldValue, oldValueJson
         case metadata
     }
-    
+
     public init(
         id: String,
         actor: AuditActor?,
@@ -201,26 +201,26 @@ public struct AuditLog: Codable, Identifiable, Equatable, Sendable {
         self.oldValueJson = oldValueJson
         self.metadata = metadata
     }
-    
+
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.id = try container.decode(String.self, forKey: .id)
-        self.actor = try container.decodeIfPresent(AuditActor.self, forKey: .actor)
-        self.action = try container.decodeIfPresent(AuditAction.self, forKey: .action)
-        self.when = try container.decodeIfPresent(String.self, forKey: .when)
-        self.resource = try container.decodeIfPresent(AuditResource.self, forKey: .resource)
-        self.zone = try container.decodeIfPresent(AuditZone.self, forKey: .zone)
-        self.interface = try container.decodeIfPresent(String.self, forKey: .interface)
-        
-        self.newValue = try? container.decodeIfPresent(AnyJSONValue.self, forKey: .newValue)
-        self.newValueJson = try? container.decodeIfPresent([String: AnyJSONValue].self, forKey: .newValueJson)
-        self.oldValue = try? container.decodeIfPresent(AnyJSONValue.self, forKey: .oldValue)
-        self.oldValueJson = try? container.decodeIfPresent([String: AnyJSONValue].self, forKey: .oldValueJson)
-        self.metadata = try? container.decodeIfPresent([String: AnyJSONValue].self, forKey: .metadata)
+        id = try container.decode(String.self, forKey: .id)
+        actor = try container.decodeIfPresent(AuditActor.self, forKey: .actor)
+        action = try container.decodeIfPresent(AuditAction.self, forKey: .action)
+        when = try container.decodeIfPresent(String.self, forKey: .when)
+        resource = try container.decodeIfPresent(AuditResource.self, forKey: .resource)
+        zone = try container.decodeIfPresent(AuditZone.self, forKey: .zone)
+        interface = try container.decodeIfPresent(String.self, forKey: .interface)
+
+        newValue = try? container.decodeIfPresent(AnyJSONValue.self, forKey: .newValue)
+        newValueJson = try? container.decodeIfPresent([String: AnyJSONValue].self, forKey: .newValueJson)
+        oldValue = try? container.decodeIfPresent(AnyJSONValue.self, forKey: .oldValue)
+        oldValueJson = try? container.decodeIfPresent([String: AnyJSONValue].self, forKey: .oldValueJson)
+        metadata = try? container.decodeIfPresent([String: AnyJSONValue].self, forKey: .metadata)
     }
-    
+
     // MARK: - Fully Reactive Localization Keys
-    
+
     public var displayActionKey: String {
         let raw = (action?.type ?? action?.info ?? "action").lowercased()
         if raw.contains("resume") || raw.contains("unpause") {
@@ -254,11 +254,11 @@ public struct AuditLog: Codable, Identifiable, Equatable, Sendable {
         }
         return action?.type?.capitalized ?? "Action"
     }
-    
+
     public var friendlyResourceTypeKey: String {
         let rawRes = (resource?.type ?? "").lowercased()
         let rawAct = (action?.type ?? action?.info ?? "").lowercased()
-        
+
         if rawRes.contains("dns") || rawRes.contains("rec") {
             return "DNS Record"
         } else if rawRes.contains("iplist") || rawRes.contains("ip_list") {
@@ -293,32 +293,58 @@ public struct AuditLog: Codable, Identifiable, Equatable, Sendable {
         }
         return resource?.type ?? "Resource Change"
     }
-    
+
     public var resourceBadge: String {
         let raw = (resource?.type ?? "").lowercased()
-        if raw.contains("dns") { return "DNS" }
-        if raw.contains("iplist") { return "IP List" }
-        if raw.contains("worker") { return "Worker" }
-        if raw.contains("page") { return "Pages" }
-        if raw.contains("r2") { return "R2" }
-        if raw.contains("d1") { return "D1" }
-        if raw.contains("kv") { return "KV" }
-        if raw.contains("ssl") || raw.contains("cert") { return "SSL" }
-        if raw.contains("waf") || raw.contains("firewall") { return "WAF" }
-        if raw.contains("tunnel") { return "Tunnel" }
-        if raw.contains("turnstile") { return "Turnstile" }
-        if raw.contains("zone") { return "Zone" }
-        if raw.contains("account") { return "Account" }
+        if raw.contains("dns") {
+            return "DNS"
+        }
+        if raw.contains("iplist") {
+            return "IP List"
+        }
+        if raw.contains("worker") {
+            return "Worker"
+        }
+        if raw.contains("page") {
+            return "Pages"
+        }
+        if raw.contains("r2") {
+            return "R2"
+        }
+        if raw.contains("d1") {
+            return "D1"
+        }
+        if raw.contains("kv") {
+            return "KV"
+        }
+        if raw.contains("ssl") || raw.contains("cert") {
+            return "SSL"
+        }
+        if raw.contains("waf") || raw.contains("firewall") {
+            return "WAF"
+        }
+        if raw.contains("tunnel") {
+            return "Tunnel"
+        }
+        if raw.contains("turnstile") {
+            return "Turnstile"
+        }
+        if raw.contains("zone") {
+            return "Zone"
+        }
+        if raw.contains("account") {
+            return "Account"
+        }
         return resource?.type?.uppercased() ?? "LOG"
     }
-    
+
     // MARK: - Dynamic SwiftUI Localized Views
-    
+
     @ViewBuilder
     public var primarySummaryView: some View {
         let resType = (resource?.type ?? "").lowercased()
         let actType = (action?.type ?? action?.info ?? "").lowercased()
-        
+
         if actType.contains("resume") || actType.contains("unpause") {
             let zoneName = zone?.name ?? metadata?["zone_name"]?.stringValue ?? metadata?["domain"]?.stringValue
             if let z = zoneName, !z.isEmpty {
@@ -342,7 +368,7 @@ public struct AuditLog: Codable, Identifiable, Equatable, Sendable {
             let recordName = extractString(keys: ["name", "record_name", "rec_name"])
             let content = extractString(keys: ["content", "value", "target", "ip"])
             let zoneName = zone?.name ?? metadata?["zone_name"]?.stringValue
-            
+
             if let type = recordType, let name = recordName ?? zoneName, let c = content {
                 Text(verbatim: "\(type) Record • \(name) ➔ \(c)")
             } else if let name = recordName ?? zoneName {
@@ -354,7 +380,7 @@ public struct AuditLog: Codable, Identifiable, Equatable, Sendable {
             let ipVal = extractString(keys: ["ip", "value", "item_value", "redirect_url"])
             let listName = extractString(keys: ["list_name", "name", "title"])
             let comment = extractString(keys: ["comment", "description"])
-            
+
             if let ip = ipVal, !ip.isEmpty {
                 if let name = listName, !name.isEmpty {
                     Text(verbatim: "\(name) • \(ip)")
@@ -374,7 +400,7 @@ public struct AuditLog: Codable, Identifiable, Equatable, Sendable {
             let val = extractString(keys: ["value", "mode", "status"])
             let sKey = translateSettingKey(settingKey)
             let vKey = translateSettingValue(val)
-            
+
             if let z = zoneName, !z.isEmpty {
                 if let s = sKey, let v = vKey {
                     Text(verbatim: "\(z) • ") + Text(LocalizedStringKey(s)) + Text(verbatim: ": ") + Text(LocalizedStringKey(v))
@@ -427,14 +453,14 @@ public struct AuditLog: Codable, Identifiable, Equatable, Sendable {
             }
         }
     }
-    
+
     @ViewBuilder
     public var secondaryContextView: some View {
         let zoneName = zone?.name ?? metadata?["zone_name"]?.stringValue
         let listName = extractString(keys: ["list_name"])
         let info = action?.info
         let resId = resource?.id
-        
+
         HStack(spacing: 6) {
             if let z = zoneName, !z.isEmpty {
                 Text("Domain: \(z)")
@@ -453,41 +479,51 @@ public struct AuditLog: Codable, Identifiable, Equatable, Sendable {
         .foregroundStyle(.secondary)
         .lineLimit(1)
     }
-    
+
     private func extractString(keys: [String]) -> String? {
         // 1. Check newValueJson
         if let newJson = newValueJson {
             for k in keys {
-                if let val = newJson[k]?.stringValue, !val.isEmpty { return val }
+                if let val = newJson[k]?.stringValue, !val.isEmpty {
+                    return val
+                }
             }
         }
         // 2. Check oldValueJson
         if let oldJson = oldValueJson {
             for k in keys {
-                if let val = oldJson[k]?.stringValue, !val.isEmpty { return val }
+                if let val = oldJson[k]?.stringValue, !val.isEmpty {
+                    return val
+                }
             }
         }
         // 3. Check metadata
         if let meta = metadata {
             for k in keys {
-                if let val = meta[k]?.stringValue, !val.isEmpty { return val }
+                if let val = meta[k]?.stringValue, !val.isEmpty {
+                    return val
+                }
             }
         }
         // 4. Check newValue dictionary
-        if case .dictionary(let dict) = newValue {
+        if case let .dictionary(dict) = newValue {
             for k in keys {
-                if let val = dict[k]?.stringValue, !val.isEmpty { return val }
+                if let val = dict[k]?.stringValue, !val.isEmpty {
+                    return val
+                }
             }
         }
         // 5. Check oldValue dictionary
-        if case .dictionary(let dict) = oldValue {
+        if case let .dictionary(dict) = oldValue {
             for k in keys {
-                if let val = dict[k]?.stringValue, !val.isEmpty { return val }
+                if let val = dict[k]?.stringValue, !val.isEmpty {
+                    return val
+                }
             }
         }
         return nil
     }
-    
+
     private func translateSettingKey(_ key: String?) -> String? {
         guard let key = key?.lowercased() else { return nil }
         switch key {
@@ -524,7 +560,7 @@ public struct AuditLog: Codable, Identifiable, Equatable, Sendable {
         default: return key
         }
     }
-    
+
     private func translateSettingValue(_ val: String?) -> String? {
         guard let val = val?.lowercased() else { return nil }
         switch val {
@@ -541,14 +577,14 @@ public struct AuditLog: Codable, Identifiable, Equatable, Sendable {
         default: return val
         }
     }
-    
+
     private func shortId(_ id: String) -> String {
         if id.count > 12 {
             return String(id.prefix(8)) + "..."
         }
         return id
     }
-    
+
     public var actionIcon: String {
         let raw = (action?.type ?? action?.info ?? "").lowercased()
         if raw.contains("resume") || raw.contains("unpause") {
@@ -576,7 +612,7 @@ public struct AuditLog: Codable, Identifiable, Equatable, Sendable {
         }
         return "list.bullet.rectangle.fill"
     }
-    
+
     public var actionColor: Color {
         let raw = (action?.type ?? action?.info ?? "").lowercased()
         if raw.contains("resume") || raw.contains("unpause") {
@@ -600,7 +636,6 @@ public struct AuditLog: Codable, Identifiable, Equatable, Sendable {
         }
         return .secondary
     }
-    
 }
 
 private extension String {

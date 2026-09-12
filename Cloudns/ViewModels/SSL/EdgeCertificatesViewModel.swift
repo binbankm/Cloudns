@@ -1,38 +1,38 @@
+import Combine
 import Foundation
 import SwiftUI
-import Combine
 
 @MainActor
 class EdgeCertificatesViewModel: BaseLoadableViewModel {
     @Published var certificates: [EdgeCertificateModel] = []
     @Published var isUniversalSSLEnabled: Bool = true
-    
+
     private let certService: CertificateServiceProtocol
-    
+
     init(certService: CertificateServiceProtocol = CertificateService.shared) {
         self.certService = certService
         super.init()
     }
-    
+
     func fetchCertificates(zoneId: String) async {
         isLoading = true
         errorMessage = nil
-        
+
         do {
             async let fetchPacks = certService.getCertificates(zoneId: zoneId)
             async let fetchUni = (try? certService.getUniversalSSLSetting(zoneId: zoneId)) ?? true
             let (packs, uniEnabled) = try await (fetchPacks, fetchUni)
-            self.isUniversalSSLEnabled = uniEnabled
-            
+            isUniversalSSLEnabled = uniEnabled
+
             var customCerts: [CustomCertificate] = []
             do {
                 customCerts = try await certService.fetchCustomCertificates(zoneId: zoneId)
             } catch {
                 customCerts = []
             }
-            
+
             var unifiedCerts: [EdgeCertificateModel] = []
-            
+
             // Map certificate packs (Universal & Advanced)
             for pack in packs {
                 if let certs = pack.certificates, let first = certs.first {
@@ -57,7 +57,7 @@ class EdgeCertificatesViewModel: BaseLoadableViewModel {
                     ))
                 }
             }
-            
+
             // Map Custom Certificates
             for cert in customCerts {
                 unifiedCerts.append(EdgeCertificateModel(
@@ -70,17 +70,17 @@ class EdgeCertificatesViewModel: BaseLoadableViewModel {
                     signature: cert.signature ?? String(localized: "Custom")
                 ))
             }
-            
-            self.certificates = unifiedCerts.sorted(by: { $0.type > $1.type })
-            self.hasFetchedData = true
+
+            certificates = unifiedCerts.sorted(by: { $0.type > $1.type })
+            hasFetchedData = true
         } catch {
-            self.errorMessage = error.localizedDescription
-            self.hasFetchedData = true
+            errorMessage = error.localizedDescription
+            hasFetchedData = true
         }
-        
+
         isLoading = false
     }
-    
+
     func toggleUniversalSSL(zoneId: String, enabled: Bool) async {
         isUniversalSSLEnabled = enabled
         do {
@@ -90,7 +90,7 @@ class EdgeCertificatesViewModel: BaseLoadableViewModel {
             isUniversalSSLEnabled = !enabled
         }
     }
-    
+
     func deleteCertificate(zoneId: String, cert: EdgeCertificateModel) async {
         do {
             if cert.type.lowercased() == "custom" {
@@ -99,7 +99,6 @@ class EdgeCertificatesViewModel: BaseLoadableViewModel {
                 try await certService.deleteCertificatePack(zoneId: zoneId, packId: cert.id)
             }
             await fetchCertificates(zoneId: zoneId)
-        } catch {
-        }
+        } catch {}
     }
 }

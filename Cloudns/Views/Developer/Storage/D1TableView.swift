@@ -1,42 +1,43 @@
 import SwiftUI
 
 // MARK: - D1TableView
+
 // Apple HIG Compliant Cloudflare D1 Table Data Explorer & Row Grid
 
 struct D1TableView: View {
     let accountId: String
     let databaseId: String
     let tableName: String
-    
+
     @StateObject private var viewModel: D1TableViewModel
     @State private var displayMode: D1DisplayMode = .cards
     @State private var editorContext: D1RowContext?
     @State private var rowToDelete: [String: String]?
     @State private var showingDeleteAlert = false
-    
+
     init(accountId: String, databaseId: String, tableName: String) {
         self.accountId = accountId
         self.databaseId = databaseId
         self.tableName = tableName
         _viewModel = StateObject(wrappedValue: D1TableViewModel(accountId: accountId, databaseId: databaseId, tableName: tableName))
     }
-    
+
     var body: some View {
         ZStack {
             Color(.systemGroupedBackground).ignoresSafeArea()
-            
+
             VStack(spacing: 0) {
                 // Table stats & Display Mode Bar
                 topStatsBar
-                
+
                 Divider()
-                
+
                 if displayMode == .cards {
                     cardsView
                 } else {
                     tableView
                 }
-                
+
                 // Pagination Footer
                 if viewModel.totalPages > 1 {
                     paginationFooter
@@ -103,26 +104,26 @@ struct D1TableView: View {
             }
         }
     }
-    
+
     // MARK: - Subviews
-    
+
     private var topStatsBar: some View {
         HStack(spacing: 12) {
             Label("\(viewModel.columns.count) Columns", systemImage: "rectangle.split.3x1")
                 .font(.caption)
                 .foregroundStyle(.secondary)
-            
+
             Spacer()
-            
+
             Picker("View", selection: $displayMode) {
                 Image(systemName: "rectangle.grid.1x2.fill").tag(D1DisplayMode.cards)
                 Image(systemName: "tablecells.fill").tag(D1DisplayMode.table)
             }
             .pickerStyle(.segmented)
             .frame(width: 90)
-            
+
             Spacer()
-            
+
             Label("\(viewModel.totalRowCount) Total Rows", systemImage: "list.number")
                 .font(.caption.weight(.medium))
                 .foregroundStyle(.primary)
@@ -131,7 +132,7 @@ struct D1TableView: View {
         .padding(.vertical, 8)
         .background(Color(.secondarySystemGroupedBackground))
     }
-    
+
     private var paginationFooter: some View {
         HStack {
             Button {
@@ -140,15 +141,15 @@ struct D1TableView: View {
                 Image(systemName: "chevron.left")
             }
             .disabled(viewModel.currentPage <= 1 || viewModel.isLoading)
-            
+
             Spacer()
-            
+
             Text("Page \(viewModel.currentPage) of \(viewModel.totalPages)")
                 .font(.caption.weight(.medium))
                 .foregroundStyle(.secondary)
-            
+
             Spacer()
-            
+
             Button {
                 Task { await viewModel.nextPage() }
             } label: {
@@ -160,8 +161,9 @@ struct D1TableView: View {
         .padding(.vertical, 10)
         .background(Color(.secondarySystemGroupedBackground))
     }
-    
+
     // MARK: - 1. Cards View
+
     private var cardsView: some View {
         ScrollView {
             LazyVStack(spacing: 12) {
@@ -180,8 +182,9 @@ struct D1TableView: View {
             .padding(16)
         }
     }
-    
+
     // MARK: - 2. Table Grid View
+
     private var tableView: some View {
         ScrollView([.horizontal, .vertical], showsIndicators: true) {
             VStack(alignment: .leading, spacing: 0) {
@@ -193,7 +196,7 @@ struct D1TableView: View {
                         .frame(width: 50, alignment: .leading)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 10)
-                    
+
                     ForEach(viewModel.columns) { col in
                         VStack(alignment: .leading, spacing: 2) {
                             HStack(spacing: 4) {
@@ -216,9 +219,9 @@ struct D1TableView: View {
                     }
                 }
                 .background(Color(.tertiarySystemGroupedBackground))
-                
+
                 Divider()
-                
+
                 // Data Rows
                 ForEach(Array(viewModel.rowItems.enumerated()), id: \.element.id) { index, item in
                     let row = item.values
@@ -232,7 +235,7 @@ struct D1TableView: View {
                                 .frame(width: 50, alignment: .leading)
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 8)
-                            
+
                             ForEach(viewModel.columns) { col in
                                 let cellValue = row[col.name] ?? "NULL"
                                 Text(cellValue)
@@ -253,7 +256,7 @@ struct D1TableView: View {
                         } label: {
                             Label("Edit Row", systemImage: "pencil")
                         }
-                        
+
                         Button(role: .destructive) {
                             rowToDelete = row
                             showingDeleteAlert = true
@@ -261,7 +264,7 @@ struct D1TableView: View {
                             Label("Delete Row", systemImage: "trash")
                         }
                     }
-                    
+
                     Divider()
                 }
             }
@@ -278,7 +281,7 @@ private struct D1CardRowCard: View {
     let columns: [D1ColumnInfo]
     let onEdit: () -> Void
     let onDelete: () -> Void
-    
+
     var body: some View {
         let row = item.values
         VStack(alignment: .leading, spacing: 8) {
@@ -287,9 +290,9 @@ private struct D1CardRowCard: View {
                 Label("Row #\(item.rowid ?? item.id)", systemImage: "number")
                     .font(.caption.weight(.bold))
                     .foregroundStyle(.secondary)
-                
+
                 Spacer()
-                
+
                 Button {
                     onEdit()
                 } label: {
@@ -298,7 +301,7 @@ private struct D1CardRowCard: View {
                         .foregroundStyle(.blue)
                 }
                 .buttonStyle(.plain)
-                
+
                 Button(role: .destructive) {
                     onDelete()
                 } label: {
@@ -308,9 +311,9 @@ private struct D1CardRowCard: View {
                 }
                 .buttonStyle(.plain)
             }
-            
+
             Divider()
-            
+
             // Field Rows
             ForEach(columns) { col in
                 HStack(alignment: .top, spacing: 8) {
@@ -330,9 +333,9 @@ private struct D1CardRowCard: View {
                             .foregroundStyle(.secondary)
                     }
                     .frame(width: 100, alignment: .leading)
-                    
+
                     Spacer()
-                    
+
                     let cellVal = row[col.name] ?? "NULL"
                     Text(cellVal)
                         .font(.body.monospaced())
@@ -353,7 +356,7 @@ private struct D1CardRowCard: View {
             } label: {
                 Label("Edit Row", systemImage: "pencil")
             }
-            
+
             Button(role: .destructive) {
                 onDelete()
             } label: {

@@ -3,21 +3,21 @@ import Foundation
 // MARK: - AppStorage & UserDefaults Keys
 
 public enum AppStorageKey: Sendable {
-    nonisolated public static let isLoggedIn = "isLoggedIn"
-    nonisolated public static let activeAccountEmail = "activeAccountEmail"
-    nonisolated public static let activeAccountId = "activeAccountId"
-    nonisolated public static let hasSeenOnboarding = "hasSeenOnboarding"
-    nonisolated public static let isAppLockEnabled = "isAppLockEnabled"
-    nonisolated public static let autoLockTimeout = "autoLockTimeout"
-    nonisolated public static let lastBackgroundTime = "lastBackgroundTime"
-    nonisolated public static let themePreference = "themePreference"
-    nonisolated public static let themeColor = "themeColor"
-    nonisolated public static let appLanguage = "appLanguage"
-    nonisolated public static let appIcon = "appIcon"
-    nonisolated public static let hapticsEnabled = "hapticsEnabled"
-    nonisolated public static let hasRunBeforeAppInstallation = "hasRunBeforeAppInstallation"
-    nonisolated public static let keychainService = "com.cloudflare.api"
-    nonisolated public static let recentZoneIds = "cloudns.recent.zone.ids"
+    public nonisolated static let isLoggedIn = "isLoggedIn"
+    public nonisolated static let activeAccountEmail = "activeAccountEmail"
+    public nonisolated static let activeAccountId = "activeAccountId"
+    public nonisolated static let hasSeenOnboarding = "hasSeenOnboarding"
+    public nonisolated static let isAppLockEnabled = "isAppLockEnabled"
+    public nonisolated static let autoLockTimeout = "autoLockTimeout"
+    public nonisolated static let lastBackgroundTime = "lastBackgroundTime"
+    public nonisolated static let themePreference = "themePreference"
+    public nonisolated static let themeColor = "themeColor"
+    public nonisolated static let appLanguage = "appLanguage"
+    public nonisolated static let appIcon = "appIcon"
+    public nonisolated static let hapticsEnabled = "hapticsEnabled"
+    public nonisolated static let hasRunBeforeAppInstallation = "hasRunBeforeAppInstallation"
+    public nonisolated static let keychainService = "com.cloudflare.api"
+    public nonisolated static let recentZoneIds = "cloudns.recent.zone.ids"
 }
 
 // MARK: - Type-Safe Notifications

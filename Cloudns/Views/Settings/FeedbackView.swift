@@ -1,29 +1,30 @@
 import SwiftUI
 
 // MARK: - FeedbackView
+
 // Apple HIG Compliant Diagnostic Reporter & Feedback Hub
 
 struct FeedbackView: View {
     @StateObject private var accountManager = AccountManager.shared
     @State private var feedbackText = ""
     @Environment(\.dismiss) private var dismiss
-    
+
     var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
     }
-    
+
     var buildNumber: String {
         Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
     }
-    
+
     var systemVersion: String {
         UIDevice.current.systemVersion
     }
-    
+
     var deviceModel: String {
         UIDevice.current.model
     }
-    
+
     var diagnosticSummary: String {
         """
         --- Cloudns Diagnostics ---
@@ -34,7 +35,7 @@ struct FeedbackView: View {
         Timestamp: \(DateFormatters.formatLocalDiagnosticTimestamp())
         """
     }
-    
+
     var body: some View {
         Form {
             Section(header: Text("Feedback & Issue Description")) {
@@ -42,7 +43,7 @@ struct FeedbackView: View {
                     .font(.body)
                     .frame(minHeight: 120)
             }
-            
+
             Section(
                 header: Text("Environment Diagnostics"),
                 footer: Text("Diagnostics info helps developers identify and resolve technical issues faster.")
@@ -52,22 +53,22 @@ struct FeedbackView: View {
                         .font(.subheadline.monospacedDigit())
                         .foregroundStyle(.primary)
                 }
-                
+
                 LabeledContent("iOS System", value: "iOS \(systemVersion)")
                     .font(.body)
-                
+
                 LabeledContent("Account") {
                     Text(accountManager.activeEmail)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
-                
+
                 LabeledContent("Local Time") {
                     Text(DateFormatters.formatLocalDiagnosticTimestamp())
                         .font(.caption.monospacedDigit())
                         .foregroundStyle(.secondary)
                 }
-                
+
                 Button {
                     copyToClipboard(diagnosticSummary, toast: "Diagnostic Summary Copied")
                 } label: {
@@ -80,7 +81,7 @@ struct FeedbackView: View {
                     .foregroundStyle(Color.accentColor)
                 }
             }
-            
+
             Section {
                 Button {
                     HapticManager.impact(.light)

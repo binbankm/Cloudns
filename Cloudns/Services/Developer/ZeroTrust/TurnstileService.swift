@@ -10,18 +10,18 @@ protocol TurnstileServiceProtocol: Sendable {
 
 final class TurnstileService: TurnstileServiceProtocol {
     static let shared = TurnstileService()
-    
+
     private let client = HTTPNetworkClient.shared
     private let factory = AuthenticatedRequestFactory.shared
-    
+
     private init() {}
-    
+
     func getTurnstileWidgets(accountId: String) async throws -> [TurnstileWidget] {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/challenges/widgets")
         let (widgets, _): ([TurnstileWidget]?, ResultInfo?) = try await client.performRequest(request)
         return widgets ?? []
     }
-    
+
     func createTurnstileWidget(accountId: String, input: TurnstileCreateInput) async throws -> TurnstileWidget {
         let encoder = JSONEncoder()
         let data = try encoder.encode(input)
@@ -30,7 +30,7 @@ final class TurnstileService: TurnstileServiceProtocol {
         guard let w = widget else { throw APIError.cloudflareError("Failed to create Turnstile widget") }
         return w
     }
-    
+
     func updateTurnstileWidget(accountId: String, sitekey: String, input: TurnstileUpdateInput) async throws -> TurnstileWidget {
         let encoder = JSONEncoder()
         let data = try encoder.encode(input)
@@ -39,13 +39,13 @@ final class TurnstileService: TurnstileServiceProtocol {
         guard let w = widget else { throw APIError.cloudflareError("Failed to update Turnstile widget") }
         return w
     }
-    
+
     func deleteTurnstileWidget(accountId: String, sitekey: String) async throws {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/challenges/widgets/\(sitekey)", method: "DELETE")
         struct DeleteRes: Codable { let id: String? }
         let (_, _): (DeleteRes?, ResultInfo?) = try await client.performRequest(request)
     }
-    
+
     func rotateTurnstileSecret(accountId: String, sitekey: String, invalidateImmediately: Bool = false) async throws -> String {
         let payload = ["invalidate_immediately": invalidateImmediately]
         let data = try JSONSerialization.data(withJSONObject: payload)

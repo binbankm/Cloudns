@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - RedirectRulesView
+
 // Apple HIG Compliant Cloudflare Redirect Rules (301/302/307/308 Edge URL Forwarding)
 
 struct RedirectRulesView: View {
@@ -9,7 +10,7 @@ struct RedirectRulesView: View {
     @State private var showingAddSheet = false
     @State private var ruleToDelete: RedirectRuleItem?
     @State private var showingDeleteAlert = false
-    
+
     var body: some View {
         contentView
             .navigationTitle("Redirect Rules")
@@ -50,8 +51,7 @@ struct RedirectRulesView: View {
                 }
             }
     }
-    
-    @ViewBuilder
+
     private var contentView: some View {
         List {
             if !viewModel.rules.isEmpty {
@@ -66,7 +66,7 @@ struct RedirectRulesView: View {
                                         Label("Copy Target URL", systemImage: "doc.on.doc")
                                     }
                                 }
-                                
+
                                 if let expr = rule.expression {
                                     Button {
                                         copyToClipboard(expr, toast: "Expression Copied")
@@ -74,9 +74,9 @@ struct RedirectRulesView: View {
                                         Label("Copy Expression", systemImage: "curlybraces")
                                     }
                                 }
-                                
+
                                 Divider()
-                                
+
                                 Button(role: .destructive) {
                                     ruleToDelete = rule
                                     showingDeleteAlert = true
@@ -116,8 +116,7 @@ struct RedirectRulesView: View {
             }
         )
     }
-    
-    @ViewBuilder
+
     private func redirectRuleRow(_ rule: RedirectRuleItem) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
@@ -130,9 +129,9 @@ struct RedirectRulesView: View {
                         .font(.body.weight(.medium))
                         .foregroundStyle(.primary)
                 }
-                
+
                 Spacer()
-                
+
                 let isEnabled = rule.enabled ?? true
                 Text(isEnabled ? LocalizedStringKey("Active") : LocalizedStringKey("Disabled"))
                     .font(.caption2.weight(.medium))
@@ -141,7 +140,7 @@ struct RedirectRulesView: View {
                     .padding(.vertical, 2)
                     .background(Capsule().fill((isEnabled ? Color.green : Color.secondary).opacity(0.12)))
             }
-            
+
             HStack(spacing: 6) {
                 if let status = rule.statusCode {
                     Text("\(status)")
@@ -151,7 +150,7 @@ struct RedirectRulesView: View {
                         .padding(.vertical, 2)
                         .background(Capsule().fill(Color.blue.opacity(0.12)))
                 }
-                
+
                 if let url = rule.targetUrl {
                     Text("➔ \(url)")
                         .font(.caption.monospaced())
@@ -159,7 +158,7 @@ struct RedirectRulesView: View {
                         .lineLimit(1)
                 }
             }
-            
+
             if let expr = rule.expression {
                 Text(expr)
                     .font(.caption2.monospaced())
@@ -177,7 +176,7 @@ struct AddRedirectRuleSheetView: View {
     let zoneId: String
     @ObservedObject var viewModel: RedirectRulesViewModel
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var ruleDescription = ""
     @State private var expression = "http.request.uri.path eq \"/old-path\""
     @State private var targetUrl = "https://example.com/new-path"
@@ -185,7 +184,7 @@ struct AddRedirectRuleSheetView: View {
     @State private var preserveQueryString = false
     @State private var isCreating = false
     @State private var errorMessage: String?
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -195,7 +194,7 @@ struct AddRedirectRuleSheetView: View {
                         .autocorrectionDisabled()
                         .submitLabel(.next)
                 }
-                
+
                 Section {
                     TextField("Expression", text: $expression)
                         .font(.footnote.monospaced())
@@ -208,7 +207,7 @@ struct AddRedirectRuleSheetView: View {
                 } footer: {
                     Text("Cloudflare wirefilter expression defining which incoming requests trigger redirection.")
                 }
-                
+
                 Section("Redirect Target & Code") {
                     TextField("Target URL (e.g. https://example.com/new)", text: $targetUrl)
                         .font(.footnote.monospaced())
@@ -216,17 +215,17 @@ struct AddRedirectRuleSheetView: View {
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .submitLabel(.done)
-                    
+
                     Picker("Status Code", selection: $statusCode) {
                         Text("301 - Moved Permanently").tag(301)
                         Text("302 - Found (Temporary)").tag(302)
                         Text("307 - Temporary Redirect").tag(307)
                         Text("308 - Permanent Redirect").tag(308)
                     }
-                    
+
                     Toggle("Preserve Query String", isOn: $preserveQueryString)
                 }
-                
+
                 if let err = errorMessage {
                     Section {
                         HStack(spacing: 8) {

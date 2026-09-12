@@ -3,13 +3,16 @@ import Foundation
 // MARK: - D1ColumnInfo
 
 public struct D1ColumnInfo: Identifiable, Equatable, Sendable {
-    public var id: String { name }
+    public var id: String {
+        name
+    }
+
     public let name: String
     public let type: String
     public let notNull: Bool
     public let defaultValue: String?
     public let isPrimaryKey: Bool
-    
+
     public init(
         name: String,
         type: String,
@@ -31,13 +34,13 @@ public struct D1TableRow: Identifiable, Equatable, Sendable {
     public let id: String
     public let rowid: String?
     public let values: [String: String]
-    
+
     public init(index: Int, values: [String: String]) {
-        self.rowid = values["_rowid_"]
+        rowid = values["_rowid_"]
         if let rid = values["_rowid_"], !rid.isEmpty {
-            self.id = "rowid_\(rid)"
+            id = "rowid_\(rid)"
         } else {
-            self.id = "row_\(index)_\(abs(values.description.hashValue))"
+            id = "row_\(index)_\(abs(values.description.hashValue))"
         }
         self.values = values
     }
@@ -56,17 +59,17 @@ public struct D1RowContext: Identifiable, Sendable {
     public let id: UUID
     public let isEditing: Bool
     public let row: [String: String]?
-    
+
     public init(id: UUID = UUID(), isEditing: Bool, row: [String: String]?) {
         self.id = id
         self.isEditing = isEditing
         self.row = row
     }
-    
+
     public static var insert: D1RowContext {
         D1RowContext(isEditing: false, row: nil)
     }
-    
+
     public static func edit(row: [String: String]) -> D1RowContext {
         D1RowContext(isEditing: true, row: row)
     }

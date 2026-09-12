@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - SnippetsListView
+
 // Apple HIG Compliant Cloudflare Edge JavaScript Snippets & Phase Rules
 
 struct SnippetsListView: View {
@@ -13,7 +14,7 @@ struct SnippetsListView: View {
     @State private var ruleToDelete: WAFRule?
     @State private var showingDeleteSnippetAlert = false
     @State private var showingDeleteRuleAlert = false
-    
+
     var body: some View {
         contentView
             .navigationTitle("Edge Snippets")
@@ -27,7 +28,7 @@ struct SnippetsListView: View {
                         } label: {
                             Label("New Snippet Script", systemImage: "curlybraces")
                         }
-                        
+
                         Button {
                             showingBindSheet = true
                         } label: {
@@ -83,8 +84,7 @@ struct SnippetsListView: View {
                 }
             }
     }
-    
-    @ViewBuilder
+
     private var contentView: some View {
         List {
             if !viewModel.snippets.isEmpty {
@@ -94,7 +94,7 @@ struct SnippetsListView: View {
                     }
                 }
             }
-            
+
             if !viewModel.rules.isEmpty {
                 Section("Trigger Rules (\(viewModel.rules.count))") {
                     ForEach(viewModel.rules) { rule in
@@ -124,8 +124,7 @@ struct SnippetsListView: View {
             }
         )
     }
-    
-    @ViewBuilder
+
     private func snippetRow(_ snip: SnippetItem) -> some View {
         Button {
             HapticManager.selection()
@@ -164,9 +163,9 @@ struct SnippetsListView: View {
             } label: {
                 Label("Copy Snippet Name", systemImage: "doc.on.doc")
             }
-            
+
             Divider()
-            
+
             Button(role: .destructive) {
                 HapticManager.impact(.medium)
                 snippetToDelete = snip
@@ -185,8 +184,7 @@ struct SnippetsListView: View {
             }
         }
     }
-    
-    @ViewBuilder
+
     private func ruleRow(_ rule: WAFRule) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
@@ -210,7 +208,7 @@ struct SnippetsListView: View {
                     .padding(.vertical, 2)
                     .background(Capsule().fill((isEnabled ? Color.green : Color.secondary).opacity(0.12)))
             }
-            
+
             if let snipName = rule.action_parameters?.snippet_name {
                 HStack(spacing: 6) {
                     Image(systemName: "curlybraces")
@@ -222,7 +220,7 @@ struct SnippetsListView: View {
                         .foregroundStyle(.orange)
                 }
             }
-            
+
             Text(verbatim: rule.expression)
                 .font(.caption2.monospaced())
                 .foregroundStyle(.secondary)
@@ -237,15 +235,15 @@ struct SnippetsListView: View {
                     Label("Copy Description", systemImage: "doc.on.doc")
                 }
             }
-            
+
             Button {
                 copyToClipboard(rule.expression, toast: "Expression Copied")
             } label: {
                 Label("Copy Expression", systemImage: "curlybraces")
             }
-            
+
             Divider()
-            
+
             Button(role: .destructive) {
                 HapticManager.impact(.medium)
                 ruleToDelete = rule
@@ -273,7 +271,7 @@ struct SnippetEditorSheetView: View {
     let existingSnippet: SnippetItem?
     @ObservedObject var viewModel: SnippetsViewModel
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var snippetName = ""
     @State private var code = """
     export default {
@@ -285,7 +283,7 @@ struct SnippetEditorSheetView: View {
     """
     @State private var isSaving = false
     @State private var errorMessage: String?
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -300,7 +298,7 @@ struct SnippetEditorSheetView: View {
                     }
                     .padding(.vertical, 2)
                 }
-                
+
                 Section(header: Text("Snippet Name"), footer: Text("Allowed characters: letters, numbers, and underscores.")) {
                     TextField("my_snippet", text: $snippetName)
                         .font(.body.monospaced())
@@ -310,13 +308,13 @@ struct SnippetEditorSheetView: View {
                         .submitLabel(.next)
                         .disabled(existingSnippet != nil)
                 }
-                
+
                 Section("JavaScript Code (ES Module)") {
                     TextEditor(text: $code)
                         .font(.footnote.monospaced())
                         .frame(minHeight: 180)
                 }
-                
+
                 if let err = errorMessage {
                     Section {
                         Text(verbatim: err)
@@ -376,13 +374,13 @@ struct BindSnippetRuleSheetView: View {
     let snippets: [SnippetItem]
     @ObservedObject var viewModel: SnippetsViewModel
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var selectedSnippetName = ""
     @State private var ruleDescription = ""
     @State private var expression = "http.request.uri.path starts_with \"/api\""
     @State private var isBinding = false
     @State private var errorMessage: String?
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -393,12 +391,12 @@ struct BindSnippetRuleSheetView: View {
                         }
                     }
                 }
-                
+
                 Section("Rule Description") {
                     TextField("e.g. Route /api requests to snippet", text: $ruleDescription)
                         .submitLabel(.next)
                 }
-                
+
                 Section {
                     TextField("Expression", text: $expression)
                         .font(.footnote.monospaced())
@@ -411,7 +409,7 @@ struct BindSnippetRuleSheetView: View {
                 } footer: {
                     Text("Requests matching this wirefilter expression will execute the selected snippet.")
                 }
-                
+
                 if let err = errorMessage {
                     Section {
                         Text(verbatim: err)

@@ -11,11 +11,11 @@ public struct CFTunnel: Codable, Identifiable, Equatable, Hashable, Sendable {
     public let tunnelType: String?
     public let remoteConfig: Bool?
     public let connections: [TunnelConnection]?
-    
+
     public func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
-    
+
     enum CodingKeys: String, CodingKey {
         case id, name, status
         case createdAt = "created_at"
@@ -24,38 +24,40 @@ public struct CFTunnel: Codable, Identifiable, Equatable, Hashable, Sendable {
         case remoteConfig = "remote_config"
         case connections
     }
-    
+
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
-        self.name = try container.decodeIfPresent(String.self, forKey: .name) ?? "Tunnel"
-        self.status = try container.decodeIfPresent(String.self, forKey: .status) ?? "inactive"
-        self.createdAt = try container.decodeIfPresent(String.self, forKey: .createdAt)
-        self.deletedAt = try container.decodeIfPresent(String.self, forKey: .deletedAt)
-        self.tunnelType = try container.decodeIfPresent(String.self, forKey: .tunnelType)
-        self.remoteConfig = try container.decodeIfPresent(Bool.self, forKey: .remoteConfig)
-        self.connections = try container.decodeIfPresent([TunnelConnection].self, forKey: .connections)
+        id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
+        name = try container.decodeIfPresent(String.self, forKey: .name) ?? "Tunnel"
+        status = try container.decodeIfPresent(String.self, forKey: .status) ?? "inactive"
+        createdAt = try container.decodeIfPresent(String.self, forKey: .createdAt)
+        deletedAt = try container.decodeIfPresent(String.self, forKey: .deletedAt)
+        tunnelType = try container.decodeIfPresent(String.self, forKey: .tunnelType)
+        remoteConfig = try container.decodeIfPresent(Bool.self, forKey: .remoteConfig)
+        connections = try container.decodeIfPresent([TunnelConnection].self, forKey: .connections)
     }
-    
+
     public var isHealthy: Bool {
         status?.lowercased() == "healthy" || status?.lowercased() == "active"
     }
-    
+
     public init(id: String, name: String, status: String? = "healthy", createdAt: String? = "2024-01-01T00:00:00Z", connections: [TunnelConnection]? = nil) {
         self.id = id
         self.name = name
         self.status = status
         self.createdAt = createdAt
-        self.deletedAt = nil
-        self.tunnelType = "cfd_tunnel"
-        self.remoteConfig = true
+        deletedAt = nil
+        tunnelType = "cfd_tunnel"
+        remoteConfig = true
         self.connections = connections
     }
-    
 }
 
 public struct TunnelConnection: Codable, Identifiable, Equatable, Sendable {
-    public var id: String { clientId ?? UUID().uuidString }
+    public var id: String {
+        clientId ?? UUID().uuidString
+    }
+
     public let clientId: String?
     public let version: String?
     public let arch: String?
@@ -63,7 +65,7 @@ public struct TunnelConnection: Codable, Identifiable, Equatable, Sendable {
     public let coloName: String?
     public let isPendingReconnect: Bool?
     public let openedAt: String?
-    
+
     enum CodingKeys: String, CodingKey {
         case clientId = "client_id"
         case version, arch
@@ -75,11 +77,14 @@ public struct TunnelConnection: Codable, Identifiable, Equatable, Sendable {
 }
 
 public struct TunnelIngressRule: Codable, Identifiable, Equatable, Sendable {
-    public var id: String { "\(hostname ?? "")-\(path ?? "")-\(service ?? "")" }
+    public var id: String {
+        "\(hostname ?? "")-\(path ?? "")-\(service ?? "")"
+    }
+
     public let hostname: String?
     public let path: String?
     public let service: String?
-    
+
     public init(hostname: String?, path: String?, service: String?) {
         self.hostname = hostname
         self.path = path

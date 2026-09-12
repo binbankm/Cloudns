@@ -16,12 +16,12 @@ extension IPAccessRulesServiceProtocol {
 /// Concrete domain service for Cloudflare IP Access Rules
 final class IPAccessRulesService: IPAccessRulesServiceProtocol {
     static let shared = IPAccessRulesService()
-    
+
     private let client = HTTPNetworkClient.shared
     private let factory = AuthenticatedRequestFactory.shared
-    
+
     private init() {}
-    
+
     func getIPAccessRules(zoneId: String, page: Int = 1, perPage: Int = 50) async throws -> ([IPAccessRule], ResultInfo?) {
         let queryItems = [
             URLQueryItem(name: "page", value: "\(page)"),
@@ -31,7 +31,7 @@ final class IPAccessRulesService: IPAccessRulesServiceProtocol {
         let (rules, info): ([IPAccessRule]?, ResultInfo?) = try await client.performRequest(request)
         return (rules ?? [], info)
     }
-    
+
     func createIPAccessRule(zoneId: String, mode: String, target: String, value: String, notes: String?) async throws -> IPAccessRule {
         let config: [String: String] = [
             "target": target,
@@ -50,7 +50,7 @@ final class IPAccessRulesService: IPAccessRulesServiceProtocol {
         guard let r = rule else { throw APIError.cloudflareError("Failed to create IP rule") }
         return r
     }
-    
+
     func deleteIPAccessRule(zoneId: String, ruleId: String) async throws {
         let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/firewall/access_rules/rules/\(ruleId)", method: "DELETE")
         struct DeleteRes: Codable { let id: String? }

@@ -1,6 +1,6 @@
+import Combine
 import Foundation
 import SwiftUI
-import Combine
 
 nonisolated struct PagesAnalyticsSnapshot: Codable, Sendable {
     let dataPoints: [AggregatedWorkerDataPoint]
@@ -23,7 +23,7 @@ final class PagesAnalyticsViewModel: BaseLoadableViewModel {
     let projectName: String
     private let analyticsService: AnalyticsServiceProtocol
     private let pagesService: PagesServiceProtocol
-    
+
     @Published var selectedDays: Int = 1
     @Published var loadedDays: Int = 1
     @Published var dataPoints: [AggregatedWorkerDataPoint] = []
@@ -32,19 +32,19 @@ final class PagesAnalyticsViewModel: BaseLoadableViewModel {
     @Published var totalSubrequests: Int = 0
     @Published var avgCpuP50: Double = 0
     @Published var maxCpuP99: Double = 0
-    
+
     // Deployment Specific Analytics
     @Published var deployments: [PagesDeployment] = []
     @Published var productionDeploymentsCount: Int = 0
     @Published var previewDeploymentsCount: Int = 0
     @Published var deploymentSuccessRate: Double = 100.0
     @Published var customDomainsCount: Int = 0
-    
+
     var errorRatePercentage: Double {
         guard totalRequests > 0 else { return 0.0 }
         return (Double(totalErrors) / Double(totalRequests)) * 100.0
     }
-    
+
     init(
         accountId: String,
         projectName: String,
@@ -57,14 +57,14 @@ final class PagesAnalyticsViewModel: BaseLoadableViewModel {
         self.pagesService = pagesService
         super.init()
     }
-    
+
     private var cacheKey: String {
         "pages_analytics_\(accountId)_\(projectName)_\(selectedDays)"
     }
-    
-    public func fetchAnalytics(isRefresh: Bool = false) async {
+
+    func fetchAnalytics(isRefresh _: Bool = false) async {
         let scopedKey = SWRCacheStore.accountScopedKey(cacheKey)
-        
+
         if !hasFetchedData, let cached = await SWRCacheStore.shared.get(forKey: scopedKey, as: PagesAnalyticsSnapshot.self) {
             await MainActor.run {
                 self.dataPoints = cached.dataPoints
@@ -82,15 +82,15 @@ final class PagesAnalyticsViewModel: BaseLoadableViewModel {
                 self.hasFetchedData = true
             }
         }
-        
+
         await executeLoadingTask(clearError: true) {
             async let fetchFunctions: Void = self.fetchFunctionsMetrics()
             async let fetchDeployments: Void = self.fetchDeploymentsInfo()
             async let fetchDomains: Void = self.fetchDomainsInfo()
-            
+
             _ = await (fetchFunctions, fetchDeployments, fetchDomains)
             self.loadedDays = self.selectedDays
-            
+
             let snapshot = PagesAnalyticsSnapshot(
                 dataPoints: self.dataPoints,
                 totalRequests: self.totalRequests,
@@ -108,28 +108,27 @@ final class PagesAnalyticsViewModel: BaseLoadableViewModel {
             await SWRCacheStore.shared.set(snapshot, forKey: scopedKey)
         }
     }
-    
+
     private func fetchFunctionsMetrics() async {
         do {
-            let items = try await self.analyticsService.getPagesAnalytics(
-                accountId: self.accountId,
-                projectName: self.projectName,
-                days: self.selectedDays
+            let items = try await analyticsService.getPagesAnalytics(
+                accountId: accountId,
+                projectName: projectName,
+                days: selectedDays
             )
-            self.processAnalytics(items)
-        } catch {
-        }
+            processAnalytics(items)
+        } catch {}
     }
-    
+
     private func fetchDeploymentsInfo() async {
         do {
-            let deps = try await self.pagesService.getPagesDeployments(accountId: self.accountId, projectName: self.projectName)
-            self.deployments = deps
-            
+            let deps = try await pagesService.getPagesDeployments(accountId: accountId, projectName: projectName)
+            deployments = deps
+
             var prodCount = 0
             var prevCount = 0
             var successCount = 0
-            
+
             for dep in deps {
                 let env = dep.environment?.lowercased() ?? "production"
                 if env == "production" {
@@ -137,73 +136,83 @@ final class PagesAnalyticsViewModel: BaseLoadableViewModel {
                 } else {
                     prevCount += 1
                 }
-                
+
                 let status = dep.latestStage?.status?.lowercased() ?? "success"
                 if status == "success" || status == "active" {
                     successCount += 1
                 }
             }
-            
-            self.productionDeploymentsCount = prodCount
-            self.previewDeploymentsCount = prevCount
-            self.deploymentSuccessRate = deps.isEmpty ? 100.0 : (Double(successCount) / Double(deps.count)) * 100.0
-        } catch {
-        }
+
+            productionDeploymentsCount = prodCount
+            previewDeploymentsCount = prevCount
+            deploymentSuccessRate = deps.isEmpty ? 100.0 : (Double(successCount) / Double(deps.count)) * 100.0
+        } catch {}
     }
-    
+
     private func fetchDomainsInfo() async {
         do {
-            let doms = try await self.pagesService.getPagesDomains(accountId: self.accountId, projectName: self.projectName)
-            self.customDomainsCount = doms.count
-        } catch {
-        }
+            let doms = try await pagesService.getPagesDomains(accountId: accountId, projectName: projectName)
+            customDomainsCount = doms.count
+        } catch {}
     }
-    
+
     private func processAnalytics(_ items: [WorkerAnalyticsItem]) {
         var pointsMap: [String: (requests: Int, errors: Int, subrequests: Int, cpu50: [Double], cpu99: [Double])] = [:]
-        
+
         var totReq = 0
         var totErr = 0
         var totSub = 0
         var allCpu50: [Double] = []
         var allCpu99: [Double] = []
-        
+
         for item in items {
             guard let dt = item.dimensions.datetimeHour ?? item.dimensions.datetime ?? item.dimensions.date else { continue }
             let req = item.sum?.requests ?? 0
             let err = item.sum?.errors ?? 0
             let sub = item.sum?.subrequests ?? 0
-            
+
             // Cloudflare GraphQL quantiles: cpuTime is in microseconds (µs) if > 50, otherwise ms
             var rawP50 = item.quantiles?.cpuTimeP50 ?? 0
             var rawP99 = item.quantiles?.cpuTimeP99 ?? 0
-            if rawP50 > 50 { rawP50 /= 1000.0 }
-            if rawP99 > 50 { rawP99 /= 1000.0 }
-            
+            if rawP50 > 50 {
+                rawP50 /= 1000.0
+            }
+            if rawP99 > 50 {
+                rawP99 /= 1000.0
+            }
+
             totReq += req
             totErr += err
             totSub += sub
-            if rawP50 > 0 { allCpu50.append(rawP50) }
-            if rawP99 > 0 { allCpu99.append(rawP99) }
-            
+            if rawP50 > 0 {
+                allCpu50.append(rawP50)
+            }
+            if rawP99 > 0 {
+                allCpu99.append(rawP99)
+            }
+
             if var existing = pointsMap[dt] {
                 existing.requests += req
                 existing.errors += err
                 existing.subrequests += sub
-                if rawP50 > 0 { existing.cpu50.append(rawP50) }
-                if rawP99 > 0 { existing.cpu99.append(rawP99) }
+                if rawP50 > 0 {
+                    existing.cpu50.append(rawP50)
+                }
+                if rawP99 > 0 {
+                    existing.cpu99.append(rawP99)
+                }
                 pointsMap[dt] = existing
             } else {
                 pointsMap[dt] = (req, err, sub, rawP50 > 0 ? [rawP50] : [], rawP99 > 0 ? [rawP99] : [])
             }
         }
-        
-        self.totalRequests = totReq
-        self.totalErrors = totErr
-        self.totalSubrequests = totSub
-        self.avgCpuP50 = allCpu50.isEmpty ? 0 : (allCpu50.reduce(0, +) / Double(allCpu50.count))
-        self.maxCpuP99 = allCpu99.max() ?? 0
-        
+
+        totalRequests = totReq
+        totalErrors = totErr
+        totalSubrequests = totSub
+        avgCpuP50 = allCpu50.isEmpty ? 0 : (allCpu50.reduce(0, +) / Double(allCpu50.count))
+        maxCpuP99 = allCpu99.max() ?? 0
+
         let sortedKeys = pointsMap.keys.sorted()
         var points: [AggregatedWorkerDataPoint] = []
         for key in sortedKeys {
@@ -222,7 +231,7 @@ final class PagesAnalyticsViewModel: BaseLoadableViewModel {
                 ))
             }
         }
-        
-        self.dataPoints = points
+
+        dataPoints = points
     }
 }

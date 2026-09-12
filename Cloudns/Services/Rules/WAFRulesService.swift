@@ -24,7 +24,7 @@ extension WAFRulesServiceProtocol {
     ) async throws {
         try await updateWAFRule(zoneId: zoneId, rulesetId: rulesetId, ruleId: ruleId, action: action, expression: expression, description: description, enabled: enabled, ratelimit: ratelimit, actionParameters: actionParameters)
     }
-    
+
     func createWAFRule(
         zoneId: String,
         rulesetId: String,
@@ -37,7 +37,7 @@ extension WAFRulesServiceProtocol {
     ) async throws -> Ruleset {
         try await createWAFRule(zoneId: zoneId, rulesetId: rulesetId, action: action, expression: expression, description: description, enabled: enabled, ratelimit: ratelimit, actionParameters: actionParameters)
     }
-    
+
     func createRuleset(
         zoneId: String,
         phase: String,
@@ -55,12 +55,12 @@ extension WAFRulesServiceProtocol {
 /// Concrete domain service for Cloudflare WAF rulesets, Transform Rules, and Cache Rules
 final class WAFRulesService: WAFRulesServiceProtocol {
     static let shared = WAFRulesService()
-    
+
     private let client = HTTPNetworkClient.shared
     private let factory = AuthenticatedRequestFactory.shared
-    
+
     private init() {}
-    
+
     func fetchRulesetByPhase(zoneId: String, phase: String) async throws -> Ruleset? {
         do {
             let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/rulesets/phases/\(phase)/entrypoint")
@@ -70,7 +70,7 @@ final class WAFRulesService: WAFRulesServiceProtocol {
             return nil
         }
     }
-    
+
     func updateRulesetRules(zoneId: String, phase: String, rules: [WAFRule]) async throws -> Ruleset {
         let encoder = JSONEncoder()
         let rulesData = try encoder.encode(rules)
@@ -86,7 +86,7 @@ final class WAFRulesService: WAFRulesServiceProtocol {
         guard let rs = ruleset else { throw APIError.cloudflareError("Failed to update ruleset.") }
         return rs
     }
-    
+
     func updateWAFRule(
         zoneId: String,
         rulesetId: String,
@@ -103,7 +103,9 @@ final class WAFRulesService: WAFRulesServiceProtocol {
             "expression": expression,
             "enabled": enabled
         ]
-        if let desc = description { payload["description"] = desc }
+        if let desc = description {
+            payload["description"] = desc
+        }
         if let ap = actionParameters {
             let data = try JSONEncoder().encode(ap)
             payload["action_parameters"] = try JSONSerialization.jsonObject(with: data)
@@ -121,7 +123,7 @@ final class WAFRulesService: WAFRulesServiceProtocol {
         struct Res: Codable { let id: String? }
         let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
     }
-    
+
     func deleteWAFRule(zoneId: String, rulesetId: String, ruleId: String) async throws {
         let request = try factory.createAuthenticatedRequest(
             path: "zones/\(zoneId)/rulesets/\(rulesetId)/rules/\(ruleId)",
@@ -130,7 +132,7 @@ final class WAFRulesService: WAFRulesServiceProtocol {
         struct Res: Codable { let id: String? }
         let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
     }
-    
+
     func createWAFRule(
         zoneId: String,
         rulesetId: String,
@@ -146,7 +148,9 @@ final class WAFRulesService: WAFRulesServiceProtocol {
             "expression": expression,
             "enabled": enabled
         ]
-        if let desc = description { payload["description"] = desc }
+        if let desc = description {
+            payload["description"] = desc
+        }
         if let ap = actionParameters {
             let data = try JSONEncoder().encode(ap)
             payload["action_parameters"] = try JSONSerialization.jsonObject(with: data)
@@ -165,7 +169,7 @@ final class WAFRulesService: WAFRulesServiceProtocol {
         guard let rs = ruleset else { throw APIError.cloudflareError("Failed to create rule.") }
         return rs
     }
-    
+
     func createRuleset(
         zoneId: String,
         phase: String,
@@ -181,7 +185,9 @@ final class WAFRulesService: WAFRulesServiceProtocol {
             "expression": expression,
             "enabled": enabled
         ]
-        if let desc = description { rulePayload["description"] = desc }
+        if let desc = description {
+            rulePayload["description"] = desc
+        }
         if let ap = actionParameters {
             let data = try JSONEncoder().encode(ap)
             rulePayload["action_parameters"] = try JSONSerialization.jsonObject(with: data)

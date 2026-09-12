@@ -1,41 +1,42 @@
 import SwiftUI
 
 // MARK: - EmailRoutingView
+
 // Apple HIG Compliant Cloudflare Email Routing & Address Forwarding Hub
 
 struct EmailRoutingView: View {
     let zoneId: String
     let zoneName: String
-    
+
     @StateObject private var viewModel: EmailRoutingViewModel
     @State private var showingAddRuleSheet = false
     @State private var showingAddDestinationSheet = false
     @State private var ruleToDelete: EmailRoutingRule?
     @State private var showingDeleteAlert = false
-    
+
     init(zoneId: String, zoneName: String = "") {
         self.zoneId = zoneId
         self.zoneName = zoneName
         _viewModel = StateObject(wrappedValue: EmailRoutingViewModel(zoneId: zoneId))
     }
-    
+
     private var statusDescription: String {
         if let status = viewModel.settings?.status {
             return status.capitalized
         }
         return "Configuring"
     }
-    
+
     private var heroHeaderSection: some View {
         Section {
             VStack(spacing: 12) {
                 HeroHeaderEmblemView(icon: "envelope.badge.shield.half.filled", primaryColor: .orange, secondaryColor: .yellow)
                     .padding(.top, 4)
-                
+
                 Text("Email Routing")
                     .font(.title2.weight(.bold))
                     .foregroundStyle(.primary)
-                
+
                 Text("Create custom email addresses and forward them to personal inboxes.")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
@@ -48,7 +49,7 @@ struct EmailRoutingView: View {
         .listRowBackground(Color.clear)
         .listRowInsets(EdgeInsets())
     }
-    
+
     private var statusSection: some View {
         Section(
             header: Text("Status"),
@@ -78,7 +79,7 @@ struct EmailRoutingView: View {
             .disabled(!viewModel.hasFetchedData)
         }
     }
-    
+
     private var catchAllSection: some View {
         Section(
             header: Text("Catch-All Rule"),
@@ -108,7 +109,7 @@ struct EmailRoutingView: View {
             .disabled(!viewModel.hasFetchedData)
         }
     }
-    
+
     private var rulesSection: some View {
         Section {
             if viewModel.rules.isEmpty {
@@ -127,9 +128,9 @@ struct EmailRoutingView: View {
                                     Label("Copy Address", systemImage: "doc.on.doc")
                                 }
                             }
-                            
+
                             Divider()
-                            
+
                             Button(role: .destructive) {
                                 ruleToDelete = rule
                                 showingDeleteAlert = true
@@ -165,7 +166,7 @@ struct EmailRoutingView: View {
             Text(viewModel.verifiedDestinations.isEmpty ? LocalizedStringKey("To create forwarding rules, you must first add and verify at least one destination address below.") : LocalizedStringKey("Forward custom domain addresses to your verified email inboxes."))
         }
     }
-    
+
     private var destinationsSection: some View {
         Section {
             if viewModel.destinations.isEmpty {
@@ -182,9 +183,9 @@ struct EmailRoutingView: View {
                             } label: {
                                 Label("Copy Email", systemImage: "doc.on.doc")
                             }
-                            
+
                             Divider()
-                            
+
                             Button(role: .destructive) {
                                 HapticManager.impact(.medium)
                                 Task {
@@ -224,7 +225,7 @@ struct EmailRoutingView: View {
             Text("Destination addresses must be verified via confirmation email before rules can forward to them.")
         }
     }
-    
+
     var body: some View {
         List {
             heroHeaderSection
@@ -273,8 +274,7 @@ struct EmailRoutingView: View {
             await viewModel.fetchData()
         }
     }
-    
-    @ViewBuilder
+
     private func ruleRow(_ rule: EmailRoutingRule) -> some View {
         HStack(spacing: 12) {
             ListRowIcon(icon: "arrow.triangle.branch", color: rule.isEnabled ? .blue : .gray)
@@ -309,7 +309,7 @@ struct EmailRoutingView: View {
                 }
             }
             Spacer()
-            
+
             Text(rule.isEnabled ? LocalizedStringKey("Active") : LocalizedStringKey("Disabled"))
                 .font(.caption2.weight(.medium))
                 .foregroundStyle(rule.isEnabled ? Color.green : Color.secondary)
@@ -319,8 +319,7 @@ struct EmailRoutingView: View {
         }
         .padding(.vertical, 2)
     }
-    
-    @ViewBuilder
+
     private func destinationRow(_ dest: EmailDestinationAddress) -> some View {
         HStack(spacing: 12) {
             ListRowIcon(icon: "envelope.fill", color: dest.isVerified ? .blue : .orange)
@@ -333,7 +332,7 @@ struct EmailRoutingView: View {
                     .foregroundStyle(dest.isVerified ? Color.secondary : Color.orange)
             }
             Spacer()
-            
+
             Text(dest.isVerified ? LocalizedStringKey("Verified") : LocalizedStringKey("Pending"))
                 .font(.caption2.weight(.medium))
                 .foregroundStyle(dest.isVerified ? Color.green : Color.orange)
@@ -350,16 +349,16 @@ struct EmailRoutingView: View {
 struct AddDestinationAddressSheetView: View {
     @ObservedObject var viewModel: EmailRoutingViewModel
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var email = ""
     @State private var isSubmitting = false
     @FocusState private var isFocused: Bool
-    
+
     var isValidEmail: Bool {
         let pattern = #"^[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,64}$"#
         return email.range(of: pattern, options: .regularExpression) != nil
     }
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -375,7 +374,7 @@ struct AddDestinationAddressSheetView: View {
                         .focused($isFocused)
                         .submitLabel(.done)
                         .onSubmit {
-                            if isValidEmail && !isSubmitting {
+                            if isValidEmail, !isSubmitting {
                                 submit()
                             }
                         }
@@ -407,11 +406,11 @@ struct AddDestinationAddressSheetView: View {
             .onAppear { isFocused = true }
         }
     }
-    
+
     private func submit() {
         let target = email.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !target.isEmpty else { return }
-        
+
         isSubmitting = true
         Task {
             let success = await viewModel.addDestination(email: target)

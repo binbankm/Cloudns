@@ -1,46 +1,47 @@
-import SwiftUI
 import Charts
+import SwiftUI
 
 // MARK: - PagesAnalyticsView
+
 // Apple HIG Compliant Cloudflare Pages Analytics, Functions Invocations, CPU Time & Pipeline Telemetry
 
 public struct PagesAnalyticsView: View {
     public let accountId: String
     public let projectName: String
-    
+
     @StateObject private var viewModel: PagesAnalyticsViewModel
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    
+
     // Interactive Scrubbing States
     @State private var selectedPoint: AggregatedWorkerDataPoint?
     @State private var selectedCpuPoint: AggregatedWorkerDataPoint?
-    
+
     public init(accountId: String, projectName: String) {
         self.accountId = accountId
         self.projectName = projectName
         _viewModel = StateObject(wrappedValue: PagesAnalyticsViewModel(accountId: accountId, projectName: projectName))
     }
-    
+
     private var isHourlyData: Bool {
         if let first = viewModel.dataPoints.first {
             return first.timestamp.contains("T") || first.timestamp.contains(":")
         }
         return viewModel.loadedDays == 1
     }
-    
+
     private var chartXRange: ClosedRange<Date> {
         if let first = viewModel.dataPoints.first?.date,
            let last = viewModel.dataPoints.last?.date {
             if first < last {
-                return first...last
+                return first ... last
             } else if first == last {
-                return first.addingTimeInterval(-1800)...last.addingTimeInterval(1800)
+                return first.addingTimeInterval(-1800) ... last.addingTimeInterval(1800)
             }
         }
         let now = Date()
-        return now...now.addingTimeInterval(3600)
+        return now ... now.addingTimeInterval(3600)
     }
-    
+
     public var body: some View {
         VStack(spacing: 0) {
             // 1. Unified Header & Time Range Picker Bar
@@ -48,8 +49,8 @@ public struct PagesAnalyticsView: View {
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
                 .padding(.bottom, 8)
-            
-            if !viewModel.hasFetchedData && viewModel.isLoading {
+
+            if !viewModel.hasFetchedData, viewModel.isLoading {
                 VStack(spacing: 12) {
                     ProgressView()
                     Text("Loading Pages Analytics…")
@@ -57,7 +58,7 @@ public struct PagesAnalyticsView: View {
                         .foregroundStyle(.secondary)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.hasFetchedData && viewModel.dataPoints.isEmpty && viewModel.deployments.isEmpty {
+            } else if viewModel.hasFetchedData, viewModel.dataPoints.isEmpty, viewModel.deployments.isEmpty {
                 ScrollView {
                     VStack {
                         Spacer(minLength: 40)
@@ -85,16 +86,16 @@ public struct PagesAnalyticsView: View {
                     VStack(spacing: 16) {
                         // 2. 4 Key Metrics Cards Grid
                         metricsGrid
-                        
+
                         // 3. Pages Functions Invocations Line & Area Chart
                         if !viewModel.dataPoints.isEmpty {
                             functionsLineChartCard
                             cpuLatencyLineChartCard
                         }
-                        
+
                         // 4. Deployments Pipeline Distribution
                         deploymentsBreakdownCard
-                        
+
                         // 5. Pages Architecture & Deployment Insights Card
                         insightsCard
                     }
@@ -117,22 +118,23 @@ public struct PagesAnalyticsView: View {
             }
         }
     }
-    
+
     // MARK: - 1. Header Bar
+
     private var headerBar: some View {
         HStack(alignment: .center, spacing: 10) {
             Image(systemName: "square.stack.3d.up.fill")
                 .foregroundStyle(.purple)
                 .font(.title3)
-            
+
             Text(projectName)
                 .font(.headline.weight(.semibold))
                 .foregroundStyle(.primary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
-            
+
             Spacer(minLength: 4)
-            
+
             Picker("Range", selection: $viewModel.selectedDays) {
                 Text("24h").tag(1)
                 Text("7d").tag(7)
@@ -153,8 +155,9 @@ public struct PagesAnalyticsView: View {
         .background(Color(uiColor: .secondarySystemGroupedBackground))
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
-    
+
     // MARK: - 2. Key Metrics Grid
+
     private var metricsGrid: some View {
         Grid(horizontalSpacing: 10, verticalSpacing: 10) {
             GridRow {
@@ -165,7 +168,7 @@ public struct PagesAnalyticsView: View {
                     color: .blue,
                     badge: "\(MetricFormatters.compactNumber(viewModel.totalSubrequests)) Subrequests"
                 )
-                
+
                 metricCard(
                     title: "Functions Errors",
                     value: MetricFormatters.compactNumber(viewModel.totalErrors),
@@ -174,7 +177,7 @@ public struct PagesAnalyticsView: View {
                     badge: "\((viewModel.errorRatePercentage / 100.0).formatted(.percent.precision(.fractionLength(1)))) Error Rate"
                 )
             }
-            
+
             GridRow {
                 metricCard(
                     title: "Deploy Success Rate",
@@ -183,7 +186,7 @@ public struct PagesAnalyticsView: View {
                     color: .green,
                     badge: "\(viewModel.deployments.count) Total Deploys"
                 )
-                
+
                 metricCard(
                     title: "Active Domains",
                     value: "\(viewModel.customDomainsCount)",
@@ -194,30 +197,30 @@ public struct PagesAnalyticsView: View {
             }
         }
     }
-    
+
     private func metricCard(title: LocalizedStringKey, value: String, icon: String, color: Color, badge: LocalizedStringKey) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 6) {
                 ListRowIcon(icon: icon, color: color, size: 24, cornerRadius: 6)
-                
+
                 Text(title)
                     .font(.caption.weight(.medium))
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
-                
+
                 Spacer()
             }
-            
+
             Spacer(minLength: 2)
-            
+
             Text(value)
                 .font(.title2.weight(.bold).monospacedDigit())
                 .foregroundStyle(.primary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.75)
-            
+
             Spacer(minLength: 2)
-            
+
             Text(badge)
                 .font(.caption2)
                 .foregroundStyle(.secondary)
@@ -229,12 +232,13 @@ public struct PagesAnalyticsView: View {
         .background(Color(uiColor: .secondarySystemGroupedBackground))
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
-    
+
     // MARK: - 3. Functions Invocations Line Chart
+
     private var functionsLineChartCard: some View {
-        let maxReq = viewModel.dataPoints.map { $0.requests }.max() ?? 10
+        let maxReq = viewModel.dataPoints.map(\.requests).max() ?? 10
         let yUpper = max(10.0, Double(maxReq) * 1.18)
-        
+
         return VStack(alignment: .leading, spacing: 10) {
             HStack(alignment: .center) {
                 VStack(alignment: .leading, spacing: 3) {
@@ -246,7 +250,7 @@ public struct PagesAnalyticsView: View {
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(.secondary)
                     }
-                    
+
                     HStack(alignment: .lastTextBaseline, spacing: 6) {
                         Text(verbatim: MetricFormatters.compactNumber(selectedPoint?.requests ?? viewModel.totalRequests))
                             .font(.title.weight(.bold).monospacedDigit())
@@ -254,7 +258,7 @@ public struct PagesAnalyticsView: View {
                         Text(selectedPoint != nil ? LocalizedStringKey("requests") : LocalizedStringKey("total"))
                             .font(.caption.weight(.medium))
                             .foregroundStyle(.secondary)
-                        
+
                         if let selected = selectedPoint, selected.errors > 0 {
                             Text("(\(selected.errors) errors)")
                                 .font(.caption.weight(.bold))
@@ -262,9 +266,9 @@ public struct PagesAnalyticsView: View {
                         }
                     }
                 }
-                
+
                 Spacer()
-                
+
                 if let selected = selectedPoint {
                     let dateStr = formattedPointDate(selected)
                     HStack(spacing: 4) {
@@ -286,7 +290,7 @@ public struct PagesAnalyticsView: View {
                 }
             }
             .frame(minHeight: 48)
-            
+
             Chart {
                 ForEach(viewModel.dataPoints) { pt in
                     AreaMark(
@@ -301,7 +305,7 @@ public struct PagesAnalyticsView: View {
                         )
                     )
                     .interpolationMethod(.monotone)
-                    
+
                     LineMark(
                         x: .value("Time", pt.date),
                         y: .value("Requests", pt.requests)
@@ -309,7 +313,7 @@ public struct PagesAnalyticsView: View {
                     .foregroundStyle(Color.purple)
                     .lineStyle(StrokeStyle(lineWidth: 2.4, lineCap: .round, lineJoin: .round))
                     .interpolationMethod(.monotone)
-                    
+
                     if pt.errors > 0 {
                         BarMark(
                             x: .value("Time", pt.date),
@@ -320,12 +324,12 @@ public struct PagesAnalyticsView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                     }
                 }
-                
+
                 if let selected = selectedPoint {
                     RuleMark(x: .value("Time", selected.date))
                         .foregroundStyle(Color.purple.opacity(0.6))
                         .lineStyle(StrokeStyle(lineWidth: 1.2, dash: [4, 3]))
-                    
+
                     PointMark(
                         x: .value("Time", selected.date),
                         y: .value("Requests", selected.requests)
@@ -351,7 +355,7 @@ public struct PagesAnalyticsView: View {
             .chartPlotStyle { plot in
                 plot.clipped()
             }
-            .chartYScale(domain: 0...yUpper)
+            .chartYScale(domain: 0 ... yUpper)
             .chartXScale(domain: chartXRange)
             .transaction { $0.animation = nil }
             .chartXAxis {
@@ -391,7 +395,7 @@ public struct PagesAnalyticsView: View {
                                     let origin = geo[proxy.plotAreaFrame].origin
                                     let locationX = value.location.x - origin.x
                                     guard locationX >= 0, locationX <= proxy.plotAreaSize.width else { return }
-                                    
+
                                     if let date: Date = proxy.value(atX: locationX) {
                                         if let closest = findClosestWorkerPoint(for: date, in: viewModel.dataPoints) {
                                             if selectedPoint?.id != closest.id {
@@ -412,12 +416,13 @@ public struct PagesAnalyticsView: View {
         .background(Color(uiColor: .secondarySystemGroupedBackground))
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
-    
+
     // MARK: - 4. CPU Execution Latency Chart
+
     private var cpuLatencyLineChartCard: some View {
         let maxCpu = viewModel.dataPoints.map { max($0.cpuP50, $0.cpuP99) }.max() ?? 10.0
         let yUpper = max(2.0, maxCpu * 1.18)
-        
+
         return VStack(alignment: .leading, spacing: 10) {
             HStack(alignment: .center) {
                 VStack(alignment: .leading, spacing: 3) {
@@ -429,7 +434,7 @@ public struct PagesAnalyticsView: View {
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(.secondary)
                     }
-                    
+
                     if let selected = selectedCpuPoint {
                         HStack(alignment: .lastTextBaseline, spacing: 8) {
                             Text("\(selected.cpuP50.formatted(.number.precision(.fractionLength(2)))) ms")
@@ -438,10 +443,10 @@ public struct PagesAnalyticsView: View {
                             Text("P50")
                                 .font(.caption.weight(.bold))
                                 .foregroundStyle(.secondary)
-                            
+
                             Text("•")
                                 .foregroundStyle(.tertiary)
-                            
+
                             Text("\(selected.cpuP99.formatted(.number.precision(.fractionLength(2)))) ms")
                                 .font(.title3.weight(.bold).monospacedDigit())
                                 .foregroundStyle(.orange)
@@ -457,10 +462,10 @@ public struct PagesAnalyticsView: View {
                             Text("avg P50")
                                 .font(.caption.weight(.medium))
                                 .foregroundStyle(.secondary)
-                            
+
                             Text("•")
                                 .foregroundStyle(.tertiary)
-                            
+
                             Text("\(viewModel.maxCpuP99.formatted(.number.precision(.fractionLength(2)))) ms")
                                 .font(.title3.weight(.bold).monospacedDigit())
                                 .foregroundStyle(.orange)
@@ -470,9 +475,9 @@ public struct PagesAnalyticsView: View {
                         }
                     }
                 }
-                
+
                 Spacer()
-                
+
                 if let selected = selectedCpuPoint {
                     let dateStr = formattedPointDate(selected)
                     HStack(spacing: 4) {
@@ -499,7 +504,7 @@ public struct PagesAnalyticsView: View {
                 }
             }
             .frame(minHeight: 48)
-            
+
             Chart {
                 ForEach(viewModel.dataPoints) { pt in
                     LineMark(
@@ -509,7 +514,7 @@ public struct PagesAnalyticsView: View {
                     .foregroundStyle(Color.cyan)
                     .lineStyle(StrokeStyle(lineWidth: 2.4, lineCap: .round, lineJoin: .round))
                     .interpolationMethod(.monotone)
-                    
+
                     LineMark(
                         x: .value("Time", pt.date),
                         y: .value("CPU P99", pt.cpuP99)
@@ -518,12 +523,12 @@ public struct PagesAnalyticsView: View {
                     .lineStyle(StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round, dash: [4, 3]))
                     .interpolationMethod(.monotone)
                 }
-                
+
                 if let selected = selectedCpuPoint {
                     RuleMark(x: .value("Time", selected.date))
                         .foregroundStyle(Color.cyan.opacity(0.6))
                         .lineStyle(StrokeStyle(lineWidth: 1.2, dash: [4, 3]))
-                    
+
                     PointMark(
                         x: .value("Time", selected.date),
                         y: .value("CPU P50", selected.cpuP50)
@@ -542,7 +547,7 @@ public struct PagesAnalyticsView: View {
             .chartPlotStyle { plot in
                 plot.clipped()
             }
-            .chartYScale(domain: 0...yUpper)
+            .chartYScale(domain: 0 ... yUpper)
             .chartXScale(domain: chartXRange)
             .transaction { $0.animation = nil }
             .chartXAxis {
@@ -582,7 +587,7 @@ public struct PagesAnalyticsView: View {
                                     let origin = geo[proxy.plotAreaFrame].origin
                                     let locationX = value.location.x - origin.x
                                     guard locationX >= 0, locationX <= proxy.plotAreaSize.width else { return }
-                                    
+
                                     if let date: Date = proxy.value(atX: locationX) {
                                         if let closest = findClosestWorkerPoint(for: date, in: viewModel.dataPoints) {
                                             if selectedCpuPoint?.id != closest.id {
@@ -603,8 +608,9 @@ public struct PagesAnalyticsView: View {
         .background(Color(uiColor: .secondarySystemGroupedBackground))
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
-    
+
     // MARK: - 5. Deployments Pipeline Card
+
     private var deploymentsBreakdownCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -619,7 +625,7 @@ public struct PagesAnalyticsView: View {
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
-            
+
             HStack(spacing: 16) {
                 // Production Bar
                 VStack(alignment: .leading, spacing: 6) {
@@ -638,7 +644,7 @@ public struct PagesAnalyticsView: View {
                 .padding(12)
                 .background(Color(.tertiarySystemGroupedBackground))
                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                
+
                 // Preview Bar
                 VStack(alignment: .leading, spacing: 6) {
                     HStack {
@@ -662,14 +668,15 @@ public struct PagesAnalyticsView: View {
         .background(Color(uiColor: .secondarySystemGroupedBackground))
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
-    
+
     // MARK: - 6. Insights & Summary
+
     private var insightsCard: some View {
         VStack(alignment: .leading, spacing: 10) {
             Label("Pages Edge & Pipeline Summary", systemImage: "sparkles")
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.purple)
-            
+
             HStack {
                 Text("Subrequest Ratio")
                     .font(.caption)
@@ -679,9 +686,9 @@ public struct PagesAnalyticsView: View {
                 Text("\(ratio.formatted(.number.precision(.fractionLength(1)))) subrequests / req")
                     .font(.caption.weight(.semibold).monospacedDigit())
             }
-            
+
             Divider()
-            
+
             HStack {
                 Text("Edge Functions Status")
                     .font(.caption)
@@ -691,9 +698,9 @@ public struct PagesAnalyticsView: View {
                     .font(.caption.weight(.medium))
                     .foregroundStyle(viewModel.totalErrors == 0 ? .green : .orange)
             }
-            
+
             Divider()
-            
+
             HStack {
                 Text("Deployment Pipeline")
                     .font(.caption)
@@ -707,12 +714,13 @@ public struct PagesAnalyticsView: View {
         .background(Color(uiColor: .secondarySystemGroupedBackground))
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
-    
+
     // MARK: - Helpers
+
     private func formattedPointDate(_ point: AggregatedWorkerDataPoint) -> String {
         DateFormatters.formatChartDetailDate(point.date, isHourly: isHourlyData)
     }
-    
+
     private func findClosestWorkerPoint(for date: Date, in points: [AggregatedWorkerDataPoint]) -> AggregatedWorkerDataPoint? {
         guard !points.isEmpty else { return nil }
         return points.min(by: {

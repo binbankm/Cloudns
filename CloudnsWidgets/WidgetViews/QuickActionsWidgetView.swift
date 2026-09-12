@@ -5,7 +5,7 @@ import WidgetKit
 
 public struct QuickActionsWidgetView: View {
     public init() {}
-    
+
     public var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 6) {
@@ -17,7 +17,7 @@ public struct QuickActionsWidgetView: View {
                     .foregroundStyle(.primary)
                 Spacer()
             }
-            
+
             HStack(spacing: 8) {
                 actionTile(
                     title: "DoH Dig",
@@ -25,21 +25,21 @@ public struct QuickActionsWidgetView: View {
                     color: .blue,
                     urlString: "cloudns://tools/dig"
                 )
-                
+
                 actionTile(
                     title: "Trace Route",
                     icon: "point.topleft.down.curvedto.point.bottomright.up",
                     color: .purple,
                     urlString: "cloudns://tools/trace"
                 )
-                
+
                 actionTile(
                     title: "CF Status",
                     icon: "cloud.fill",
                     color: .green,
                     urlString: "cloudns://tools/status"
                 )
-                
+
                 actionTile(
                     title: "IP Ranges",
                     icon: "network",
@@ -50,7 +50,7 @@ public struct QuickActionsWidgetView: View {
         }
         .padding(12)
     }
-    
+
     private func actionTile(title: String, icon: String, color: Color, urlString: String) -> some View {
         let destination = URL(string: urlString) ?? URL(fileURLWithPath: "/")
         return Link(destination: destination) {
@@ -63,7 +63,7 @@ public struct QuickActionsWidgetView: View {
                         .font(.system(size: 18, weight: .semibold))
                         .foregroundStyle(color)
                 }
-                
+
                 Text(LocalizedStringKey(title))
                     .font(.system(size: 10, weight: .medium))
                     .foregroundStyle(.primary)

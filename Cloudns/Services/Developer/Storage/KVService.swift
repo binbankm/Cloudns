@@ -14,28 +14,28 @@ protocol KVServiceProtocol: Sendable {
 
 final class KVService: KVServiceProtocol {
     static let shared = KVService()
-    
+
     private let client = HTTPNetworkClient.shared
     private let factory = AuthenticatedRequestFactory.shared
-    
+
     private static let safeKVCharSet: CharacterSet = {
         var set = CharacterSet.urlPathAllowed
         set.remove(charactersIn: "/?#[]@!$&'()*+,;=")
         return set
     }()
-    
+
     private init() {}
-    
+
     func getKVNamespaces(accountId: String) async throws -> [KVNamespace] {
         try await listKVNamespaces(accountId: accountId)
     }
-    
+
     func listKVNamespaces(accountId: String) async throws -> [KVNamespace] {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/storage/kv/namespaces")
         let (namespaces, _): ([KVNamespace]?, ResultInfo?) = try await client.performRequest(request)
         return namespaces ?? []
     }
-    
+
     func createKVNamespace(accountId: String, title: String) async throws -> KVNamespace {
         let payload = ["title": title]
         let data = try JSONSerialization.data(withJSONObject: payload)
@@ -44,17 +44,17 @@ final class KVService: KVServiceProtocol {
         guard let item = ns else { throw APIError.cloudflareError("Failed to create KV namespace") }
         return item
     }
-    
+
     func deleteKVNamespace(accountId: String, namespaceId: String) async throws {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/storage/kv/namespaces/\(namespaceId)", method: "DELETE")
         struct DeleteRes: Codable { let id: String? }
         let (_, _): (DeleteRes?, ResultInfo?) = try await client.performRequest(request)
     }
-    
+
     func getKVKeys(accountId: String, namespaceId: String) async throws -> [KVKey] {
         try await listKVKeys(accountId: accountId, namespaceId: namespaceId, prefix: nil, limit: 100)
     }
-    
+
     func listKVKeys(accountId: String, namespaceId: String, prefix: String? = nil, limit: Int = 100) async throws -> [KVKey] {
         var queryItems = [URLQueryItem(name: "limit", value: "\(limit)")]
         if let p = prefix, !p.isEmpty {
@@ -64,18 +64,20 @@ final class KVService: KVServiceProtocol {
         let (keys, _): ([KVKey]?, ResultInfo?) = try await client.performRequest(request)
         return keys ?? []
     }
-    
+
     func getKVValue(accountId: String, namespaceId: String, key: String) async throws -> String {
         let encodedKey = key.addingPercentEncoding(withAllowedCharacters: Self.safeKVCharSet) ?? key
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/storage/kv/namespaces/\(namespaceId)/values/\(encodedKey)")
         let data = try await client.performDataRequest(request)
         return String(data: data, encoding: .utf8) ?? ""
     }
-    
+
     func saveKVValue(accountId: String, namespaceId: String, key: String, value: String, expirationTTL: Int? = nil) async throws {
         let encodedKey = key.addingPercentEncoding(withAllowedCharacters: Self.safeKVCharSet) ?? key
         var queryItems: [URLQueryItem]?
-        if let ttl = expirationTTL { queryItems = [URLQueryItem(name: "expiration_ttl", value: "\(ttl)")] }
+        if let ttl = expirationTTL {
+            queryItems = [URLQueryItem(name: "expiration_ttl", value: "\(ttl)")]
+        }
         let request = try factory.createAuthenticatedRequest(
             path: "accounts/\(accountId)/storage/kv/namespaces/\(namespaceId)/values/\(encodedKey)",
             queryItems: queryItems,
@@ -86,7 +88,7 @@ final class KVService: KVServiceProtocol {
         struct Res: Codable { let id: String? }
         let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
     }
-    
+
     func deleteKVKey(accountId: String, namespaceId: String, key: String) async throws {
         let encodedKey = key.addingPercentEncoding(withAllowedCharacters: Self.safeKVCharSet) ?? key
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/storage/kv/namespaces/\(namespaceId)/values/\(encodedKey)", method: "DELETE")

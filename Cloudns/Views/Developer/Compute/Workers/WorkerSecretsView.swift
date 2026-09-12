@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - WorkerSecretsView
+
 // Apple HIG Compliant Cloudflare Worker Plaintext Environment & Encrypted Secret Keyring
 
 struct WorkerSecretsView: View {
@@ -11,13 +12,13 @@ struct WorkerSecretsView: View {
     @State private var variableToEdit: WorkerBinding?
     @State private var itemToDelete: (name: String, isSecret: Bool)?
     @State private var showingDeleteAlert = false
-    
+
     init(accountId: String, scriptName: String) {
         self.accountId = accountId
         self.scriptName = scriptName
         _viewModel = StateObject(wrappedValue: WorkerSecretsViewModel(accountId: accountId, scriptName: scriptName))
     }
-    
+
     var body: some View {
         contentList
             .background(Color(.systemGroupedBackground))
@@ -77,11 +78,11 @@ struct WorkerSecretsView: View {
                 }
             }
     }
-    
-    @ViewBuilder
+
     private var contentList: some View {
         List {
             // MARK: - Plaintext Variables
+
             if !viewModel.plainVariables.isEmpty {
                 Section(header: Text("Plaintext Variables (\(viewModel.plainVariables.count))")) {
                     ForEach(viewModel.plainVariables) { item in
@@ -130,8 +131,9 @@ struct WorkerSecretsView: View {
                     }
                 }
             }
-            
+
             // MARK: - Encrypted Secrets
+
             if !viewModel.secrets.isEmpty {
                 Section(header: Text("Encrypted Secrets (\(viewModel.secrets.count))")) {
                     ForEach(viewModel.secrets) { secret in
@@ -175,21 +177,20 @@ struct WorkerSecretsView: View {
             emptyAction: { showingAddSheet = true }
         )
     }
-    
-    @ViewBuilder
+
     private func variableRow(name: String, value: String?, isSecret: Bool) -> some View {
         HStack(spacing: 12) {
             ListRowIcon(
                 icon: isSecret ? "lock.fill" : "textformat",
                 color: isSecret ? .purple : .blue
             )
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 6) {
                     Text(name)
                         .font(.body.monospaced().weight(.semibold))
                         .foregroundStyle(.primary)
-                    
+
                     if isSecret {
                         Text("Secret")
                             .font(.caption2.weight(.medium))
@@ -199,7 +200,7 @@ struct WorkerSecretsView: View {
                             .background(Capsule().fill(Color.purple.opacity(0.12)))
                     }
                 }
-                
+
                 if isSecret {
                     Text("••••••••••••••••")
                         .font(.caption.monospaced())
@@ -211,9 +212,9 @@ struct WorkerSecretsView: View {
                         .lineLimit(1)
                 }
             }
-            
+
             Spacer()
-            
+
             if !isSecret {
                 Image(systemName: "chevron.right")
                     .font(.caption2)
@@ -231,13 +232,13 @@ struct WorkerSecretsView: View {
 struct WorkerAddVariableOrSecretSheetView: View {
     @ObservedObject var viewModel: WorkerSecretsViewModel
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var name = ""
     @State private var value = ""
     @State private var isSecret = false
     @State private var isSaving = false
     @State private var errorMessage: String?
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -248,14 +249,14 @@ struct WorkerAddVariableOrSecretSheetView: View {
                     }
                     .pickerStyle(.segmented)
                 }
-                
+
                 Section(header: Text("Configuration")) {
                     TextField("Name (e.g. API_KEY)", text: $name)
                         .keyboardType(.asciiCapable)
                         .textInputAutocapitalization(.characters)
                         .autocorrectionDisabled()
                         .font(.body.monospaced())
-                    
+
                     if isSecret {
                         SecureField("Secret Value", text: $value)
                             .font(.body.monospaced())
@@ -265,7 +266,7 @@ struct WorkerAddVariableOrSecretSheetView: View {
                             .font(.body.monospaced())
                     }
                 }
-                
+
                 if let err = errorMessage {
                     Section {
                         HStack(spacing: 8) {
@@ -321,17 +322,17 @@ struct WorkerEditVariableSheetView: View {
     @ObservedObject var viewModel: WorkerSecretsViewModel
     let variable: WorkerBinding
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var value: String
     @State private var isSaving = false
     @State private var errorMessage: String?
-    
+
     init(viewModel: WorkerSecretsViewModel, variable: WorkerBinding) {
         self.viewModel = viewModel
         self.variable = variable
         _value = State(initialValue: variable.text ?? "")
     }
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -340,13 +341,13 @@ struct WorkerEditVariableSheetView: View {
                         .font(.body.monospaced())
                         .foregroundStyle(.secondary)
                 }
-                
+
                 Section(header: Text("Value")) {
                     TextField("Value", text: $value)
                         .autocorrectionDisabled()
                         .font(.body.monospaced())
                 }
-                
+
                 if let err = errorMessage {
                     Section {
                         HStack(spacing: 8) {

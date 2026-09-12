@@ -1,16 +1,16 @@
+import Combine
 import Foundation
 import SwiftUI
-import Combine
 
 @MainActor
 final class AccessAppsViewModel: BaseLoadableViewModel {
     let accountId: String
     private let accessService: AccessServiceProtocol
     private let zoneService: ZoneServiceProtocol
-    
+
     @Published var apps: [AccessApp] = []
     @Published var searchText: String = ""
-    
+
     init(
         accountId: String,
         accessService: AccessServiceProtocol = AccessService.shared,
@@ -21,19 +21,23 @@ final class AccessAppsViewModel: BaseLoadableViewModel {
         self.zoneService = zoneService
         super.init()
     }
-    
+
     var filteredApps: [AccessApp] {
-        if searchText.isEmpty { return apps }
+        if searchText.isEmpty {
+            return apps
+        }
         return apps.filter { $0.name.localizedStandardContains(searchText) || $0.domain.localizedStandardContains(searchText) }
     }
-    
+
     private func resolveTargetAccountId() async -> String {
-        if !accountId.isEmpty { return accountId }
+        if !accountId.isEmpty {
+            return accountId
+        }
         let accounts = try? await zoneService.getAccounts()
         let activeEmail = UserDefaults.standard.string(forKey: AppStorageKey.activeAccountEmail) ?? ""
         return accounts?.first(where: { $0.name == activeEmail || $0.id == activeEmail })?.id ?? accounts?.first?.id ?? ""
     }
-    
+
     func fetchApps() async {
         await executeLoadingTask {
             let targetId = await self.resolveTargetAccountId()
@@ -44,7 +48,7 @@ final class AccessAppsViewModel: BaseLoadableViewModel {
             self.apps = try await self.accessService.listAccessApps(accountId: targetId)
         }
     }
-    
+
     func createApp(name: String, domain: String, type: String = "self_hosted", sessionDuration: String = "24h") async throws {
         let targetId = await resolveTargetAccountId()
         guard !targetId.isEmpty else { throw APIError.cloudflareError("Active account ID not found") }
@@ -60,7 +64,7 @@ final class AccessAppsViewModel: BaseLoadableViewModel {
         }
         await fetchApps()
     }
-    
+
     func deleteApp(id: String) async {
         do {
             let targetId = await resolveTargetAccountId()
@@ -70,7 +74,6 @@ final class AccessAppsViewModel: BaseLoadableViewModel {
             }
             try await accessService.deleteAccessApp(accountId: targetId, appId: id)
             await fetchApps()
-        } catch {
-        }
+        } catch {}
     }
 }

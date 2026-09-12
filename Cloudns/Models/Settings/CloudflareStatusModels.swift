@@ -7,7 +7,7 @@ public struct CFStatusSummary: Codable, Equatable, Sendable {
     public let status: CFOverallStatus?
     public let components: [CFComponentItem]?
     public let incidents: [CFIncidentItem]?
-    
+
     public init(page: CFStatusPage? = nil, status: CFOverallStatus? = nil, components: [CFComponentItem]? = nil, incidents: [CFIncidentItem]? = nil) {
         self.page = page
         self.status = status
@@ -21,12 +21,12 @@ public struct CFStatusPage: Codable, Equatable, Sendable {
     public let name: String?
     public let url: String?
     public let updatedAt: String?
-    
+
     enum CodingKeys: String, CodingKey {
         case id, name, url
         case updatedAt = "updated_at"
     }
-    
+
     public init(id: String? = nil, name: String? = nil, url: String? = nil, updatedAt: String? = nil) {
         self.id = id
         self.name = name
@@ -38,7 +38,7 @@ public struct CFStatusPage: Codable, Equatable, Sendable {
 public struct CFOverallStatus: Codable, Equatable, Sendable {
     public let indicator: String // none, minor, major, critical
     public let description: String
-    
+
     public init(indicator: String, description: String) {
         self.indicator = indicator
         self.description = description
@@ -51,7 +51,7 @@ public struct CFComponentItem: Codable, Identifiable, Equatable, Sendable {
     public let status: String // operational, degraded_performance, partial_outage, major_outage
     public let description: String?
     public let position: Int?
-    
+
     public init(id: String, name: String, status: String = "operational", description: String? = nil, position: Int? = 1) {
         self.id = id
         self.name = name
@@ -68,13 +68,13 @@ public struct CFIncidentItem: Codable, Identifiable, Equatable, Sendable {
     public let impact: String // none, minor, major, critical
     public let createdAt: String?
     public let updatedAt: String?
-    
+
     enum CodingKeys: String, CodingKey {
         case id, name, status, impact
         case createdAt = "created_at"
         case updatedAt = "updated_at"
     }
-    
+
     public init(id: String, name: String, status: String, impact: String, createdAt: String? = nil, updatedAt: String? = nil) {
         self.id = id
         self.name = name

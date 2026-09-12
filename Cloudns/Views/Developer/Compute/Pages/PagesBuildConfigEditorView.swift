@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - PagesBuildConfigEditorView
+
 // Apple HIG Compliant Cloudflare Pages Build & Deployment Settings Form
 
 struct PagesBuildConfigEditorView: View {
@@ -8,16 +9,16 @@ struct PagesBuildConfigEditorView: View {
     let project: PagesProject
     @ObservedObject var parentViewModel: PagesProjectDetailViewModel
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var buildCommand: String = ""
     @State private var destinationDir: String = ""
     @State private var rootDir: String = ""
     @State private var productionBranch: String = ""
-    
+
     @State private var isSaving = false
     @State private var errorMessage: String?
     @FocusState private var focusedField: String?
-    
+
     init(accountId: String, project: PagesProject, parentViewModel: PagesProjectDetailViewModel) {
         self.accountId = accountId
         self.project = project
@@ -27,7 +28,7 @@ struct PagesBuildConfigEditorView: View {
         _rootDir = State(initialValue: project.buildConfig?.rootDir ?? "")
         _productionBranch = State(initialValue: project.productionBranch ?? "main")
     }
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -45,7 +46,7 @@ struct PagesBuildConfigEditorView: View {
                             .focused($focusedField, equals: "command")
                     }
                     .padding(.vertical, 2)
-                    
+
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Build Output Directory")
                             .font(.caption)
@@ -59,7 +60,7 @@ struct PagesBuildConfigEditorView: View {
                             .focused($focusedField, equals: "output")
                     }
                     .padding(.vertical, 2)
-                    
+
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Root Directory (Optional)")
                             .font(.caption)
@@ -74,7 +75,7 @@ struct PagesBuildConfigEditorView: View {
                     }
                     .padding(.vertical, 2)
                 }
-                
+
                 Section(header: Text("Source Configuration")) {
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Production Branch")
@@ -90,7 +91,7 @@ struct PagesBuildConfigEditorView: View {
                     }
                     .padding(.vertical, 2)
                 }
-                
+
                 if let error = errorMessage {
                     Section {
                         HStack(spacing: 8) {

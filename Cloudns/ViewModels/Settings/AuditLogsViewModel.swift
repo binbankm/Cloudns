@@ -1,16 +1,16 @@
+import Combine
 import Foundation
 import SwiftUI
-import Combine
 
 @MainActor
 final class AuditLogsViewModel: BaseLoadableViewModel {
     let accountId: String
     private let auditLogService: AuditLogServiceProtocol
     private let zoneService: ZoneServiceProtocol
-    
+
     @Published var logs: [AuditLog] = []
     @Published var searchText: String = ""
-    
+
     init(
         accountId: String,
         auditLogService: AuditLogServiceProtocol = AuditLogService.shared,
@@ -21,25 +21,27 @@ final class AuditLogsViewModel: BaseLoadableViewModel {
         self.zoneService = zoneService
         super.init()
     }
-    
+
     var filteredLogs: [AuditLog] {
-        if searchText.isEmpty { return logs }
+        if searchText.isEmpty {
+            return logs
+        }
         let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
         return logs.filter {
             $0.displayActionKey.localizedStandardContains(query) ||
-            $0.friendlyResourceTypeKey.localizedStandardContains(query) ||
-            ($0.action?.type?.localizedStandardContains(query) ?? false) ||
-            ($0.action?.info?.localizedStandardContains(query) ?? false) ||
-            ($0.actor?.email?.localizedStandardContains(query) ?? false) ||
-            ($0.actor?.ip?.localizedStandardContains(query) ?? false) ||
-            ($0.resource?.type?.localizedStandardContains(query) ?? false) ||
-            ($0.resource?.id?.localizedStandardContains(query) ?? false) ||
-            ($0.zone?.name?.localizedStandardContains(query) ?? false) ||
-            ($0.metadata?["zone_name"]?.stringValue?.localizedStandardContains(query) ?? false) ||
-            ($0.metadata?["script_name"]?.stringValue?.localizedStandardContains(query) ?? false)
+                $0.friendlyResourceTypeKey.localizedStandardContains(query) ||
+                ($0.action?.type?.localizedStandardContains(query) ?? false) ||
+                ($0.action?.info?.localizedStandardContains(query) ?? false) ||
+                ($0.actor?.email?.localizedStandardContains(query) ?? false) ||
+                ($0.actor?.ip?.localizedStandardContains(query) ?? false) ||
+                ($0.resource?.type?.localizedStandardContains(query) ?? false) ||
+                ($0.resource?.id?.localizedStandardContains(query) ?? false) ||
+                ($0.zone?.name?.localizedStandardContains(query) ?? false) ||
+                ($0.metadata?["zone_name"]?.stringValue?.localizedStandardContains(query) ?? false) ||
+                ($0.metadata?["script_name"]?.stringValue?.localizedStandardContains(query) ?? false)
         }
     }
-    
+
     func fetchLogs() async {
         await executeLoadingTask {
             var targetAccountId = self.accountId
@@ -48,12 +50,12 @@ final class AuditLogsViewModel: BaseLoadableViewModel {
                 let activeEmail = UserDefaults.standard.string(forKey: AppStorageKey.activeAccountEmail) ?? ""
                 targetAccountId = accounts?.first(where: { $0.name == activeEmail || $0.id == activeEmail })?.id ?? accounts?.first?.id ?? ""
             }
-            
+
             guard !targetAccountId.isEmpty else {
                 self.logs = []
                 return
             }
-            
+
             self.logs = try await self.auditLogService.getAuditLogs(accountId: targetAccountId)
         }
     }

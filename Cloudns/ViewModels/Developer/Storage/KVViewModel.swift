@@ -1,22 +1,22 @@
+import Combine
 import Foundation
 import SwiftUI
-import Combine
 
 @MainActor
 class KVViewModel: BaseLoadableViewModel {
     let accountId: String
     private let kvService: KVServiceProtocol
     private let d1Service: D1ServiceProtocol
-    
+
     @Published var namespaces: [KVNamespace] = []
     @Published var d1Databases: [D1Database] = []
     @Published var selectedSegment = 0 // 0: KV, 1: D1
-    
+
     @Published var keys: [KVKey] = []
     @Published var selectedKey: String?
     @Published var selectedKeyValue: String?
     @Published var isValueLoading = false
-    
+
     init(
         accountId: String,
         kvService: KVServiceProtocol = KVService.shared,
@@ -27,30 +27,30 @@ class KVViewModel: BaseLoadableViewModel {
         self.d1Service = d1Service
         super.init()
     }
-    
+
     func fetchData() async {
         let kvKey = SWRCacheStore.accountScopedKey("kv_namespaces_\(accountId)")
         let d1Key = SWRCacheStore.accountScopedKey("d1_databases_\(accountId)")
-        
+
         if !hasFetchedData {
             if let cachedKV = await SWRCacheStore.shared.get(forKey: kvKey, as: [KVNamespace].self), !cachedKV.isEmpty {
-                self.namespaces = cachedKV
-                self.hasFetchedData = true
+                namespaces = cachedKV
+                hasFetchedData = true
             }
             if let cachedD1 = await SWRCacheStore.shared.get(forKey: d1Key, as: [D1Database].self), !cachedD1.isEmpty {
-                self.d1Databases = cachedD1
-                self.hasFetchedData = true
+                d1Databases = cachedD1
+                hasFetchedData = true
             }
         }
-        
+
         await executeLoadingTask {
             async let fetchKV = self.kvService.listKVNamespaces(accountId: self.accountId)
             async let fetchD1 = self.d1Service.listD1Databases(accountId: self.accountId)
-            
+
             let (k, d) = try await (fetchKV, fetchD1)
             self.namespaces = k
             self.d1Databases = d
-            
+
             await SWRCacheStore.shared.set(k, forKey: kvKey)
             await SWRCacheStore.shared.set(d, forKey: d1Key)
         }
@@ -87,34 +87,34 @@ class KVViewModel: BaseLoadableViewModel {
         NotificationCenter.default.post(name: .developerResourceMutated, object: nil)
         await fetchData()
     }
-    
+
     func fetchKeys(for namespaceId: String) async {
         isLoading = true
         do {
-            self.keys = try await kvService.listKVKeys(accountId: accountId, namespaceId: namespaceId, prefix: nil, limit: 100)
+            keys = try await kvService.listKVKeys(accountId: accountId, namespaceId: namespaceId, prefix: nil, limit: 100)
         } catch {
-            self.errorMessage = error.localizedDescription
+            errorMessage = error.localizedDescription
         }
         isLoading = false
     }
-    
+
     func fetchValue(namespaceId: String, key: String) async {
         isValueLoading = true
         selectedKey = key
         selectedKeyValue = nil
         do {
-            self.selectedKeyValue = try await kvService.getKVValue(accountId: accountId, namespaceId: namespaceId, key: key)
+            selectedKeyValue = try await kvService.getKVValue(accountId: accountId, namespaceId: namespaceId, key: key)
         } catch {
-            self.selectedKeyValue = "Error reading value: \(error.localizedDescription)"
+            selectedKeyValue = "Error reading value: \(error.localizedDescription)"
         }
         isValueLoading = false
     }
-    
+
     func saveKey(namespaceId: String, key: String, value: String, ttl: Int? = nil) async throws {
         try await kvService.saveKVValue(accountId: accountId, namespaceId: namespaceId, key: key, value: value, expirationTTL: ttl)
         await fetchKeys(for: namespaceId)
     }
-    
+
     func deleteKey(namespaceId: String, key: String) async throws {
         try await kvService.deleteKVKey(accountId: accountId, namespaceId: namespaceId, key: key)
         await fetchKeys(for: namespaceId)

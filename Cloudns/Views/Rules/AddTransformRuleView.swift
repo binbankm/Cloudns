@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - AddTransformRuleView
+
 // Apple HIG Compliant Cloudflare Transform Rule Editor
 
 struct AddTransformRuleView: View {
@@ -8,30 +9,30 @@ struct AddTransformRuleView: View {
     let initialPhase: String
     @ObservedObject var viewModel: TransformRulesViewModel
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var phase: String
     @State private var ruleName = ""
     @State private var expression = "(http.request.uri.path contains \"/\")"
-    
+
     // URL Rewrite States
     @State private var rewritePath = ""
     @State private var rewriteQuery = ""
-    
+
     // Header Transform States
     @State private var headerName = ""
     @State private var headerOperation = "set" // "set" or "remove"
     @State private var headerValue = ""
-    
+
     @State private var isSubmitting = false
     @FocusState private var focusedField: String?
-    
+
     init(zoneId: String, initialPhase: String = "http_request_transform", viewModel: TransformRulesViewModel) {
         self.zoneId = zoneId
         self.initialPhase = initialPhase
         self.viewModel = viewModel
         _phase = State(initialValue: initialPhase)
     }
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -42,7 +43,7 @@ struct AddTransformRuleView: View {
                         Text("Response Header").tag("http_response_headers_transform")
                     }
                 }
-                
+
                 Section(header: Text("Rule Details")) {
                     TextField("Rule Name (e.g. Modify X-Custom-Header)", text: $ruleName)
                         .font(.body)
@@ -53,7 +54,7 @@ struct AddTransformRuleView: View {
                         .focused($focusedField, equals: "name")
                         .onSubmit { focusedField = "expression" }
                 }
-                
+
                 Section(header: Text("Matching Expression"), footer: Text("Cloudflare wirefilter expression defining matching incoming traffic.")) {
                     TextField("Expression", text: $expression)
                         .font(.footnote.monospaced())
@@ -63,7 +64,7 @@ struct AddTransformRuleView: View {
                         .submitLabel(.next)
                         .focused($focusedField, equals: "expression")
                 }
-                
+
                 if phase == "http_request_transform" {
                     Section(header: Text("URI Path & Query Rewrite"), footer: Text("Rewrites incoming URI path and query string before reaching origin server.")) {
                         TextField("Static Path (e.g. /api/v2)", text: $rewritePath)
@@ -89,12 +90,12 @@ struct AddTransformRuleView: View {
                             .autocorrectionDisabled()
                             .submitLabel(.next)
                             .focused($focusedField, equals: "headerName")
-                        
+
                         Picker("Operation", selection: $headerOperation) {
                             Text("Set Static Value").tag("set")
                             Text("Remove Header").tag("remove")
                         }
-                        
+
                         if headerOperation == "set" {
                             TextField("Header Value (e.g. DENY)", text: $headerValue)
                                 .font(.body.monospaced())
@@ -116,7 +117,7 @@ struct AddTransformRuleView: View {
                         dismiss()
                     }
                 }
-                
+
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
                         HapticManager.impact(.medium)
@@ -142,24 +143,29 @@ struct AddTransformRuleView: View {
             )
         }
     }
-    
+
     private var isFormInvalid: Bool {
-        if ruleName.isEmpty || expression.isEmpty { return true }
+        if ruleName.isEmpty || expression.isEmpty {
+            return true
+        }
         if phase == "http_request_transform" {
             return rewritePath.isEmpty && rewriteQuery.isEmpty
         } else {
-            if headerName.isEmpty { return true }
-            if headerOperation == "set" && headerValue.isEmpty { return true }
+            if headerName.isEmpty {
+                return true
+            }
+            if headerOperation == "set", headerValue.isEmpty {
+                return true
+            }
         }
         return false
     }
-    
+
     private func submitRule() async {
         isSubmitting = true
-        
-        let success: Bool
-        if phase == "http_request_transform" {
-            success = await viewModel.createRewriteRule(
+
+        let success: Bool = if phase == "http_request_transform" {
+            await viewModel.createRewriteRule(
                 zoneId: zoneId,
                 expression: expression,
                 description: ruleName,
@@ -168,7 +174,7 @@ struct AddTransformRuleView: View {
                 rewriteQuery: rewriteQuery.isEmpty ? nil : rewriteQuery
             )
         } else {
-            success = await viewModel.createHeaderRule(
+            await viewModel.createHeaderRule(
                 zoneId: zoneId,
                 phase: phase,
                 expression: expression,
@@ -179,7 +185,7 @@ struct AddTransformRuleView: View {
                 value: headerOperation == "set" ? headerValue : nil
             )
         }
-        
+
         isSubmitting = false
         if success {
             HapticManager.notification(.success)

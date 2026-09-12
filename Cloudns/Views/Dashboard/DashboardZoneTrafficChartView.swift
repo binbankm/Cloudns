@@ -1,7 +1,8 @@
-import SwiftUI
 import Charts
+import SwiftUI
 
 // MARK: - DashboardZoneTrafficChartView
+
 // Apple HIG Compliant Interactive Swift Chart with Haptic Scrubbing
 
 struct DashboardZoneTrafficChartView: View {
@@ -9,11 +10,11 @@ struct DashboardZoneTrafficChartView: View {
     @ObservedObject private var themeManager = ThemeManager.shared
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var selectedPoint: FleetHourlyMetric?
-    
+
     private var accentColor: Color {
         themeManager.accentColor
     }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             // Header: Title, Live Cache Rate Badge
@@ -24,21 +25,21 @@ struct DashboardZoneTrafficChartView: View {
                             .symbolRenderingMode(.hierarchical)
                             .font(.subheadline.weight(.semibold))
                             .foregroundStyle(.blue)
-                        
+
                         Text("Zone Traffic Analytics (24h)")
                             .font(.subheadline.weight(.semibold))
                             .foregroundStyle(.primary)
                     }
-                    
+
                     Spacer()
-                    
+
                     // Live Cache Rate Badge
                     if viewModel.averageCacheHitRate24h > 0 {
                         HStack(spacing: 4) {
                             Circle()
                                 .fill(Color.green)
                                 .frame(width: 6, height: 6)
-                            
+
                             Text("\(viewModel.averageCacheHitRate24h.formatted(.percent.precision(.fractionLength(1)))) Cache")
                                 .font(.caption2.weight(.semibold))
                                 .foregroundStyle(.green)
@@ -49,22 +50,22 @@ struct DashboardZoneTrafficChartView: View {
                         .clipShape(Capsule())
                     }
                 }
-                
+
                 // Big Metric Value Display with Selected Scrubbing Value
                 HStack(alignment: .lastTextBaseline, spacing: 8) {
                     Text(currentDisplayValue)
                         .font(.title.weight(.bold))
                         .foregroundStyle(.primary)
                         .monospacedDigit()
-                    
+
                     if selectedPoint == nil {
                         Text("Total (24h)")
                             .font(.caption.weight(.medium))
                             .foregroundStyle(.secondary)
                     }
-                    
+
                     Spacer()
-                    
+
                     if let selected = selectedPoint {
                         let themeColor = metricColor(viewModel.selectedChartMetric)
                         HStack(spacing: 4) {
@@ -81,7 +82,7 @@ struct DashboardZoneTrafficChartView: View {
                         .clipShape(Capsule())
                     }
                 }
-                
+
                 // Metric Picker Tabs
                 Picker("Metric", selection: $viewModel.selectedChartMetric) {
                     ForEach(DashboardChartMetric.allCases) { metric in
@@ -90,7 +91,7 @@ struct DashboardZoneTrafficChartView: View {
                 }
                 .pickerStyle(.segmented)
             }
-            
+
             // Swift Chart Body
             chartBodyView
                 .frame(height: 160)
@@ -103,7 +104,7 @@ struct DashboardZoneTrafficChartView: View {
                 .strokeBorder(Color.primary.opacity(0.06), lineWidth: 0.5)
         )
     }
-    
+
     @ViewBuilder
     private var chartBodyView: some View {
         if viewModel.fleetMetrics.isEmpty {
@@ -119,11 +120,11 @@ struct DashboardZoneTrafficChartView: View {
         } else {
             let metrics = viewModel.fleetMetrics
             let themeColor = metricColor(viewModel.selectedChartMetric)
-            
+
             Chart {
                 ForEach(metrics) { item in
                     let value = valueForMetric(item, metric: viewModel.selectedChartMetric)
-                    
+
                     // Area Glow
                     AreaMark(
                         x: .value("Time", item.date),
@@ -141,7 +142,7 @@ struct DashboardZoneTrafficChartView: View {
                             endPoint: .bottom
                         )
                     )
-                    
+
                     // Main Line
                     LineMark(
                         x: .value("Time", item.date),
@@ -151,15 +152,15 @@ struct DashboardZoneTrafficChartView: View {
                     .lineStyle(StrokeStyle(lineWidth: 2.2, lineCap: .round, lineJoin: .round))
                     .foregroundStyle(themeColor)
                 }
-                
+
                 // Scrubbing Rule Mark
                 if let selected = selectedPoint {
                     let selectedVal = valueForMetric(selected, metric: viewModel.selectedChartMetric)
-                    
+
                     RuleMark(x: .value("Selected", selected.date))
                         .lineStyle(StrokeStyle(lineWidth: 1.5, dash: [4, 4]))
                         .foregroundStyle(themeColor.opacity(0.6))
-                    
+
                     PointMark(
                         x: .value("Selected", selected.date),
                         y: .value("SelectedValue", selectedVal)
@@ -205,7 +206,7 @@ struct DashboardZoneTrafficChartView: View {
                                     let frame = geo[proxy.plotAreaFrame]
                                     let locationX = drag.location.x - frame.origin.x
                                     guard locationX >= 0, locationX <= frame.width else { return }
-                                    
+
                                     if let date = proxy.value(atX: locationX, as: Date.self) {
                                         // Find closest point by date
                                         if let closest = metrics.min(by: { abs($0.date.timeIntervalSince(date)) < abs($1.date.timeIntervalSince(date)) }) {
@@ -224,27 +225,28 @@ struct DashboardZoneTrafficChartView: View {
             }
         }
     }
-    
+
     // MARK: - Helpers
+
     private func valueForMetric(_ item: FleetHourlyMetric, metric: DashboardChartMetric) -> Double {
         switch metric {
         case .requests:
-            return item.requests
+            item.requests
         case .bandwidth:
-            return item.bytes
+            item.bytes
         case .threats:
-            return item.threats
+            item.threats
         }
     }
-    
+
     private func metricColor(_ metric: DashboardChartMetric) -> Color {
         switch metric {
-        case .requests: return .blue
-        case .bandwidth: return .purple
-        case .threats: return .red
+        case .requests: .blue
+        case .bandwidth: .purple
+        case .threats: .red
         }
     }
-    
+
     private var currentDisplayValue: String {
         if let selected = selectedPoint {
             switch viewModel.selectedChartMetric {
@@ -256,7 +258,7 @@ struct DashboardZoneTrafficChartView: View {
                 return Int(selected.threats).formatted()
             }
         }
-        
+
         switch viewModel.selectedChartMetric {
         case .requests:
             return MetricFormatters.compactNumber(viewModel.totalFleetRequests24h)

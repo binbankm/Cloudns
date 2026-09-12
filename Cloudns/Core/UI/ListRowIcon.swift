@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - Apple HIG Standard List Row Icon & Account Avatar
+
 // Strict 30×30 pt continuous curvature container and deterministic gradient avatar
 
 public struct ListRowIcon: View {
@@ -8,7 +9,7 @@ public struct ListRowIcon: View {
     public let color: Color
     public var size: CGFloat
     public var cornerRadius: CGFloat
-    
+
     public init(
         icon: String,
         color: Color,
@@ -20,7 +21,7 @@ public struct ListRowIcon: View {
         self.size = size
         self.cornerRadius = cornerRadius
     }
-    
+
     public var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
@@ -31,12 +32,11 @@ public struct ListRowIcon: View {
                         endPoint: .bottomTrailing
                     )
                 )
-            
+
             if icon == "github" || icon == "github.mark" {
                 Image("github")
                     .renderingMode(.template)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
+                    .resizable().scaledToFit()
                     .foregroundStyle(.white)
                     .frame(width: glyphBoxSize, height: glyphBoxSize, alignment: .center)
             } else {
@@ -50,35 +50,35 @@ public struct ListRowIcon: View {
         .frame(width: size, height: size)
         .accessibilityHidden(true)
     }
-    
+
     private var effectiveGradientColors: [Color] {
         if color == .primary {
             return [Color(red: 0.24, green: 0.25, blue: 0.28), Color(red: 0.16, green: 0.17, blue: 0.20)]
         }
         return [color, color.opacity(0.88)]
     }
-    
+
     private var glyphBoxSize: CGFloat {
         if size >= 44 {
-            return 24
+            24
         } else if size >= 32 {
-            return 18
+            18
         } else if size >= 28 {
-            return 16
+            16
         } else {
-            return 13
+            13
         }
     }
-    
+
     private var iconFont: Font {
         if size >= 44 {
-            return .system(size: 20, weight: .semibold)
+            .system(size: 20, weight: .semibold)
         } else if size >= 32 {
-            return .system(size: 16, weight: .semibold)
+            .system(size: 16, weight: .semibold)
         } else if size >= 28 {
-            return .system(size: 14.5, weight: .semibold)
+            .system(size: 14.5, weight: .semibold)
         } else {
-            return .system(size: 12, weight: .semibold)
+            .system(size: 12, weight: .semibold)
         }
     }
 }
@@ -90,7 +90,7 @@ public struct HeroHeaderEmblemView: View {
     public let primaryColor: Color
     public var secondaryColor: Color?
     public var size: CGFloat
-    
+
     public init(
         icon: String,
         primaryColor: Color,
@@ -102,7 +102,7 @@ public struct HeroHeaderEmblemView: View {
         self.secondaryColor = secondaryColor
         self.size = size
     }
-    
+
     public var body: some View {
         let secColor = secondaryColor ?? primaryColor
         ZStack {
@@ -115,7 +115,7 @@ public struct HeroHeaderEmblemView: View {
                     )
                 )
                 .shadow(color: primaryColor.opacity(0.24), radius: 8, x: 0, y: 4)
-            
+
             Image(systemName: icon)
                 .symbolRenderingMode(.hierarchical)
                 .font(.system(size: size * 0.46, weight: .semibold))
@@ -133,11 +133,11 @@ public struct AccountAvatarView: View {
     public let identifier: String
     public let size: CGFloat
     public let showShadow: Bool
-    
+
     private static let avatarColors: [Color] = [
         .orange, .blue, .purple, .teal, .indigo, .pink, .green
     ]
-    
+
     public init(
         identifier: String,
         size: CGFloat = 34,
@@ -147,11 +147,11 @@ public struct AccountAvatarView: View {
         self.size = size
         self.showShadow = showShadow
     }
-    
+
     public var body: some View {
         let initial = String(identifier.prefix(1)).uppercased()
         let color = AccountAvatarView.color(for: identifier)
-        
+
         ZStack {
             Circle()
                 .fill(
@@ -168,26 +168,26 @@ public struct AccountAvatarView: View {
                     x: 0,
                     y: 2
                 )
-            
+
             Text(initial.isEmpty ? "?" : initial)
                 .font(fontSize.weight(.bold))
                 .foregroundStyle(.white)
         }
         .accessibilityHidden(true)
     }
-    
+
     private var fontSize: Font {
         if size >= 50 {
-            return .title2
+            .title2
         } else if size >= 40 {
-            return .headline
+            .headline
         } else if size >= 30 {
-            return .subheadline
+            .subheadline
         } else {
-            return .caption
+            .caption
         }
     }
-    
+
     public static func color(for string: String) -> Color {
         guard !string.isEmpty else { return .orange }
         let hash = abs(string.hashValue)

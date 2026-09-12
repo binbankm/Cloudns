@@ -1,18 +1,18 @@
-import SwiftUI
 import Combine
+import SwiftUI
 
 // MARK: - App Theme Manager (SwiftUI Native)
 
 @MainActor
 public final class ThemeManager: ObservableObject {
     public static let shared = ThemeManager()
-    
+
     @Published public var currentColor: AppThemeColor = .orange {
         didSet {
             UserDefaults.standard.set(currentColor.rawValue, forKey: AppStorageKey.themeColor)
         }
     }
-    
+
     @Published public var customColor: Color = .orange {
         didSet {
             if let hex = customColor.toHex() {
@@ -20,29 +20,29 @@ public final class ThemeManager: ObservableObject {
             }
         }
     }
-    
+
     public var accentColor: Color {
         currentColor == .custom ? customColor : currentColor.presetColor
     }
-    
+
     public var accentUIColor: UIColor {
         UIColor(accentColor)
     }
-    
+
     private init() {
         let storedCustomHex = UserDefaults.standard.string(forKey: "custom_theme_color_hex") ?? "#F38020"
-        self.customColor = Color(hex: storedCustomHex)
-        
+        customColor = Color(hex: storedCustomHex)
+
         let storedColorKey = UserDefaults.standard.string(forKey: AppStorageKey.themeColor) ?? AppThemeColor.orange.rawValue
-        self.currentColor = AppThemeColor(rawValue: storedColorKey) ?? .orange
+        currentColor = AppThemeColor(rawValue: storedColorKey) ?? .orange
     }
-    
+
     public func setThemeColor(_ theme: AppThemeColor) {
         guard currentColor != theme else { return }
         HapticManager.selection()
         currentColor = theme
     }
-    
+
     public func setCustomColor(_ color: Color) {
         customColor = color
         if currentColor != .custom {
@@ -52,6 +52,7 @@ public final class ThemeManager: ObservableObject {
 }
 
 // MARK: - Color Hex Conversion
+
 public extension Color {
     init(hex: String) {
         let cleanHex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
@@ -74,14 +75,14 @@ public extension Color {
             opacity: 1.0
         )
     }
-    
+
     func toHex() -> String? {
         let uiColor = UIColor(self)
         var r: CGFloat = 0
         var g: CGFloat = 0
         var b: CGFloat = 0
         var a: CGFloat = 0
-        
+
         if uiColor.getRed(&r, green: &g, blue: &b, alpha: &a) {
             return String(format: "#%02X%02X%02X", Int(round(r * 255)), Int(round(g * 255)), Int(round(b * 255)))
         }

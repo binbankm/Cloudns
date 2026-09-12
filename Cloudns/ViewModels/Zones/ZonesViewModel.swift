@@ -1,6 +1,6 @@
+import Combine
 import Foundation
 import SwiftUI
-import Combine
 
 @MainActor
 final class ZonesViewModel: BaseLoadableViewModel {
@@ -9,14 +9,14 @@ final class ZonesViewModel: BaseLoadableViewModel {
     @Published var canLoadMore: Bool = false
     @Published var totalCount: Int = 0
     private var currentPage: Int = 1
-    
+
     private let zoneService: ZoneServiceProtocol
-    
+
     init(zoneService: ZoneServiceProtocol = ZoneService.shared) {
         self.zoneService = zoneService
         super.init()
     }
-    
+
     func filteredZones(query: String) -> [Zone] {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmed.isEmpty {
@@ -25,22 +25,22 @@ final class ZonesViewModel: BaseLoadableViewModel {
             return zones.filter { $0.name.localizedStandardContains(trimmed) }
         }
     }
-    
+
     func resetState() {
-        self.zones = []
-        self.sparklines = [:]
-        self.totalCount = 0
-        self.canLoadMore = false
-        self.currentPage = 1
-        self.resetLoadingState()
+        zones = []
+        sparklines = [:]
+        totalCount = 0
+        canLoadMore = false
+        currentPage = 1
+        resetLoadingState()
     }
-    
+
     func fetchZones(isRefresh: Bool = false) async {
         if isRefresh {
             currentPage = 1
             canLoadMore = false
         }
-        
+
         await executeSWR(
             cacheKey: "cloudflare_zones_list",
             targetType: [Zone].self,
@@ -63,10 +63,10 @@ final class ZonesViewModel: BaseLoadableViewModel {
             }
         )
     }
-    
+
     func loadMoreZones() async {
-        guard canLoadMore && !isLoading else { return }
-        
+        guard canLoadMore, !isLoading else { return }
+
         await executeLoadingTask(clearError: false) {
             do {
                 let (fetchedZones, resultInfo) = try await self.zoneService.getZones(page: currentPage, perPage: 50, name: nil, status: nil)
@@ -84,13 +84,13 @@ final class ZonesViewModel: BaseLoadableViewModel {
             }
         }
     }
-    
-    public func fetchBatchSparklines(for zones: [Zone]) {
-        let activeZoneIds = zones.filter { $0.status.lowercased() == "active" }.map { $0.id }
+
+    func fetchBatchSparklines(for zones: [Zone]) {
+        let activeZoneIds = zones.filter { $0.status.lowercased() == "active" }.map(\.id)
         guard !activeZoneIds.isEmpty else { return }
-        
+
         Task { [weak self] in
-            guard let self = self else { return }
+            guard let self else { return }
             var cachedMap: [String: ZoneSparklineCache] = [:]
             for id in activeZoneIds {
                 let scopedKey = SWRCacheStore.accountScopedKey("zone_sparkline_\(id)")
@@ -99,11 +99,11 @@ final class ZonesViewModel: BaseLoadableViewModel {
                 }
             }
             if !cachedMap.isEmpty {
-                self.sparklines.merge(cachedMap) { _, new in new }
+                sparklines.merge(cachedMap) { _, new in new }
             }
-            
+
             if let batchMap = try? await AnalyticsService.shared.getBatchZonesSparklines(zoneTags: activeZoneIds) {
-                self.sparklines.merge(batchMap) { _, new in new }
+                sparklines.merge(batchMap) { _, new in new }
                 for (id, cache) in batchMap {
                     let scopedKey = SWRCacheStore.accountScopedKey("zone_sparkline_\(id)")
                     await SWRCacheStore.shared.setMemoryOnly(cache, forKey: scopedKey)
@@ -111,10 +111,10 @@ final class ZonesViewModel: BaseLoadableViewModel {
             }
         }
     }
-    
+
     @Published var isAddingZone: Bool = false
     @Published var addZoneError: String?
-    
+
     func addZone(name: String) async -> Zone? {
         isAddingZone = true
         addZoneError = nil
@@ -127,7 +127,7 @@ final class ZonesViewModel: BaseLoadableViewModel {
                 isAddingZone = false
                 return nil
             }
-            
+
             let zone = try await zoneService.createZone(name: name, accountId: account.id, jumpStart: false)
             NotificationCenter.default.post(name: .zoneCreated, object: nil, userInfo: ["zone": zone])
             await fetchZones(isRefresh: true)
@@ -139,9 +139,9 @@ final class ZonesViewModel: BaseLoadableViewModel {
             return nil
         }
     }
-    
+
     @Published var isDeleting: Bool = false
-    
+
     func deleteZone(zoneId: String) async {
         isDeleting = true
         errorMessage = nil
@@ -151,7 +151,7 @@ final class ZonesViewModel: BaseLoadableViewModel {
             RecentZonesManager.shared.removeZone(zoneId: zoneId)
             await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("zone_details_\(zoneId)"))
             await SWRCacheStore.shared.remove(forKey: SWRCacheStore.accountScopedKey("zone_sparkline_\(zoneId)"))
-            
+
             // Remove locally
             if let index = zones.firstIndex(where: { $0.id == zoneId }) {
                 zones.remove(at: index)
@@ -164,7 +164,7 @@ final class ZonesViewModel: BaseLoadableViewModel {
         }
         isDeleting = false
     }
-    
+
     private func syncFirstZoneToWidget(zones: [Zone]) {
         let topZoneId = RecentZonesManager.shared.recentZoneIds.first
         let targetZone = zones.first(where: { $0.id == topZoneId }) ?? zones.first

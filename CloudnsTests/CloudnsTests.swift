@@ -3,18 +3,17 @@
 //  CloudnsTests
 //
 
+@testable import Cloudns
 import Foundation
 import SwiftUI
 import Testing
-@testable import Cloudns
 
 // MARK: - 1. APIError Tests
 
 @Suite("APIError Tests")
 struct APIErrorTests {
-    
     @Test("Cloudflare standard JSON error decoding")
-    func testCloudflareJSONErrorParsing() {
+    func cloudflareJSONErrorParsing() {
         let json = """
         {
             "success": false,
@@ -26,14 +25,14 @@ struct APIErrorTests {
             "result": null
         }
         """.data(using: .utf8)!
-        
+
         let error = APIError.fromCloudflareResponse(data: json, statusCode: 400)
         #expect(error.localizedDescription.contains("Authentication error (Code 10000)"))
         #expect(error.localizedDescription.contains("Invalid token signature (Code 10001)"))
     }
-    
+
     @Test("Cloudflare HTML Gateway error sanitization")
-    func testHTMLGatewayErrorSanitization() {
+    func hTMLGatewayErrorSanitization() {
         let html502 = """
         <!DOCTYPE html>
         <html>
@@ -44,24 +43,24 @@ struct APIErrorTests {
         </body>
         </html>
         """.data(using: .utf8)!
-        
+
         let error = APIError.fromCloudflareResponse(data: html502, statusCode: 502)
         #expect(error.localizedDescription == "Cloudflare Gateway Error (HTTP 502)")
-        
+
         let formatted = APIError.formatCloudflareError("<!DOCTYPE html><html><title>Error</title></html>")
         #expect(formatted == "Cloudflare Gateway Error")
     }
-    
+
     @Test("APIError localized error descriptions")
-    func testLocalizedDescriptions() {
+    func localizedDescriptions() {
         let unauthorized = APIError.unauthorized
         #expect(unauthorized.localizedDescription.contains("API Token or Global Key"))
         #expect(unauthorized.recoverySuggestion != nil)
-        
+
         let invalidURL = APIError.invalidURL
         #expect(invalidURL.localizedDescription == "Invalid API URL.")
         #expect(invalidURL.failureReason != nil)
-        
+
         let invalidResponse = APIError.invalidResponse
         #expect(invalidResponse.localizedDescription.contains("Invalid response"))
     }
@@ -71,57 +70,56 @@ struct APIErrorTests {
 
 @Suite("SWRCacheStore Tests")
 struct SWRCacheStoreTests {
-    
     struct TestItem: Codable, Equatable, Sendable {
         let id: String
         let name: String
         let score: Int
     }
-    
+
     @Test("SWR Memory and Disk cache roundtrip")
-    func testSWRCacheSetAndGet() async {
+    func sWRCacheSetAndGet() async {
         let store = SWRCacheStore.shared
         let testKey = "unit_test_key_\(UUID().uuidString)"
         let originalItem = TestItem(id: "item_123", name: "Cloudns SWR Test", score: 99)
-        
+
         await store.set(originalItem, forKey: testKey)
         let cachedItem = await store.get(forKey: testKey, as: TestItem.self)
-        
+
         #expect(cachedItem != nil)
         #expect(cachedItem?.id == "item_123")
         #expect(cachedItem?.name == "Cloudns SWR Test")
         #expect(cachedItem?.score == 99)
-        
+
         // Remove
         await store.remove(forKey: testKey)
         let deletedItem = await store.get(forKey: testKey, as: TestItem.self)
         #expect(deletedItem == nil)
     }
-    
+
     @Test("Account scoped key isolation")
     func testAccountScopedKey() {
         let keyA = SWRCacheStore.accountScopedKey("zones_list")
         #expect(keyA.contains("zones_list"))
     }
-    
+
     @Test("SWR Cache TTL and metadata support")
-    func testSWRCacheTTLAndMetadata() async throws {
+    func sWRCacheTTLAndMetadata() async throws {
         let store = SWRCacheStore.shared
         let ttlKey = "ttl_test_key_\(UUID().uuidString)"
         let item = TestItem(id: "ttl_1", name: "TTL Test", score: 100)
-        
+
         // Write with 0.2s TTL
         await store.set(item, forKey: ttlKey, ttl: 0.2)
-        
+
         let meta = await store.getWithMetadata(forKey: ttlKey, as: TestItem.self)
         #expect(meta != nil)
         #expect(meta?.value.name == "TTL Test")
         #expect(meta?.metadata.ttl == 0.2)
         #expect(meta?.metadata.isExpired == false)
-        
+
         // Wait for TTL expiration
         try await Task.sleep(nanoseconds: 300_000_000)
-        
+
         // With ignoreExpiration: false -> should return nil
         let expiredItem = await store.get(forKey: ttlKey, as: TestItem.self, ignoreExpiration: false)
         #expect(expiredItem == nil)
@@ -132,34 +130,33 @@ struct SWRCacheStoreTests {
 
 @Suite("DateFormatters Tests")
 struct DateFormattersTests {
-    
     @Test("ISO8601 with fractional seconds parsing")
-    func testISO8601FractionalSeconds() {
+    func iSO8601FractionalSeconds() {
         let dateStr = "2026-08-17T12:30:45.123456Z"
         let parsed = DateFormatters.parseISO8601(dateStr)
         #expect(parsed != nil)
     }
-    
+
     @Test("ISO8601 standard and fallback parsing")
-    func testISO8601StandardAndFallback() {
+    func iSO8601StandardAndFallback() {
         let standard = "2026-08-17T12:30:45Z"
         #expect(DateFormatters.parseISO8601(standard) != nil)
-        
+
         let spaceSeparated = "2026-08-17 12:30:45"
         #expect(DateFormatters.parseISO8601(spaceSeparated) != nil)
     }
-    
+
     @Test("Chart date parsing")
-    func testChartDateParsing() {
+    func chartDateParsing() {
         let ymdDate = "2026-08-17"
         let date = DateFormatters.parseChartDate(ymdDate)
         let formatted = DateFormatters.yearMonthDay.string(from: date)
         #expect(formatted == "2026-08-17")
     }
-    
+
     @Test("Timestamp millisecond formatting")
-    func testTimestampMsFormatting() {
-        let timestampMs: Double = 1700000000000.0
+    func timestampMsFormatting() {
+        let timestampMs = 1_700_000_000_000.0
         let result = DateFormatters.formatTimestampMs(timestampMs)
         #expect(!result.isEmpty)
     }
@@ -169,9 +166,8 @@ struct DateFormattersTests {
 
 @Suite("Country Coordinates & Flag Tests")
 struct CountryCoordinatesTests {
-    
     @Test("Country code to flag Emoji conversion")
-    func testCountryFlagConversion() {
+    func countryFlagConversion() {
         #expect(CountryCoordinates.flag(for: "US") == "🇺🇸")
         #expect(CountryCoordinates.flag(for: "us") == "🇺🇸")
         #expect(CountryCoordinates.flag(for: "CN") == "🇨🇳")
@@ -180,18 +176,18 @@ struct CountryCoordinatesTests {
         #expect(CountryCoordinates.flag(for: "GB") == "🇬🇧")
         #expect(CountryCoordinates.flag(for: "DE") == "🇩🇪")
     }
-    
+
     @Test("Non-standard and invalid country code fallbacks")
-    func testCountryFlagFallbacks() {
+    func countryFlagFallbacks() {
         #expect(CountryCoordinates.flag(for: "XX") == "🌐")
         #expect(CountryCoordinates.flag(for: "T1") == "🌐")
         #expect(CountryCoordinates.flag(for: "TOR") == "🌐")
         #expect(CountryCoordinates.flag(for: "") == "🌐")
         #expect(CountryCoordinates.flag(for: "12") == "🌐")
     }
-    
+
     @Test("Country coordinate lookup map")
-    func testCoordinatesMap() {
+    func coordinatesMap() {
         #expect(CountryCoordinates.map["US"] != nil)
         #expect(CountryCoordinates.map["CN"] != nil)
         #expect(CountryCoordinates.map["JP"] != nil)
@@ -202,9 +198,8 @@ struct CountryCoordinatesTests {
 
 @Suite("Models Decoding Tests")
 struct ModelsDecodingTests {
-    
     @Test("Zone model JSON decoding")
-    func testZoneDecoding() throws {
+    func zoneDecoding() throws {
         let json = """
         {
             "id": "023e105f4ecef8ad9ca31a8372d0c353",
@@ -220,7 +215,7 @@ struct ModelsDecodingTests {
             }
         }
         """.data(using: .utf8)!
-        
+
         let zone = try JSONDecoder().decode(Zone.self, from: json)
         #expect(zone.id == "023e105f4ecef8ad9ca31a8372d0c353")
         #expect(zone.name == "example.com")
@@ -230,9 +225,9 @@ struct ModelsDecodingTests {
         #expect(zone.plan?.name == "Free Plan")
         #expect(zone.plan?.displayName == "Free")
     }
-    
+
     @Test("DNSRecord model JSON decoding")
-    func testDNSRecordDecoding() throws {
+    func dNSRecordDecoding() throws {
         let json = """
         {
             "id": "372e67954025e0ba6aaa6d586b9e0b59",
@@ -245,7 +240,7 @@ struct ModelsDecodingTests {
             "comment": "Main API origin"
         }
         """.data(using: .utf8)!
-        
+
         let record = try JSONDecoder().decode(DNSRecord.self, from: json)
         #expect(record.id == "372e67954025e0ba6aaa6d586b9e0b59")
         #expect(record.type == "A")
@@ -254,9 +249,9 @@ struct ModelsDecodingTests {
         #expect(record.proxied == true)
         #expect(record.comment == "Main API origin")
     }
-    
+
     @Test("WAFRule model JSON decoding")
-    func testWAFRuleDecoding() throws {
+    func wAFRuleDecoding() throws {
         let json = """
         {
             "id": "3b26c6d2-c2e0-4a87-84bc-2db85f7bb197",
@@ -266,27 +261,27 @@ struct ModelsDecodingTests {
             "enabled": true
         }
         """.data(using: .utf8)!
-        
+
         let rule = try JSONDecoder().decode(WAFRule.self, from: json)
         #expect(rule.id == "3b26c6d2-c2e0-4a87-84bc-2db85f7bb197")
         #expect(rule.action == "block")
         #expect(rule.enabled == true)
         #expect(rule.description == "Block Admin Path")
     }
-    
+
     @Test("D1TableRow identifier stability")
-    func testD1TableRowStability() {
+    func d1TableRowStability() {
         let rowWithId = D1TableRow(index: 0, values: ["_rowid_": "42", "name": "Alice"])
         #expect(rowWithId.id == "rowid_42")
         #expect(rowWithId.rowid == "42")
-        
+
         let rowWithoutId = D1TableRow(index: 5, values: ["name": "Bob", "email": "bob@example.com"])
         #expect(rowWithoutId.id.hasPrefix("row_5_"))
         #expect(rowWithoutId.rowid == nil)
     }
-    
+
     @Test("WorkerAnalytics GraphQL Response decoding")
-    func testWorkerAnalyticsGraphQLDecoding() throws {
+    func workerAnalyticsGraphQLDecoding() throws {
         let json = """
         {
             "data": {
@@ -318,7 +313,7 @@ struct ModelsDecodingTests {
             "errors": null
         }
         """.data(using: .utf8)!
-        
+
         let decoded = try JSONDecoder().decode(GraphQLResponse<WorkerAnalyticsViewerData>.self, from: json)
         let items = decoded.data?.viewer.accounts?.first?.workersInvocationsAdaptive
         #expect(items?.count == 1)
@@ -328,9 +323,9 @@ struct ModelsDecodingTests {
         #expect(items?.first?.quantiles?.cpuTimeP50 == 1.25)
         #expect(items?.first?.quantiles?.cpuTimeP99 == 8.5)
     }
-    
+
     @Test("ZoneAnalytics GraphQL Response decoding")
-    func testZoneAnalyticsGraphQLDecoding() throws {
+    func zoneAnalyticsGraphQLDecoding() throws {
         let json = """
         {
             "data": {
@@ -365,7 +360,7 @@ struct ModelsDecodingTests {
             "errors": null
         }
         """.data(using: .utf8)!
-        
+
         let decoded = try JSONDecoder().decode(GraphQLResponse<AnalyticsViewerData>.self, from: json)
         let zone = decoded.data?.viewer.zones?.first
         #expect(zone?.httpRequests1hGroups?.count == 1)
@@ -373,9 +368,9 @@ struct ModelsDecodingTests {
         #expect(zone?.trafficByCountry1h?.first?.dimensions.clientCountryName == "US")
         #expect(zone?.trafficByCountry1h?.first?.count == 4200)
     }
-    
+
     @Test("Pages Functions GraphQL adaptive groups decoding")
-    func testPagesFunctionsGraphQLDecoding() throws {
+    func pagesFunctionsGraphQLDecoding() throws {
         let json = """
         {
             "data": {
@@ -407,7 +402,7 @@ struct ModelsDecodingTests {
             "errors": null
         }
         """.data(using: .utf8)!
-        
+
         let decoded = try JSONDecoder().decode(GraphQLResponse<WorkerAnalyticsViewerData>.self, from: json)
         let list = decoded.data?.viewer.accounts?.first?.pagesFunctionsInvocationsAdaptiveGroups
         #expect(list?.count == 1)
@@ -415,12 +410,12 @@ struct ModelsDecodingTests {
         #expect(list?.first?.sum?.requests == 5600)
         #expect(list?.first?.sum?.errors == 4)
     }
-    
+
     @Test("Chart date parsing compatibility (ISO8601 & YYYY-MM-DD)")
     func testChartDateParsing() {
         let isoDate = DateFormatters.parseChartDate("2026-08-17T14:30:00Z")
         #expect(isoDate.timeIntervalSince1970 > 0)
-        
+
         let dayDate = DateFormatters.parseChartDate("2026-08-17")
         #expect(dayDate.timeIntervalSince1970 > 0)
     }
@@ -430,20 +425,19 @@ struct ModelsDecodingTests {
 
 @Suite("HTTPNetworkClient Tests")
 struct HTTPNetworkClientTests {
-    
     final class MockURLProtocol: URLProtocol, @unchecked Sendable {
-        override class func canInit(with request: URLRequest) -> Bool {
-            return true
+        override class func canInit(with _: URLRequest) -> Bool {
+            true
         }
-        
+
         override class func canonicalRequest(for request: URLRequest) -> URLRequest {
-            return request
+            request
         }
-        
+
         override func startLoading() {
             let url = request.url ?? URL(string: "https://api.cloudflare.com/client/v4/user")!
             let path = url.path
-            
+
             if path.contains("unauthorized") {
                 let response = HTTPURLResponse(url: url, statusCode: 401, httpVersion: "HTTP/2.0", headerFields: nil)!
                 client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
@@ -451,7 +445,7 @@ struct HTTPNetworkClientTests {
                 client?.urlProtocolDidFinishLoading(self)
                 return
             }
-            
+
             if path.contains("zones") {
                 let json = """
                 {
@@ -472,39 +466,39 @@ struct HTTPNetworkClientTests {
                 client?.urlProtocolDidFinishLoading(self)
                 return
             }
-            
+
             let defaultResponse = HTTPURLResponse(url: url, statusCode: 200, httpVersion: "HTTP/2.0", headerFields: nil)!
             client?.urlProtocol(self, didReceive: defaultResponse, cacheStoragePolicy: .notAllowed)
             client?.urlProtocolDidFinishLoading(self)
         }
-        
+
         override func stopLoading() {}
     }
-    
+
     @Test("HTTPNetworkClient successful performRequest")
-    func testSuccessfulPerformRequest() async throws {
+    func successfulPerformRequest() async throws {
         let config = URLSessionConfiguration.ephemeral
         config.protocolClasses = [MockURLProtocol.self]
         let session = URLSession(configuration: config)
         let client = HTTPNetworkClient(session: session, maxRetries: 1)
-        
-        let request = URLRequest(url: URL(string: "https://api.cloudflare.com/client/v4/zones/mock_zone_123")!)
+
+        let request = try URLRequest(url: #require(URL(string: "https://api.cloudflare.com/client/v4/zones/mock_zone_123")))
         let (zone, _): (Zone?, ResultInfo?) = try await client.performRequest(request)
-        
+
         #expect(zone != nil)
         #expect(zone?.id == "mock_zone_123")
         #expect(zone?.name == "example.com")
     }
-    
+
     @Test("HTTPNetworkClient handles 401 unauthorized")
-    func testUnauthorizedResponse() async {
+    func unauthorizedResponse() async throws {
         let config = URLSessionConfiguration.ephemeral
         config.protocolClasses = [MockURLProtocol.self]
         let session = URLSession(configuration: config)
         let client = HTTPNetworkClient(session: session, maxRetries: 1)
-        
-        let request = URLRequest(url: URL(string: "https://api.cloudflare.com/client/v4/unauthorized")!)
-        
+
+        let request = try URLRequest(url: #require(URL(string: "https://api.cloudflare.com/client/v4/unauthorized")))
+
         do {
             let _: (Zone?, ResultInfo?) = try await client.performRequest(request)
             #expect(Bool(false), "Should have thrown unauthorized error")
@@ -525,36 +519,35 @@ struct HTTPNetworkClientTests {
 
 @Suite("DeepLinkRouter Tests")
 struct DeepLinkRouterTests {
-    
     @Test("DeepLink routing for Zone")
     @MainActor
-    func testZoneDeepLink() {
+    func zoneDeepLink() throws {
         var tab = 0
-        let url = URL(string: "cloudns://zone/zone_abc_123")!
+        let url = try #require(URL(string: "cloudns://zone/zone_abc_123"))
         let binding = Binding(get: { tab }, set: { tab = $0 })
-        
+
         DeepLinkRouter.shared.handle(url: url, currentTab: binding)
         #expect(DeepLinkRouter.shared.activeDestination == .zone(id: "zone_abc_123"))
     }
-    
+
     @Test("DeepLink routing for Developer tab")
     @MainActor
-    func testDeveloperDeepLink() {
+    func developerDeepLink() throws {
         var tab = 0
-        let url = URL(string: "cloudns://developer/workers")!
+        let url = try #require(URL(string: "cloudns://developer/workers"))
         let binding = Binding(get: { tab }, set: { tab = $0 })
-        
+
         DeepLinkRouter.shared.handle(url: url, currentTab: binding)
         #expect(tab == 2)
     }
-    
+
     @Test("DeepLink routing for Diagnostic Tools")
     @MainActor
-    func testToolsDeepLink() {
+    func toolsDeepLink() throws {
         var tab = 0
-        let url = URL(string: "cloudns://tools/dig")!
+        let url = try #require(URL(string: "cloudns://tools/dig"))
         let binding = Binding(get: { tab }, set: { tab = $0 })
-        
+
         DeepLinkRouter.shared.handle(url: url, currentTab: binding)
         #expect(DeepLinkRouter.shared.activeDestination == .dig)
     }
@@ -564,9 +557,8 @@ struct DeepLinkRouterTests {
 
 @Suite("Widget Snapshot Formatting Tests")
 struct WidgetSnapshotFormattingTests {
-    
     @Test("ZoneWidgetSnapshot formatted metrics")
-    func testZoneWidgetSnapshotFormatting() {
+    func zoneWidgetSnapshotFormatting() {
         let snap = ZoneWidgetSnapshot(
             id: "test-zone",
             name: "example.com",
@@ -575,31 +567,31 @@ struct WidgetSnapshotFormattingTests {
             cachedRatio: 0.845,
             threats24h: 18
         )
-        
+
         #expect(snap.formattedRequests == "1.3M" || snap.formattedRequests == "1.2M")
         #expect(snap.formattedBytes == "3.2 GB" || snap.formattedBytes.contains("GB"))
         #expect(snap.formattedCachedRatio == "84%")
         #expect(snap.threats24h == 18)
     }
-    
+
     @Test("WorkerWidgetSnapshot formatted metrics")
-    func testWorkerWidgetSnapshotFormatting() {
+    func workerWidgetSnapshotFormatting() {
         let snap = WorkerWidgetSnapshot(
             id: "worker-api",
             name: "worker-api",
-            requests24h: 84_500,
+            requests24h: 84500,
             errors24h: 2,
             cpuTimeMs: 2.34,
             successRate: 0.999
         )
-        
+
         #expect(snap.formattedRequests == "84.5K")
         #expect(snap.formattedSuccessRate == "99.9%")
         #expect(snap.formattedCpuTime == "2.3ms")
     }
-    
+
     @Test("PagesWidgetSnapshot placeholder defaults")
-    func testPagesWidgetSnapshotDefaults() {
+    func pagesWidgetSnapshotDefaults() {
         let snap = PagesWidgetSnapshot.placeholder
         #expect(!snap.name.isEmpty)
         #expect(!snap.subdomain.isEmpty)
@@ -611,71 +603,70 @@ struct WidgetSnapshotFormattingTests {
 
 @Suite("Data Sync & Security Tests")
 struct DataSyncAndSecurityTests {
-    
     @Test("Multi-Account Scoped Key isolation on empty email")
-    func testAccountScopedKeySafety() {
+    func accountScopedKeySafety() {
         let prev = UserDefaults.standard.string(forKey: AppStorageKey.activeAccountEmail)
-        
+
         UserDefaults.standard.set("", forKey: AppStorageKey.activeAccountEmail)
         let keyEmpty = SWRCacheStore.accountScopedKey("test_key")
         #expect(keyEmpty == "default_test_key")
-        
+
         UserDefaults.standard.set("user@example.com", forKey: AppStorageKey.activeAccountEmail)
         let keyUser = SWRCacheStore.accountScopedKey("test_key")
         #expect(keyUser == "user@example.com_test_key")
-        
+
         if let p = prev {
             UserDefaults.standard.set(p, forKey: AppStorageKey.activeAccountEmail)
         } else {
             UserDefaults.standard.removeObject(forKey: AppStorageKey.activeAccountEmail)
         }
     }
-    
+
     @Test("RecentZonesManager removeZone functionality")
     @MainActor
-    func testRecentZonesManagerRemove() {
+    func recentZonesManagerRemove() {
         let manager = RecentZonesManager.shared
         manager.recordVisit(zoneId: "test_zone_1")
         manager.recordVisit(zoneId: "test_zone_2")
         #expect(manager.recentZoneIds.contains("test_zone_1"))
-        
+
         manager.removeZone(zoneId: "test_zone_1")
         #expect(!manager.recentZoneIds.contains("test_zone_1"))
         #expect(manager.recentZoneIds.contains("test_zone_2"))
     }
-    
+
     @Test("SWRCacheStore setMemoryOnly operations")
-    func testSWRCacheStoreMemoryOnly() async {
+    func sWRCacheStoreMemoryOnly() async {
         struct MockData: Codable, Equatable, Sendable {
             let value: String
         }
-        
+
         let store = SWRCacheStore.shared
         let key = "mem_test_key_\(UUID().uuidString)"
         let data = MockData(value: "sparkline_points")
-        
+
         await store.setMemoryOnly(data, forKey: key, ttl: 60)
         let fetched = await store.get(forKey: key, as: MockData.self)
         #expect(fetched == data)
         await store.remove(forKey: key)
     }
-    
+
     @Test("D1 row ID numeric sanitization")
     @MainActor
-    func testD1RowIDSafety() async {
+    func d1RowIDSafety() async {
         let vm = D1TableViewModel(accountId: "acc-1", databaseId: "db-1", tableName: "users")
-        
+
         // Malicious SQL injection in rowid
         let maliciousResult = await vm.deleteRow(rowid: "1; DROP TABLE users")
         #expect(maliciousResult == false)
-        
+
         let validNumberResult = await vm.deleteRow(rowid: "abc")
         #expect(validNumberResult == false)
     }
-    
+
     @Test("D1 table and column identifier quote escaping")
     @MainActor
-    func testD1IdentifierQuoteEscaping() async {
+    func d1IdentifierQuoteEscaping() async {
         let vm = D1TableViewModel(accountId: "acc-1", databaseId: "db-1", tableName: "user\"table")
         // Trigger insert with quoted column containing double quotes
         let result = await vm.insertRow(values: ["col\"name": "test'value"])
@@ -688,49 +679,48 @@ struct DataSyncAndSecurityTests {
 
 @Suite("Security & Multi-tenant Isolation Tests")
 struct SecurityAndMultiTenantTests {
-    
     @Test("WidgetDataStore active account switching isolation")
     @MainActor
-    func testWidgetDataStoreAccountIsolation() {
+    func widgetDataStoreAccountIsolation() {
         let store = WidgetDataStore.shared
-        
+
         // 1. Account A saves snapshot
         store.syncActiveAccount("userA@example.com")
         let snapA = ZoneWidgetSnapshot(id: "zone_a", name: "usera.com", status: "active", plan: "Free", requests24h: 100, bytes24h: 1000, cachedRatio: 0.8, threats24h: 0, isProxied: true, isSSLEnabled: true, lastUpdated: Date())
         store.saveZoneSnapshot(snapA)
-        
+
         let loadedA = store.loadZoneSnapshot()
         #expect(loadedA.id == "zone_a")
-        
+
         // 2. Switch to Account B
         store.syncActiveAccount("userB@example.com")
         let loadedB = store.loadZoneSnapshot()
         // Account B must not see Account A's zone_a
         #expect(loadedB.id != "zone_a")
-        
+
         // Clean up
         store.clearAll()
     }
-    
+
     @Test("DeepLinkRouter strict URL parsing avoids false positives")
     @MainActor
-    func testStrictDeepLinkParsing() {
+    func strictDeepLinkParsing() {
         let router = DeepLinkRouter.shared
         var currentTab: AppTab = .domains
         let binding = Binding(get: { currentTab }, set: { currentTab = $0 })
-        
+
         // Query param or substring containing 'worker' should NOT route to worker
         if let maliciousUrl = URL(string: "cloudns://tools?search=myworker") {
             router.handle(url: maliciousUrl, currentTab: binding)
             #expect(router.activeDestination == nil)
         }
-        
+
         // Proper worker deep link
         if let validWorkerUrl = URL(string: "cloudns://worker/my-cool-worker") {
             router.handle(url: validWorkerUrl, currentTab: binding)
             #expect(router.activeDestination == .worker(id: "my-cool-worker"))
         }
-        
+
         // Proper zone deep link
         if let validZoneUrl = URL(string: "cloudns://zone/zone12345") {
             router.handle(url: validZoneUrl, currentTab: binding)
@@ -743,18 +733,17 @@ struct SecurityAndMultiTenantTests {
 
 @Suite("ViewModel State & Logic Tests")
 struct ViewModelStateTests {
-    
     @Test("DNSRecordsViewModel record state and canLoadMore calculation")
     @MainActor
-    func testDNSRecordViewModelState() {
+    func dNSRecordViewModelState() {
         let vm = DNSRecordsViewModel(zoneId: "test_zone")
-        
+
         let rec1 = DNSRecord(id: "1", type: "A", name: "api.example.com", content: "1.1.1.1", proxiable: true, proxied: true, ttl: 1, comment: "API Server", tags: nil)
         let rec2 = DNSRecord(id: "2", type: "CNAME", name: "www.example.com", content: "example.com", proxiable: true, proxied: false, ttl: 1, comment: nil, tags: nil)
-        
+
         vm.records = [rec1, rec2]
         vm.totalCount = 2
-        
+
         #expect(vm.records.count == 2)
         #expect(vm.records.first?.id == "1")
         #expect(vm.records.first?.proxied == true)
@@ -762,4 +751,3 @@ struct ViewModelStateTests {
         #expect(vm.canLoadMore == false)
     }
 }
-

@@ -1,37 +1,39 @@
 import SwiftUI
 
 // MARK: - DNSSECView
+
 // Apple HIG Compliant DNSSEC Status and DS Record Viewer (iOS 16.0+)
 
 struct DNSSECView: View {
     let zoneId: String
     let zoneName: String
-    
+
     @StateObject private var viewModel: DNSSECViewModel
     @ObservedObject private var themeManager = ThemeManager.shared
-    
+
     private var accentColor: Color {
         themeManager.accentColor
     }
-    
+
     init(zoneId: String, zoneName: String) {
         self.zoneId = zoneId
         self.zoneName = zoneName
         _viewModel = StateObject(wrappedValue: DNSSECViewModel(zoneId: zoneId))
     }
-    
+
     var body: some View {
         List {
             // MARK: - Hero Header
+
             Section {
                 VStack(spacing: 12) {
                     HeroHeaderEmblemView(icon: "key.horizontal.fill", primaryColor: .green, secondaryColor: .indigo)
-                    .padding(.top, 4)
-                    
+                        .padding(.top, 4)
+
                     Text("DNSSEC")
                         .font(.title2.weight(.bold))
                         .foregroundStyle(.primary)
-                    
+
                     Text("Cryptographically sign DNS records to prevent spoofing for \(zoneName).")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
@@ -43,14 +45,15 @@ struct DNSSECView: View {
             }
             .listRowBackground(Color.clear)
             .listRowInsets(EdgeInsets())
-            
+
             // MARK: - Protection Status
+
             Section(
                 header: Text("Status"),
                 footer: Text("When enabled, Cloudflare generates DS records to be registered at your domain registrar.")
             ) {
                 let status = viewModel.dnssec?.status ?? "disabled"
-                
+
                 HStack(spacing: 12) {
                     ListRowIcon(icon: "shield.lefthalf.filled", color: statusColor(for: status))
                     VStack(alignment: .leading, spacing: 2) {
@@ -64,7 +67,7 @@ struct DNSSECView: View {
                     statusPill(for: status)
                 }
                 .disabled(viewModel.dnssec == nil)
-                
+
                 Toggle(isOn: Binding(
                     get: { status == "active" || status == "pending" },
                     set: { _ in
@@ -85,8 +88,9 @@ struct DNSSECView: View {
                 }
                 .disabled(viewModel.dnssec == nil)
             }
-            
+
             // MARK: - DS Records (if active/pending)
+
             if let dnssec = viewModel.dnssec, dnssec.status == "active" || dnssec.status == "pending" {
                 Section(
                     header: HStack {
@@ -138,13 +142,13 @@ struct DNSSECView: View {
             await viewModel.fetchDNSSEC()
         }
     }
-    
+
     @ViewBuilder
     private func statusPill(for status: String) -> some View {
         let isAct = status == "active"
         let isPend = status == "pending"
         let color: Color = isAct ? .green : (isPend ? .orange : .secondary)
-        
+
         Text(status.capitalized)
             .font(.caption2.weight(.medium))
             .padding(.horizontal, 7)
@@ -153,7 +157,7 @@ struct DNSSECView: View {
             .foregroundStyle(color)
             .clipShape(Capsule())
     }
-    
+
     @ViewBuilder
     private func dsFieldRow(label: String, value: String?) -> some View {
         if let val = value, !val.isEmpty {
@@ -180,12 +184,12 @@ struct DNSSECView: View {
             .padding(.vertical, 2)
         }
     }
-    
+
     private func statusColor(for status: String) -> Color {
         switch status {
-        case "active": return .green
-        case "pending": return .orange
-        default: return .gray
+        case "active": .green
+        case "pending": .orange
+        default: .gray
         }
     }
 }

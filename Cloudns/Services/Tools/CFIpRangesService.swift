@@ -7,12 +7,12 @@ protocol CFIpRangesServiceProtocol: Sendable {
 
 final class CFIpRangesService: CFIpRangesServiceProtocol {
     static let shared = CFIpRangesService()
-    
+
     private let client = HTTPNetworkClient.shared
     private let factory = AuthenticatedRequestFactory.shared
-    
+
     private init() {}
-    
+
     func getCloudflareIPs() async throws -> ([String], [String]) {
         let request = try factory.createAuthenticatedRequest(path: "ips")
         struct CFIPsResponse: Codable {

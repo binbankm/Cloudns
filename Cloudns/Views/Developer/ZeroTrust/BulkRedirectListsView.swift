@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - BulkRedirectListsView
+
 // Apple HIG Compliant Cloudflare Account-Level Bulk Redirect Lists
 
 struct BulkRedirectListsView: View {
@@ -9,12 +10,12 @@ struct BulkRedirectListsView: View {
     @State private var showingCreateSheet = false
     @State private var listToDelete: RedirectList?
     @State private var showingDeleteAlert = false
-    
+
     init(accountId: String) {
         self.accountId = accountId
         _viewModel = StateObject(wrappedValue: BulkRedirectsViewModel(accountId: accountId))
     }
-    
+
     var body: some View {
         List {
             if !viewModel.filteredLists.isEmpty {
@@ -29,15 +30,15 @@ struct BulkRedirectListsView: View {
                             } label: {
                                 Label("Copy List Name", systemImage: "doc.on.doc")
                             }
-                            
+
                             Button {
                                 copyToClipboard(item.id, toast: "List ID Copied")
                             } label: {
                                 Label("Copy List ID", systemImage: "link")
                             }
-                            
+
                             Divider()
-                            
+
                             Button(role: .destructive) {
                                 HapticManager.impact(.medium)
                                 listToDelete = item
@@ -116,17 +117,16 @@ struct BulkRedirectListsView: View {
             }
         }
     }
-    
-    @ViewBuilder
+
     private func listRow(_ item: RedirectList) -> some View {
         HStack(spacing: 12) {
             ListRowIcon(icon: "list.bullet.rectangle.portrait.fill", color: .teal)
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(verbatim: item.name)
                     .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
-                
+
                 if let desc = item.description, !desc.isEmpty {
                     Text(desc)
                         .font(.caption2)
@@ -134,9 +134,9 @@ struct BulkRedirectListsView: View {
                         .lineLimit(1)
                 }
             }
-            
+
             Spacer()
-            
+
             if let count = item.count {
                 Text("\(count) items")
                     .font(.caption.monospacedDigit())
@@ -152,11 +152,11 @@ struct BulkRedirectListsView: View {
 struct CreateBulkRedirectListSheetView: View {
     @ObservedObject var viewModel: BulkRedirectsViewModel
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var name = ""
     @State private var description = ""
     @State private var isCreating = false
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -167,7 +167,7 @@ struct CreateBulkRedirectListSheetView: View {
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .submitLabel(.next)
-                    
+
                     TextField("Description (Optional)", text: $description)
                         .font(.body)
                         .submitLabel(.done)

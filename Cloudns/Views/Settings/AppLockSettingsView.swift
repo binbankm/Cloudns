@@ -1,12 +1,12 @@
-import SwiftUI
 import LocalAuthentication
+import SwiftUI
 
 struct AppLockSettingsView: View {
     @AppStorage(AppStorageKey.isAppLockEnabled) private var isAppLockEnabled = false
     @AppStorage(AppStorageKey.autoLockTimeout) private var autoLockTimeout = 0
     @ObservedObject private var authManager = AppAuthManager.shared
     @AppStorage(AppStorageKey.appLanguage) private var appLanguage = "system"
-    
+
     private let timeoutOptions: [(title: LocalizedStringKey, seconds: Int)] = [
         ("Immediately", 0),
         ("After 1 minute", 60),
@@ -14,10 +14,11 @@ struct AppLockSettingsView: View {
         ("After 5 minutes", 300),
         ("After 30 minutes", 1800)
     ]
-    
+
     var body: some View {
         List {
             // MARK: - Biometric Requirement Toggle
+
             Section {
                 Toggle(isOn: Binding(
                     get: { isAppLockEnabled },
@@ -42,8 +43,9 @@ struct AppLockSettingsView: View {
             } footer: {
                 footerLabel
             }
-            
+
             // MARK: - Auto-Lock Options (Only shown when Enabled)
+
             if isAppLockEnabled {
                 Section {
                     ForEach(timeoutOptions, id: \.seconds) { option in
@@ -55,9 +57,9 @@ struct AppLockSettingsView: View {
                                 Text(option.title)
                                     .font(.body)
                                     .foregroundStyle(.primary)
-                                
+
                                 Spacer()
-                                
+
                                 if autoLockTimeout == option.seconds {
                                     Image(systemName: "checkmark.circle.fill")
                                         .font(.title3)
@@ -78,7 +80,7 @@ struct AppLockSettingsView: View {
         .navigationBarTitleDisplayMode(.inline)
         .id(appLanguage)
     }
-    
+
     @ViewBuilder
     private var toggleLabel: some View {
         switch authManager.biometryType {
@@ -90,7 +92,7 @@ struct AppLockSettingsView: View {
             Text("Require Passcode")
         }
     }
-    
+
     @ViewBuilder
     private var footerLabel: some View {
         switch authManager.biometryType {

@@ -20,22 +20,22 @@ protocol PagesServiceProtocol: Sendable {
 
 final class PagesService: PagesServiceProtocol {
     static let shared = PagesService()
-    
+
     private let client = HTTPNetworkClient.shared
     private let factory = AuthenticatedRequestFactory.shared
-    
+
     private init() {}
-    
+
     func getPagesProjects(accountId: String) async throws -> [PagesProject] {
         try await listPagesProjects(accountId: accountId)
     }
-    
+
     func listPagesProjects(accountId: String) async throws -> [PagesProject] {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/pages/projects")
         let (projects, _): ([PagesProject]?, ResultInfo?) = try await client.performRequest(request)
         return projects ?? []
     }
-    
+
     func createPagesProject(accountId: String, name: String, productionBranch: String = "main") async throws -> PagesProject {
         let payload: [String: Any] = ["name": name, "production_branch": productionBranch]
         let data = try JSONSerialization.data(withJSONObject: payload)
@@ -44,13 +44,13 @@ final class PagesService: PagesServiceProtocol {
         guard let p = project else { throw APIError.cloudflareError("Failed to create pages project") }
         return p
     }
-    
+
     func deletePagesProject(accountId: String, projectName: String) async throws {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/pages/projects/\(projectName)", method: "DELETE")
         struct DeleteRes: Codable { let id: String? }
         let (_, _): (DeleteRes?, ResultInfo?) = try await client.performRequest(request)
     }
-    
+
     func updatePagesProject(
         accountId: String,
         projectName: String,
@@ -59,20 +59,32 @@ final class PagesService: PagesServiceProtocol {
         rootDir: String? = nil,
         productionBranch: String? = nil,
         buildConfig: PagesBuildConfig? = nil,
-        envConfig: PagesEnvConfig? = nil
+        envConfig _: PagesEnvConfig? = nil
     ) async throws {
         var payload: [String: Any] = [:]
         if let b = buildConfig {
             var bDict: [String: Any] = [:]
-            if let cmd = b.buildCommand { bDict["build_command"] = cmd }
-            if let dest = b.destinationDir { bDict["destination_dir"] = dest }
-            if let root = b.rootDir { bDict["root_dir"] = root }
+            if let cmd = b.buildCommand {
+                bDict["build_command"] = cmd
+            }
+            if let dest = b.destinationDir {
+                bDict["destination_dir"] = dest
+            }
+            if let root = b.rootDir {
+                bDict["root_dir"] = root
+            }
             payload["build_config"] = bDict
         } else if buildCommand != nil || destinationDir != nil || rootDir != nil {
             var bDict: [String: Any] = [:]
-            if let cmd = buildCommand { bDict["build_command"] = cmd }
-            if let dest = destinationDir { bDict["destination_dir"] = dest }
-            if let root = rootDir { bDict["root_dir"] = root }
+            if let cmd = buildCommand {
+                bDict["build_command"] = cmd
+            }
+            if let dest = destinationDir {
+                bDict["destination_dir"] = dest
+            }
+            if let root = rootDir {
+                bDict["root_dir"] = root
+            }
             payload["build_config"] = bDict
         }
         if let branch = productionBranch {
@@ -83,19 +95,19 @@ final class PagesService: PagesServiceProtocol {
         struct Res: Codable { let id: String? }
         let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
     }
-    
+
     func getPagesDeployments(accountId: String, projectName: String) async throws -> [PagesDeployment] {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/pages/projects/\(projectName)/deployments")
         let (deps, _): ([PagesDeployment]?, ResultInfo?) = try await client.performRequest(request)
         return deps ?? []
     }
-    
+
     func getPagesDomains(accountId: String, projectName: String) async throws -> [PagesDomain] {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/pages/projects/\(projectName)/domains")
         let (doms, _): ([PagesDomain]?, ResultInfo?) = try await client.performRequest(request)
         return doms ?? []
     }
-    
+
     func addPagesDomain(accountId: String, projectName: String, domain: String) async throws {
         let payload: [String: Any] = ["name": domain]
         let data = try JSONSerialization.data(withJSONObject: payload)
@@ -103,42 +115,44 @@ final class PagesService: PagesServiceProtocol {
         struct Res: Codable { let id: String? }
         let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
     }
-    
+
     func deletePagesDomain(accountId: String, projectName: String, domain: String) async throws {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/pages/projects/\(projectName)/domains/\(domain)", method: "DELETE")
         struct Res: Codable { let id: String? }
         let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
     }
-    
+
     func rollbackPagesDeployment(accountId: String, projectName: String, deploymentId: String) async throws {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/pages/projects/\(projectName)/deployments/\(deploymentId)/rollback", method: "POST")
         struct Res: Codable { let id: String? }
         let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
     }
-    
+
     func retryPagesDeployment(accountId: String, projectName: String, deploymentId: String) async throws {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/pages/projects/\(projectName)/deployments/\(deploymentId)/retry", method: "POST")
         struct Res: Codable { let id: String? }
         let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
     }
-    
+
     func deletePagesDeployment(accountId: String, projectName: String, deploymentId: String) async throws {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/pages/projects/\(projectName)/deployments/\(deploymentId)", method: "DELETE")
         struct Res: Codable { let id: String? }
         let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
     }
-    
+
     func getPagesDeploymentLogs(accountId: String, projectName: String, deploymentId: String) async throws -> [PagesDeploymentLog] {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/pages/projects/\(projectName)/deployments/\(deploymentId)/history/logs")
         let (logs, _): (PagesDeploymentLogsResult?, ResultInfo?) = try await client.performRequest(request)
         return logs?.data ?? []
     }
-    
+
     func updatePagesEnvVars(accountId: String, projectName: String, environment: String, envVars: [String: PagesEnvVarValue]) async throws {
         var envVarsDict: [String: Any] = [:]
         for (k, v) in envVars {
             var varDict: [String: Any] = ["type": v.type ?? (v.isSecret ? "secret_text" : "plain_text")]
-            if let val = v.value { varDict["value"] = val }
+            if let val = v.value {
+                varDict["value"] = val
+            }
             envVarsDict[k] = varDict
         }
         let payload: [String: Any] = [
@@ -153,7 +167,7 @@ final class PagesService: PagesServiceProtocol {
         struct Res: Codable { let id: String? }
         let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
     }
-    
+
     func updatePagesResourceBindings(
         accountId: String,
         projectName: String,
@@ -167,21 +181,27 @@ final class PagesService: PagesServiceProtocol {
         if let kv = kvNamespaces {
             var kvDict: [String: Any] = [:]
             for (k, v) in kv {
-                if let nsId = v.namespaceId { kvDict[k] = ["namespace_id": nsId] }
+                if let nsId = v.namespaceId {
+                    kvDict[k] = ["namespace_id": nsId]
+                }
             }
             envConfigDict["kv_namespaces"] = kvDict
         }
         if let d1 = d1Databases {
             var d1Dict: [String: Any] = [:]
             for (k, v) in d1 {
-                if let id = v.id { d1Dict[k] = ["id": id] }
+                if let id = v.id {
+                    d1Dict[k] = ["id": id]
+                }
             }
             envConfigDict["d1_databases"] = d1Dict
         }
         if let r2 = r2Buckets {
             var r2Dict: [String: Any] = [:]
             for (k, v) in r2 {
-                if let name = v.name { r2Dict[k] = ["name": name] }
+                if let name = v.name {
+                    r2Dict[k] = ["name": name]
+                }
             }
             envConfigDict["r2_buckets"] = r2Dict
         }
@@ -192,7 +212,7 @@ final class PagesService: PagesServiceProtocol {
             }
             envConfigDict["ai_bindings"] = aiDict
         }
-        
+
         let payload: [String: Any] = [
             "deployment_configs": [
                 environment: envConfigDict

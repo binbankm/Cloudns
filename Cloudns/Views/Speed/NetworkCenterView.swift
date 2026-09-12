@@ -1,26 +1,28 @@
 import SwiftUI
 
 // MARK: - NetworkCenterView
+
 // Apple HIG Compliant Cloudflare Network Protocols, HTTP/3 QUIC, IPv6 & Origin Routing (iOS 16.0+)
 
 struct NetworkCenterView: View {
     let zoneId: String
     let zoneName: String
-    
+
     @StateObject private var viewModel = NetworkSettingsViewModel()
-    
+
     var body: some View {
         List {
             // MARK: - Hero Header
+
             Section {
                 VStack(spacing: 12) {
                     HeroHeaderEmblemView(icon: "globe.asia.australia.fill", primaryColor: .blue, secondaryColor: .cyan)
-                    .padding(.top, 4)
-                    
+                        .padding(.top, 4)
+
                     Text("Network & Routing")
                         .font(.title2.weight(.bold))
                         .foregroundStyle(.primary)
-                    
+
                     Text("Manage network protocols and connectivity for \(zoneName).")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
@@ -32,8 +34,9 @@ struct NetworkCenterView: View {
             }
             .listRowBackground(Color.clear)
             .listRowInsets(EdgeInsets())
-            
+
             // MARK: - Error Banner
+
             if let errorMessage = viewModel.errorMessage {
                 Section {
                     HStack(spacing: 12) {
@@ -44,8 +47,9 @@ struct NetworkCenterView: View {
                     }
                 }
             }
-            
+
             // MARK: - Core Protocols
+
             Section(
                 header: Text("Core Protocols"),
                 footer: Text("Modern network protocols accelerate delivery and provide better connection resilience.")
@@ -73,7 +77,7 @@ struct NetworkCenterView: View {
                     }
                 }
                 .disabled(!viewModel.hasFetchedData)
-                
+
                 // WebSockets
                 Toggle(isOn: Binding(
                     get: { viewModel.websockets },
@@ -98,8 +102,9 @@ struct NetworkCenterView: View {
                 }
                 .disabled(!viewModel.hasFetchedData)
             }
-            
+
             // MARK: - HTTP & Transport
+
             Section(
                 header: Text("HTTP & Transport Acceleration"),
                 footer: Text("HTTP/2 and HTTP/3 (QUIC) drastically reduce page load latency and handshake round trips.")
@@ -127,7 +132,7 @@ struct NetworkCenterView: View {
                     }
                 }
                 .disabled(!viewModel.hasFetchedData)
-                
+
                 // HTTP/3 (QUIC)
                 Toggle(isOn: Binding(
                     get: { viewModel.http3 },
@@ -161,8 +166,9 @@ struct NetworkCenterView: View {
                 }
                 .disabled(!viewModel.hasFetchedData)
             }
-            
+
             // MARK: - Advanced Routing
+
             Section(
                 header: Text("Advanced Routing"),
                 footer: Text("IP Geolocation includes visitor country code in the CF-IPCountry header.")
@@ -190,7 +196,7 @@ struct NetworkCenterView: View {
                     }
                 }
                 .disabled(!viewModel.hasFetchedData)
-                
+
                 // Origin Max HTTP Version
                 HStack(spacing: 12) {
                     ListRowIcon(icon: "server.rack", color: .purple)

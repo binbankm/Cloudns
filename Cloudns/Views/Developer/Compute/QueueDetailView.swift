@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - QueueDetailView
+
 // Apple HIG Compliant Cloudflare Queue Detail & Consumer/Producer Topology
 
 struct QueueDetailView: View {
@@ -8,10 +9,10 @@ struct QueueDetailView: View {
     let queue: CFQueue
     @ObservedObject var viewModel: QueuesViewModel
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var showingDeleteAlert = false
     @State private var showingPurgeAlert = false
-    
+
     var body: some View {
         List {
             overviewSection
@@ -48,12 +49,11 @@ struct QueueDetailView: View {
             Text("Are you sure you want to purge all unconsumed messages in '\(queue.queueName)'?")
         }
     }
-    
-    @ViewBuilder
+
     private var overviewSection: some View {
         Section(header: Text("Queue Overview")) {
             LabeledContent("Queue Name", value: queue.queueName)
-            
+
             if let id = queue.queueId {
                 LabeledContent("Queue ID") {
                     Text(id)
@@ -68,17 +68,17 @@ struct QueueDetailView: View {
                     }
                 }
             }
-            
+
             if let delay = queue.settings?.deliveryDelay {
                 LabeledContent("Delivery Delay", value: "\(delay)s")
             }
-            
+
             if let ret = queue.settings?.messageRetentionPeriod {
                 LabeledContent("Retention Period", value: "\(ret / 86400) days (\(ret)s)")
             }
         }
     }
-    
+
     @ViewBuilder
     private var producersSection: some View {
         if let producers = queue.producers, !producers.isEmpty {
@@ -99,7 +99,7 @@ struct QueueDetailView: View {
             }
         }
     }
-    
+
     @ViewBuilder
     private var consumersSection: some View {
         if let consumers = queue.consumers, !consumers.isEmpty {
@@ -120,8 +120,7 @@ struct QueueDetailView: View {
             }
         }
     }
-    
-    @ViewBuilder
+
     private var dangerZoneSection: some View {
         Section(header: Text("Danger Zone")) {
             Button(role: .destructive) {
@@ -130,7 +129,7 @@ struct QueueDetailView: View {
             } label: {
                 Label("Purge All Messages", systemImage: "xmark.bin")
             }
-            
+
             Button(role: .destructive) {
                 showingDeleteAlert = true
                 HapticManager.impact(.medium)

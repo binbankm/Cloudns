@@ -1,20 +1,23 @@
 import SwiftUI
 
 // MARK: - HTTPHeaderInspectorView
+
 // Apple HIG Compliant Cloudflare Edge HTTP & Cache Header Inspector
 
 struct HTTPHeaderInspectorView: View {
     @StateObject private var viewModel = HTTPHeaderInspectorViewModel()
     @FocusState private var isFieldFocused: Bool
     @State private var headerSearchText = ""
-    
+
     var filteredHeaders: [HTTPHeaderItem] {
         guard let res = viewModel.httpResult else { return [] }
-        if headerSearchText.isEmpty { return res.headers }
+        if headerSearchText.isEmpty {
+            return res.headers
+        }
         let query = headerSearchText.lowercased()
         return res.headers.filter { $0.key.lowercased().contains(query) || $0.value.lowercased().contains(query) }
     }
-    
+
     var body: some View {
         List {
             // 1. Target URL & Method Section
@@ -23,7 +26,7 @@ struct HTTPHeaderInspectorView: View {
                     Image(systemName: "link")
                         .foregroundStyle(.tint)
                         .accessibilityHidden(true)
-                    
+
                     TextField("https://example.com", text: $viewModel.httpUrlInput)
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
@@ -34,7 +37,7 @@ struct HTTPHeaderInspectorView: View {
                         .onSubmit {
                             performInspect()
                         }
-                    
+
                     if !viewModel.httpUrlInput.isEmpty {
                         Button {
                             viewModel.httpUrlInput = ""
@@ -48,14 +51,14 @@ struct HTTPHeaderInspectorView: View {
                         .accessibilityLabel("Clear URL")
                     }
                 }
-                
+
                 Picker("HTTP Method", selection: $viewModel.httpMethod) {
                     ForEach(viewModel.httpMethods, id: \.self) { method in
                         Text(method).tag(method)
                     }
                 }
                 .pickerStyle(.segmented)
-                
+
                 Button {
                     performInspect()
                 } label: {
@@ -77,7 +80,7 @@ struct HTTPHeaderInspectorView: View {
             } footer: {
                 Text("Inspects live Cloudflare Edge HTTP response status, CF-Ray, caching status & custom headers.")
             }
-            
+
             if viewModel.isHttpLoading {
                 Section {
                     HStack {
@@ -92,7 +95,7 @@ struct HTTPHeaderInspectorView: View {
                 Section("Edge Response Summary") {
                     edgeSummaryRows(result: result)
                 }
-                
+
                 // 3. Response Headers Section
                 Section("Response Headers (\(result.headers.count))") {
                     headersRows(result: result)
@@ -131,14 +134,15 @@ struct HTTPHeaderInspectorView: View {
             }
         }
     }
-    
+
     private func performInspect() {
         isFieldFocused = false
         HapticManager.impact(.light)
         Task { await viewModel.inspectHTTP() }
     }
-    
+
     // MARK: - 2. Edge Summary Rows
+
     @ViewBuilder
     private func edgeSummaryRows(result: HTTPInspectionResult) -> some View {
         HStack {
@@ -155,7 +159,7 @@ struct HTTPHeaderInspectorView: View {
                     .foregroundStyle(.primary)
             }
         }
-        
+
         if let cache = result.cfCacheStatus {
             HStack {
                 Text("CF-Cache-Status")
@@ -165,7 +169,7 @@ struct HTTPHeaderInspectorView: View {
                 cacheStatusBadge(cache)
             }
         }
-        
+
         if let ray = result.cfRay {
             HStack {
                 Text("CF-Ray ID")
@@ -184,7 +188,7 @@ struct HTTPHeaderInspectorView: View {
                 }
             }
         }
-        
+
         HStack {
             Text("Total TTFB Latency")
                 .font(.subheadline)
@@ -195,23 +199,22 @@ struct HTTPHeaderInspectorView: View {
                 .foregroundStyle(.primary)
         }
     }
-    
-    @ViewBuilder
-    private func headersRows(result: HTTPInspectionResult) -> some View {
+
+    private func headersRows(result _: HTTPInspectionResult) -> some View {
         ForEach(filteredHeaders) { header in
             HStack(alignment: .top, spacing: 8) {
                 Text(header.key)
                     .font(.caption.monospaced().weight(.semibold))
                     .foregroundStyle(.secondary)
                     .frame(width: 120, alignment: .leading)
-                
+
                 Text(header.value)
                     .font(.caption.monospaced())
                     .foregroundStyle(.primary)
                     .textSelection(.enabled)
-                
+
                 Spacer()
-                
+
                 Button {
                     copyToClipboard("\(header.key): \(header.value)", toast: "Header Copied")
                 } label: {
@@ -236,24 +239,22 @@ struct HTTPHeaderInspectorView: View {
             }
         }
     }
-    
+
     @ViewBuilder
     private func cacheStatusBadge(_ status: String) -> some View {
         let upper = status.uppercased()
-        let (color, text): (Color, String) = {
-            if upper.contains("HIT") {
-                return (.green, "HIT")
-            } else if upper.contains("MISS") {
-                return (.orange, "MISS")
-            } else if upper.contains("DYNAMIC") {
-                return (.blue, "DYNAMIC")
-            } else if upper.contains("BYPASS") {
-                return (.secondary, "BYPASS")
-            } else {
-                return (.secondary, upper)
-            }
-        }()
-        
+        let (color, text): (Color, String) = if upper.contains("HIT") {
+            (.green, "HIT")
+        } else if upper.contains("MISS") {
+            (.orange, "MISS")
+        } else if upper.contains("DYNAMIC") {
+            (.blue, "DYNAMIC")
+        } else if upper.contains("BYPASS") {
+            (.secondary, "BYPASS")
+        } else {
+            (.secondary, upper)
+        }
+
         Text(text)
             .font(.caption2.weight(.medium))
             .foregroundStyle(color)
@@ -261,7 +262,7 @@ struct HTTPHeaderInspectorView: View {
             .padding(.vertical, 2)
             .background(Capsule().fill(color.opacity(0.12)))
     }
-    
+
     private func copyAllHeaders(_ result: HTTPInspectionResult) {
         let text = result.headers.map { "\($0.key): \($0.value)" }.joined(separator: "\n")
         copyToClipboard(text, toast: "All Headers Copied")

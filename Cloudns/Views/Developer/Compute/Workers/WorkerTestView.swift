@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - WorkerTestView
+
 // Apple HIG Compliant Edge Request Dispatcher, Payload Tester & cURL Generator
 
 struct WorkerTestView: View {
@@ -8,16 +9,17 @@ struct WorkerTestView: View {
     let initialRoute: String?
     @StateObject private var viewModel: WorkerTesterViewModel
     @FocusState private var isFieldFocused: Bool
-    
+
     init(scriptName: String, initialRoute: String? = nil) {
         self.scriptName = scriptName
         self.initialRoute = initialRoute
         _viewModel = StateObject(wrappedValue: WorkerTesterViewModel(scriptName: scriptName, initialRoute: initialRoute))
     }
-    
+
     var body: some View {
         List {
             // MARK: - Target URL & Method
+
             Section {
                 HStack {
                     Text("HTTP Method")
@@ -35,18 +37,18 @@ struct WorkerTestView: View {
                         HapticManager.impact(.light)
                     }
                 }
-                
+
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Target URL")
                         .font(.caption)
                         .foregroundStyle(.secondary)
-                    
+
                     HStack(spacing: 8) {
                         Image(systemName: "link")
                             .font(.body)
                             .foregroundStyle(.secondary)
                             .accessibilityHidden(true)
-                        
+
                         TextField("https://...", text: $viewModel.targetUrl)
                             .submitLabel(.done)
                             .font(.body.monospacedDigit())
@@ -54,7 +56,7 @@ struct WorkerTestView: View {
                             .autocorrectionDisabled()
                             .keyboardType(.URL)
                             .focused($isFieldFocused)
-                        
+
                         if !viewModel.targetUrl.isEmpty {
                             Button {
                                 viewModel.targetUrl = ""
@@ -68,7 +70,7 @@ struct WorkerTestView: View {
                     }
                 }
                 .padding(.vertical, 2)
-                
+
                 // Quick Path Shortcuts
                 ScrollView(.horizontal) {
                     HStack(spacing: 8) {
@@ -83,8 +85,9 @@ struct WorkerTestView: View {
             } header: {
                 Text("Request Configuration")
             }
-            
+
             // MARK: - Request Payload (if POST/PUT/PATCH)
+
             if viewModel.selectedMethod == "POST" || viewModel.selectedMethod == "PUT" || viewModel.selectedMethod == "PATCH" {
                 Section {
                     TextEditor(text: $viewModel.requestBody)
@@ -96,8 +99,9 @@ struct WorkerTestView: View {
                     Text("Custom JSON payload sent in the HTTP request body.")
                 }
             }
-            
+
             // MARK: - Dispatch Action
+
             Section {
                 Button {
                     isFieldFocused = false
@@ -120,8 +124,9 @@ struct WorkerTestView: View {
                 }
                 .disabled(viewModel.targetUrl.isEmpty || viewModel.isTesting)
             }
-            
+
             // MARK: - Response Display
+
             if let status = viewModel.responseStatusCode {
                 Section {
                     HStack {
@@ -130,7 +135,7 @@ struct WorkerTestView: View {
                             .foregroundStyle(.secondary)
                         Spacer()
                         let statusText = [String(status), viewModel.responseStatusText].compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: " ")
-                        let isSuccess = (200...299).contains(status)
+                        let isSuccess = (200 ... 299).contains(status)
                         Text(statusText)
                             .font(.caption2.weight(.medium))
                             .foregroundStyle(isSuccess ? Color.green : Color.red)
@@ -138,7 +143,7 @@ struct WorkerTestView: View {
                             .padding(.vertical, 2)
                             .background(Capsule().fill((isSuccess ? Color.green : Color.red).opacity(0.12)))
                     }
-                    
+
                     if let dur = viewModel.responseDurationMs {
                         HStack {
                             Text("Latency / Time")
@@ -156,7 +161,7 @@ struct WorkerTestView: View {
                 } header: {
                     Text("Response Status")
                 }
-                
+
                 if let body = viewModel.responseBody, !body.isEmpty {
                     Section {
                         ScrollView(.horizontal, showsIndicators: true) {
@@ -204,11 +209,11 @@ struct WorkerTestView: View {
                             secondaryColor: .orange.opacity(0.88),
                             size: 48
                         )
-                        
+
                         Text("Ready to Probe Worker")
                             .font(.subheadline.weight(.semibold))
                             .foregroundStyle(.primary)
-                        
+
                         Text("Send live HTTP requests directly from your device to test edge routing, response headers, and latency in real time.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -233,7 +238,7 @@ struct WorkerTestView: View {
                     } label: {
                         Label("Copy as cURL", systemImage: "terminal")
                     }
-                    
+
                     Button {
                         let fetchCode = generateFetchCode()
                         copyToClipboard(fetchCode, toast: "Fetch Code Copied")
@@ -248,9 +253,9 @@ struct WorkerTestView: View {
             }
         }
     }
-    
+
     private func generateCurlCommand() -> String {
-        var parts: [String] = ["curl -X \(viewModel.selectedMethod) \"\(viewModel.targetUrl)\""]
+        var parts = ["curl -X \(viewModel.selectedMethod) \"\(viewModel.targetUrl)\""]
         if viewModel.selectedMethod == "POST" || viewModel.selectedMethod == "PUT" || viewModel.selectedMethod == "PATCH" {
             parts.append("-H \"Content-Type: application/json\"")
             if !viewModel.requestBody.isEmpty {
@@ -260,9 +265,9 @@ struct WorkerTestView: View {
         }
         return parts.joined(separator: " \\\n  ")
     }
-    
+
     private func generateFetchCode() -> String {
-        var options: [String] = ["method: '\(viewModel.selectedMethod)'"]
+        var options = ["method: '\(viewModel.selectedMethod)'"]
         if viewModel.selectedMethod == "POST" || viewModel.selectedMethod == "PUT" || viewModel.selectedMethod == "PATCH" {
             options.append("headers: { 'Content-Type': 'application/json' }")
             if !viewModel.requestBody.isEmpty {
@@ -277,7 +282,7 @@ struct WorkerTestView: View {
         console.log(data);
         """
     }
-    
+
     private func quickPathButton(_ path: String) -> some View {
         Button {
             HapticManager.impact(.light)

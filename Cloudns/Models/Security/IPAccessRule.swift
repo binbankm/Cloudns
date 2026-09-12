@@ -7,16 +7,15 @@ struct IPAccessRule: Codable, Identifiable, Equatable, Sendable {
     let configuration: IPAccessRuleConfiguration
     let created_on: String?
     let modified_on: String?
-    
+
     init(id: String, mode: String = "block", configuration: IPAccessRuleConfiguration, notes: String? = "Block known scrapers") {
         self.id = id
         self.mode = mode
         self.notes = notes
         self.configuration = configuration
-        self.created_on = "2024-01-01T00:00:00Z"
-        self.modified_on = "2024-01-01T00:00:00Z"
+        created_on = "2024-01-01T00:00:00Z"
+        modified_on = "2024-01-01T00:00:00Z"
     }
-    
 }
 
 struct IPAccessRuleConfiguration: Codable, Equatable, Sendable {

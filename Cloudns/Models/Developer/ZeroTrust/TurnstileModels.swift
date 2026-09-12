@@ -3,7 +3,10 @@ import Foundation
 // MARK: - Turnstile Models
 
 public struct TurnstileWidget: Codable, Identifiable, Equatable, Sendable {
-    public var id: String { sitekey }
+    public var id: String {
+        sitekey
+    }
+
     public let sitekey: String
     public let name: String
     public let mode: String?
@@ -11,13 +14,13 @@ public struct TurnstileWidget: Codable, Identifiable, Equatable, Sendable {
     public let secret: String?
     public let createdOn: String?
     public let modifiedOn: String?
-    
+
     enum CodingKeys: String, CodingKey {
         case sitekey, name, mode, domains, secret
         case createdOn = "created_on"
         case modifiedOn = "modified_on"
     }
-    
+
     public init(
         sitekey: String,
         name: String,
@@ -35,7 +38,6 @@ public struct TurnstileWidget: Codable, Identifiable, Equatable, Sendable {
         self.createdOn = createdOn
         self.modifiedOn = modifiedOn
     }
-    
 }
 
 public struct TurnstileCreateInput: Codable, Sendable {
@@ -43,7 +45,7 @@ public struct TurnstileCreateInput: Codable, Sendable {
     public let domains: [String]
     public let mode: String
     public let region: String?
-    
+
     public init(name: String, domains: [String], mode: String = "managed", region: String? = "world") {
         self.name = name
         self.domains = domains
@@ -56,7 +58,7 @@ public struct TurnstileUpdateInput: Codable, Sendable {
     public let name: String
     public let domains: [String]
     public let mode: String
-    
+
     public init(name: String, domains: [String], mode: String) {
         self.name = name
         self.domains = domains

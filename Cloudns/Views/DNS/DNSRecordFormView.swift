@@ -1,15 +1,16 @@
-import SwiftUI
 import Network
+import SwiftUI
 
 // MARK: - DNSRecordFormView
+
 // Apple HIG Compliant DNS Record Creation and Editing Form
 
 struct DNSRecordFormView: View {
     @Environment(\.dismiss) var dismiss
-    
+
     let viewModel: DNSRecordsViewModel
     let existingRecord: DNSRecord? // If nil, we are creating a new record
-    
+
     @State private var type: String = "A"
     @State private var name: String = ""
     @State private var content: String = ""
@@ -18,32 +19,33 @@ struct DNSRecordFormView: View {
     @State private var priority: String = "10" // Used for MX, SRV, URI, HTTPS
     @State private var comment: String = ""
     @State private var tagsText: String = ""
-    
+
     // SRV specific
     @State private var srvService: String = "_sip"
     @State private var srvProto: String = "_tcp"
     @State private var srvWeight: String = "1"
     @State private var srvPort: String = "443"
     @State private var srvTarget: String = ""
-    
+
     // CAA specific
     @State private var caaFlags: String = "0"
     @State private var caaTag: String = "issue"
     @State private var caaValue: String = ""
-    
+
     // HTTPS / SVCB specific
     @State private var httpsTarget: String = "."
     @State private var httpsParams: String = "alpn=\"h3,h2\" port=443"
-    
+
     @State private var isSaving = false
     @State private var errorMessage: String?
     @State private var showingDiscardConfirmation = false
-    
+
     enum FocusField {
         case name, content, comment, tags, priority, srvService, srvPort, srvWeight, srvTarget, caaFlags, caaValue, httpsTarget, httpsParams
     }
+
     @FocusState private var focusedField: FocusField?
-    
+
     let recordTypes = ["A", "AAAA", "CNAME", "HTTPS", "SVCB", "TXT", "MX", "NS", "SRV", "CAA", "PTR", "CERT", "DNSKEY", "DS", "NAPTR", "SMIMEA", "SSHFP", "TLSA", "URI"]
     let ttlOptions = [
         (1, "Auto"),
@@ -52,23 +54,23 @@ struct DNSRecordFormView: View {
         (3600, "1 hr"),
         (86400, "1 day")
     ]
-    
+
     private var hasUnsavedChanges: Bool {
         if let record = existingRecord {
-            return name != record.name ||
-                   content != (record.content ?? "") ||
-                   proxied != (record.proxied ?? false) ||
-                   ttl != record.ttl ||
-                   comment != (record.comment ?? "")
+            name != record.name ||
+                content != (record.content ?? "") ||
+                proxied != (record.proxied ?? false) ||
+                ttl != record.ttl ||
+                comment != (record.comment ?? "")
         } else {
-            return !name.isEmpty || !content.isEmpty || !comment.isEmpty || !tagsText.isEmpty
+            !name.isEmpty || !content.isEmpty || !comment.isEmpty || !tagsText.isEmpty
         }
     }
-    
+
     init(viewModel: DNSRecordsViewModel, existingRecord: DNSRecord? = nil) {
         self.viewModel = viewModel
         self.existingRecord = existingRecord
-        
+
         if let record = existingRecord {
             _type = State(initialValue: record.type)
             _name = State(initialValue: record.name)
@@ -77,30 +79,36 @@ struct DNSRecordFormView: View {
             _ttl = State(initialValue: record.ttl)
             _comment = State(initialValue: record.comment ?? "")
             _tagsText = State(initialValue: (record.tags ?? []).joined(separator: ", "))
-            
+
             if let prio = record.priority {
                 _priority = State(initialValue: String(prio))
             }
-            
+
             if record.type == "SRV", let data = record.data {
                 _srvService = State(initialValue: data.service ?? "")
                 _srvProto = State(initialValue: data.proto ?? "")
-                if let w = data.weight { _srvWeight = State(initialValue: String(w)) }
-                if let p = data.port { _srvPort = State(initialValue: String(p)) }
+                if let w = data.weight {
+                    _srvWeight = State(initialValue: String(w))
+                }
+                if let p = data.port {
+                    _srvPort = State(initialValue: String(p))
+                }
                 _srvTarget = State(initialValue: data.target ?? "")
             }
             if record.type == "CAA", let data = record.data {
-                if let f = data.flags { _caaFlags = State(initialValue: String(f)) }
+                if let f = data.flags {
+                    _caaFlags = State(initialValue: String(f))
+                }
                 _caaTag = State(initialValue: data.tag ?? "issue")
                 _caaValue = State(initialValue: data.value ?? "")
             }
         }
     }
-    
+
     var isProxySupported: Bool {
         type == "A" || type == "AAAA" || type == "CNAME" || type == "HTTPS" || type == "SVCB"
     }
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -115,7 +123,7 @@ struct DNSRecordFormView: View {
                             proxied = false
                         }
                     }
-                    
+
                     TextField("Name (e.g., @ or www)", text: $name)
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
@@ -131,7 +139,7 @@ struct DNSRecordFormView: View {
                                 focusedField = .content
                             }
                         }
-                    
+
                     if type == "SRV" {
                         TextField("Service (e.g., _sip)", text: $srvService)
                             .keyboardType(.asciiCapable)
@@ -222,7 +230,7 @@ struct DNSRecordFormView: View {
                             }
                     }
                 }
-                
+
                 Section(header: Text("Configuration")) {
                     if type == "MX" || type == "URI" {
                         TextField("Priority", text: $priority)
@@ -232,14 +240,14 @@ struct DNSRecordFormView: View {
                             .focused($focusedField, equals: .priority)
                             .onSubmit { focusedField = .comment }
                     }
-                    
+
                     if isProxySupported {
                         HStack {
                             VStack(alignment: .leading, spacing: 4) {
                                 HStack(spacing: 8) {
                                     Text("Proxy Status")
                                         .font(.body.weight(.medium))
-                                    
+
                                     if proxied {
                                         Text("Proxied")
                                             .font(.caption2.weight(.medium))
@@ -263,18 +271,18 @@ struct DNSRecordFormView: View {
                                     .foregroundStyle(.secondary)
                             }
                             Spacer()
-                            Toggle(isOn: $proxied) { }
+                            Toggle(isOn: $proxied) {}
                                 .labelsHidden()
                         }
                     }
-                    
+
                     Picker("TTL", selection: $ttl) {
                         ForEach(ttlOptions, id: \.0) { option in
                             Text(option.1).tag(option.0)
                         }
                     }
                 }
-                
+
                 Section(header: Text("Tags & Comments (Optional)")) {
                     TextField("Tags (comma separated, e.g. prod, api)", text: $tagsText)
                         .textInputAutocapitalization(.never)
@@ -282,7 +290,7 @@ struct DNSRecordFormView: View {
                         .submitLabel(.next)
                         .focused($focusedField, equals: .tags)
                         .onSubmit { focusedField = .comment }
-                    
+
                     TextField("Add a note about this record", text: $comment)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
@@ -290,12 +298,12 @@ struct DNSRecordFormView: View {
                         .focused($focusedField, equals: .comment)
                         .onSubmit {
                             focusedField = nil
-                            if !name.isEmpty && !isSaving {
+                            if !name.isEmpty, !isSaving {
                                 Task { await saveRecord() }
                             }
                         }
                 }
-                
+
                 if let error = errorMessage {
                     Section {
                         Text(verbatim: error)
@@ -346,7 +354,7 @@ struct DNSRecordFormView: View {
                 Button("Discard Changes", role: .destructive) {
                     dismiss()
                 }
-                Button("Keep Editing", role: .cancel) { }
+                Button("Keep Editing", role: .cancel) {}
             } message: {
                 Text("Are you sure you want to discard your unsaved DNS record changes?")
             }
@@ -363,7 +371,7 @@ struct DNSRecordFormView: View {
             }
         }
     }
-    
+
     private func saveRecord() async {
         if type == "A" {
             if IPv4Address(content) == nil {
@@ -378,14 +386,14 @@ struct DNSRecordFormView: View {
                 return
             }
         }
-        
+
         isSaving = true
         errorMessage = nil
-        
+
         var payloadData: DNSRecordData?
         var finalContent: String? = content
         var finalPriority: Int?
-        
+
         if type == "SRV" {
             let p = Int(priority) ?? 10
             payloadData = DNSRecordData(
@@ -413,12 +421,12 @@ struct DNSRecordFormView: View {
         } else if type == "MX" {
             finalPriority = Int(priority) ?? 10
         }
-        
+
         let tagsList = tagsText
             .split(separator: ",")
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
-        
+
         let payload = DNSRecordPayload(
             type: type,
             name: name,
@@ -430,9 +438,9 @@ struct DNSRecordFormView: View {
             tags: tagsList.isEmpty ? nil : tagsList,
             data: payloadData
         )
-        
+
         do {
-            if let existingRecord = existingRecord {
+            if let existingRecord {
                 try await viewModel.updateRecord(recordId: existingRecord.id, payload: payload)
             } else {
                 try await viewModel.addRecord(payload: payload)
@@ -443,7 +451,7 @@ struct DNSRecordFormView: View {
             HapticManager.notification(.error)
             errorMessage = APIError.formatCloudflareError(error.localizedDescription)
         }
-        
+
         isSaving = false
     }
 }

@@ -5,46 +5,45 @@ struct ActionParameters: Codable, Equatable, Sendable {
     var cache: Bool?
     var edge_ttl: CacheEdgeTTL?
     var browser_ttl: CacheBrowserTTL?
-    
+
     // Transform Rules
     var uri: URIRewrite?
     var headers: [String: HeaderTransform]?
-    
+
     // Snippet Rules
     var snippet_name: String?
     var snippet: SnippetRef?
-    
-    // Redirect Rules
+
+    /// Redirect Rules
     var from_value: FromValue?
-    
+
     struct SnippetRef: Codable, Equatable, Sendable {
         var name: String
-        public init(name: String) { self.name = name }
     }
-    
+
     struct FromValue: Codable, Equatable, Sendable {
         var status_code: Int?
         var target_url: TargetUrl?
         var preserve_query_string: Bool?
-        
-        public init(status_code: Int? = nil, target_url: TargetUrl? = nil, preserve_query_string: Bool? = nil) {
+
+        init(status_code: Int? = nil, target_url: TargetUrl? = nil, preserve_query_string: Bool? = nil) {
             self.status_code = status_code
             self.target_url = target_url
             self.preserve_query_string = preserve_query_string
         }
     }
-    
+
     struct TargetUrl: Codable, Equatable, Sendable {
         var value: String?
         var expression: String?
-        
-        public init(value: String? = nil, expression: String? = nil) {
+
+        init(value: String? = nil, expression: String? = nil) {
             self.value = value
             self.expression = expression
         }
     }
-    
-    public init(
+
+    init(
         cache: Bool? = nil,
         edge_ttl: CacheEdgeTTL? = nil,
         browser_ttl: CacheBrowserTTL? = nil,
@@ -68,7 +67,7 @@ struct ActionParameters: Codable, Equatable, Sendable {
 struct CacheEdgeTTL: Codable, Equatable, Sendable {
     var mode: String
     var default_ttl: Int?
-    
+
     enum CodingKeys: String, CodingKey {
         case mode
         case default_ttl = "default"
@@ -78,7 +77,7 @@ struct CacheEdgeTTL: Codable, Equatable, Sendable {
 struct CacheBrowserTTL: Codable, Equatable, Sendable {
     var mode: String
     var default_ttl: Int?
-    
+
     enum CodingKeys: String, CodingKey {
         case mode
         case default_ttl = "default"

@@ -5,19 +5,19 @@ import WidgetKit
 
 public struct WorkerTimelineProvider: TimelineProvider {
     public typealias Entry = WorkerWidgetEntry
-    
+
     public init() {}
-    
-    public func placeholder(in context: Context) -> WorkerWidgetEntry {
+
+    public func placeholder(in _: Context) -> WorkerWidgetEntry {
         WorkerWidgetEntry(date: Date(), snapshot: .placeholder)
     }
-    
-    public func getSnapshot(in context: Context, completion: @escaping (WorkerWidgetEntry) -> Void) {
+
+    public func getSnapshot(in _: Context, completion: @escaping (WorkerWidgetEntry) -> Void) {
         let snap = WidgetDataStore.shared.loadWorkerSnapshot()
         completion(WorkerWidgetEntry(date: Date(), snapshot: snap))
     }
-    
-    public func getTimeline(in context: Context, completion: @escaping (Timeline<WorkerWidgetEntry>) -> Void) {
+
+    public func getTimeline(in _: Context, completion: @escaping (Timeline<WorkerWidgetEntry>) -> Void) {
         let snap = WidgetDataStore.shared.loadWorkerSnapshot()
         let entry = WorkerWidgetEntry(date: Date(), snapshot: snap)
         let nextUpdate = Calendar.current.date(byAdding: .minute, value: 30, to: Date()) ?? Date()
@@ -31,7 +31,7 @@ public struct WorkerTimelineProvider: TimelineProvider {
 public struct WorkerWidgetEntry: TimelineEntry {
     public let date: Date
     public let snapshot: WorkerWidgetSnapshot
-    
+
     public init(date: Date, snapshot: WorkerWidgetSnapshot) {
         self.date = date
         self.snapshot = snapshot
@@ -42,9 +42,9 @@ public struct WorkerWidgetEntry: TimelineEntry {
 
 public struct WorkerOverviewWidget: Widget {
     public let kind: String = "WorkerOverviewWidget"
-    
+
     public init() {}
-    
+
     public var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: WorkerTimelineProvider()) { entry in
             WorkerOverviewEntryView(entry: entry)
@@ -60,7 +60,7 @@ public struct WorkerOverviewWidget: Widget {
 struct WorkerOverviewEntryView: View {
     @Environment(\.widgetFamily) var family
     let entry: WorkerWidgetEntry
-    
+
     var body: some View {
         Group {
             switch family {

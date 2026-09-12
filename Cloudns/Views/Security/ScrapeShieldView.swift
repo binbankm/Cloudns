@@ -1,25 +1,27 @@
 import SwiftUI
 
 // MARK: - ScrapeShieldView
+
 // Apple HIG Compliant Cloudflare Content Scrape Shield & Obfuscation Settings
 
 struct ScrapeShieldView: View {
     let zoneId: String
-    
+
     @StateObject private var viewModel = ScrapeShieldViewModel()
-    
+
     var body: some View {
         List {
             // MARK: - Hero Header
+
             Section {
                 VStack(spacing: 12) {
                     HeroHeaderEmblemView(icon: "eye.slash.fill", primaryColor: .purple, secondaryColor: .pink)
-                    .padding(.top, 4)
-                    
+                        .padding(.top, 4)
+
                     Text("Scrape Shield")
                         .font(.title2.weight(.bold))
                         .foregroundStyle(.primary)
-                    
+
                     Text("Protect your content from scrapers, hotlinkers, and email harvesters.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
@@ -31,8 +33,9 @@ struct ScrapeShieldView: View {
             }
             .listRowBackground(Color.clear)
             .listRowInsets(EdgeInsets())
-            
+
             // MARK: - Protections
+
             Section(
                 header: Text("Content Protections"),
                 footer: Text("These protections safeguard your site without impacting legitimate visitors. Email obfuscation prevents scraping, while hotlink protection blocks external image stealing.")
@@ -61,7 +64,7 @@ struct ScrapeShieldView: View {
                     }
                 }
                 .disabled(!viewModel.hasFetchedData)
-                
+
                 // Server-Side Excludes
                 Toggle(isOn: Binding(
                     get: { viewModel.serverSideExcludesEnabled },
@@ -86,7 +89,7 @@ struct ScrapeShieldView: View {
                     }
                 }
                 .disabled(!viewModel.hasFetchedData)
-                
+
                 // Hotlink Protection
                 Toggle(isOn: Binding(
                     get: { viewModel.hotlinkProtectionEnabled },

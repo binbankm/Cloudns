@@ -12,14 +12,14 @@ public struct DNSPropagationNode: Identifiable, Equatable, Sendable {
     public let resolvedIPs: [String]
     public let latencyMs: Double?
     public let status: NodeStatus
-    
+
     public enum NodeStatus: String, Sendable {
         case pending = "Pending"
         case resolved = "Matched"
         case mismatch = "Divergent"
         case failed = "Failed"
     }
-    
+
     public init(
         regionName: String,
         locationCity: String,
@@ -46,16 +46,16 @@ public struct DNSPropagationResult: Equatable, Sendable {
     public let recordType: String
     public let nodes: [DNSPropagationNode]
     public let expectedIP: String?
-    
+
     public var matchedCount: Int {
         nodes.filter { $0.status == .resolved }.count
     }
-    
+
     public var propagationPercent: Int {
         guard !nodes.isEmpty else { return 0 }
         return Int((Double(matchedCount) / Double(nodes.count)) * 100.0)
     }
-    
+
     public init(domain: String, recordType: String, nodes: [DNSPropagationNode], expectedIP: String? = nil) {
         self.domain = domain
         self.recordType = recordType

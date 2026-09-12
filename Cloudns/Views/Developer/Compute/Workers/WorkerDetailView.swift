@@ -2,19 +2,20 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 // MARK: - WorkerDetailView
+
 // Apple HIG Compliant Cloudflare Worker Script Architecture, Subdomain & Dispatch Hub
 
 struct WorkerDetailView: View {
     let accountId: String
     let worker: WorkerScript
     @StateObject private var viewModel: WorkerDetailViewModel
-    
+
     init(accountId: String, worker: WorkerScript) {
         self.accountId = accountId
         self.worker = worker
         _viewModel = StateObject(wrappedValue: WorkerDetailViewModel(accountId: accountId, worker: worker))
     }
-    
+
     var body: some View {
         contentView
             .navigationTitle(worker.id)
@@ -31,11 +32,11 @@ struct WorkerDetailView: View {
                 WidgetDataStore.shared.syncWorkerWithAnalytics(script: worker, accountId: accountId)
             }
     }
-    
-    @ViewBuilder
+
     private var contentView: some View {
         List {
             // MARK: - Hero & Script Overview Card
+
             Section {
                 VStack(alignment: .leading, spacing: 12) {
                     HStack(alignment: .top, spacing: 12) {
@@ -45,13 +46,13 @@ struct WorkerDetailView: View {
                             secondaryColor: .orange.opacity(0.88),
                             size: 44
                         )
-                        
+
                         VStack(alignment: .leading, spacing: 2) {
                             Text(viewModel.worker.id)
                                 .font(.title3.weight(.bold))
                                 .foregroundStyle(.primary)
                                 .lineLimit(1)
-                            
+
                             HStack(spacing: 6) {
                                 Text(LocalizedStringKey((viewModel.worker.usageModel ?? "Standard").capitalized))
                                     .font(.caption2.weight(.medium))
@@ -59,7 +60,7 @@ struct WorkerDetailView: View {
                                     .padding(.horizontal, 6)
                                     .padding(.vertical, 2)
                                     .background(Capsule().fill(Color.green.opacity(0.12)))
-                                
+
                                 if !viewModel.modules.isEmpty {
                                     Text(viewModel.modules.count > 1 ? LocalizedStringKey("\(viewModel.modules.count) ESM Modules") : LocalizedStringKey("ESM Module"))
                                         .font(.caption2.weight(.medium))
@@ -68,7 +69,7 @@ struct WorkerDetailView: View {
                                         .padding(.vertical, 2)
                                         .background(Capsule().fill(Color.purple.opacity(0.12)))
                                 }
-                                
+
                                 if let sub = viewModel.subdomain {
                                     Text(sub.enabled ? LocalizedStringKey("workers.dev") : LocalizedStringKey("subdomain off"))
                                         .font(.caption2.weight(.medium))
@@ -80,13 +81,13 @@ struct WorkerDetailView: View {
                             }
                         }
                     }
-                    
+
                     if let sub = viewModel.subdomain {
                         Divider()
-                        
+
                         HStack(spacing: 12) {
                             ListRowIcon(icon: "link", color: .green, size: 28, cornerRadius: 6)
-                            
+
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("workers.dev Subdomain")
                                     .font(.caption2)
@@ -108,9 +109,9 @@ struct WorkerDetailView: View {
                                         .foregroundStyle(.secondary)
                                 }
                             }
-                            
+
                             Spacer()
-                            
+
                             if sub.enabled {
                                 if let id = sub.id, !id.isEmpty {
                                     let urlStr = id.hasPrefix("http") ? id : "https://\(id)"
@@ -131,22 +132,23 @@ struct WorkerDetailView: View {
                                     .accessibilityLabel("Copy Subdomain URL")
                                 }
                             }
-                            
+
                             Toggle(isOn: Binding(
                                 get: { sub.enabled },
                                 set: { val in
                                     Task { await viewModel.toggleSubdomain(enabled: val) }
                                 }
-                            )) { }
-                            .labelsHidden()
-                            .disabled(viewModel.isSubdomainUpdating)
+                            )) {}
+                                .labelsHidden()
+                                .disabled(viewModel.isSubdomainUpdating)
                         }
                     }
                 }
                 .padding(.vertical, 2)
             }
-            
+
             // MARK: - Script Details
+
             Section(header: Text("Script Details")) {
                 if !viewModel.scriptContent.isEmpty {
                     LabeledContent {
@@ -162,7 +164,7 @@ struct WorkerDetailView: View {
                         }
                     }
                 }
-                
+
                 if let compat = viewModel.worker.compatibilityDate {
                     LabeledContent {
                         Text(compat)
@@ -177,7 +179,7 @@ struct WorkerDetailView: View {
                         }
                     }
                 }
-                
+
                 if let modified = viewModel.worker.modifiedOn, let date = DateFormatters.parseISO8601(modified) {
                     LabeledContent {
                         Text(date.displayFormatted(date: .abbreviated, time: .shortened))
@@ -193,8 +195,9 @@ struct WorkerDetailView: View {
                     }
                 }
             }
-            
+
             // MARK: - Management Links
+
             Section(header: Text("Management")) {
                 NavigationLink {
                     WorkerAnalyticsView(accountId: accountId, scriptName: worker.id)
@@ -207,7 +210,7 @@ struct WorkerDetailView: View {
                         Spacer()
                     }
                 }
-                
+
                 NavigationLink {
                     WorkerSourceCodeView(
                         parentViewModel: viewModel,
@@ -229,7 +232,7 @@ struct WorkerDetailView: View {
                         }
                     }
                 }
-                
+
                 NavigationLink {
                     WorkerDeploymentsView(accountId: accountId, scriptName: worker.id)
                 } label: {
@@ -241,7 +244,7 @@ struct WorkerDetailView: View {
                         Spacer()
                     }
                 }
-                
+
                 NavigationLink {
                     WorkerRoutesView(accountId: accountId, scriptName: worker.id, fallbackRoutes: worker.routes ?? [])
                 } label: {
@@ -258,7 +261,7 @@ struct WorkerDetailView: View {
                         }
                     }
                 }
-                
+
                 NavigationLink {
                     WorkerSecretsView(accountId: accountId, scriptName: worker.id)
                 } label: {
@@ -270,7 +273,7 @@ struct WorkerDetailView: View {
                         Spacer()
                     }
                 }
-                
+
                 NavigationLink {
                     WorkerBindingsView(accountId: accountId, scriptName: worker.id, bindings: viewModel.bindings)
                 } label: {
@@ -287,7 +290,7 @@ struct WorkerDetailView: View {
                         }
                     }
                 }
-                
+
                 NavigationLink {
                     WorkerTriggersView(accountId: accountId, scriptName: worker.id)
                 } label: {
@@ -304,7 +307,7 @@ struct WorkerDetailView: View {
                         }
                     }
                 }
-                
+
                 NavigationLink {
                     WorkerTailView(accountId: accountId, scriptName: worker.id)
                 } label: {
@@ -317,8 +320,9 @@ struct WorkerDetailView: View {
                     }
                 }
             }
-            
+
             // MARK: - Debugging
+
             Section(header: Text("Debugging")) {
                 NavigationLink {
                     WorkerTestView(scriptName: worker.id, initialRoute: worker.routes?.first)

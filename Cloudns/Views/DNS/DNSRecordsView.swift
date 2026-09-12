@@ -2,16 +2,17 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 // MARK: - DNSRecordsView
+
 // Apple HIG Compliant DNS Record Management (iOS 16.0+)
 
 struct DNSRecordsView: View {
     let zoneId: String
     let zoneName: String
-    
+
     @StateObject private var viewModel: DNSRecordsViewModel
     @State private var showingForm = false
     @State private var recordToEdit: DNSRecord?
-    
+
     // Export / Import / Presets states
     @State private var showingExportSheet = false
     @State private var showingImporter = false
@@ -20,19 +21,19 @@ struct DNSRecordsView: View {
     @State private var recordToDelete: DNSRecord?
     @State private var showingSingleDeleteDialog = false
     @State private var showingBatchDeleteDialog = false
-    
+
     @Environment(\.editMode) private var editMode
-    
+
     init(zoneId: String, zoneName: String) {
         self.zoneId = zoneId
         self.zoneName = zoneName
         _viewModel = StateObject(wrappedValue: DNSRecordsViewModel(zoneId: zoneId))
     }
-    
+
     var displayRecords: [DNSRecord] {
         viewModel.filteredRecords
     }
-    
+
     var body: some View {
         recordsList
             .listStyle(.insetGrouped)
@@ -94,14 +95,13 @@ struct DNSRecordsView: View {
                 }
             }
     }
-    
-    @ViewBuilder
+
     private var recordsList: some View {
         List(selection: $multiSelection) {
             if !displayRecords.isEmpty {
                 recordsSections
 
-                if viewModel.canLoadMore && viewModel.hasFetchedData {
+                if viewModel.canLoadMore, viewModel.hasFetchedData {
                     ProgressView()
                         .frame(maxWidth: .infinity, alignment: .center)
                         .listRowSeparator(.hidden)
@@ -116,11 +116,11 @@ struct DNSRecordsView: View {
             }
         }
     }
-    
+
     @ViewBuilder
     private var bottomBar: some View {
         let isEditing = editMode?.wrappedValue.isEditing ?? false
-        if isEditing && !multiSelection.isEmpty {
+        if isEditing, !multiSelection.isEmpty {
             let selectedCount = multiSelection.count
             Button(role: .destructive) {
                 HapticManager.impact(.medium)
@@ -132,10 +132,9 @@ struct DNSRecordsView: View {
             .tint(.red)
         }
     }
-    
+
     // MARK: - Subviews
-    
-    @ViewBuilder
+
     private var trailingToolbar: some View {
         HStack(spacing: 8) {
             Menu {
@@ -151,9 +150,9 @@ struct DNSRecordsView: View {
                             Text("All Types")
                         }
                     }
-                    
+
                     Divider()
-                    
+
                     ForEach(["A", "AAAA", "CNAME", "TXT", "MX", "NS", "PTR", "SRV", "CAA"], id: \.self) { type in
                         Button {
                             viewModel.selectedType = type
@@ -172,7 +171,7 @@ struct DNSRecordsView: View {
                         systemImage: "line.3.horizontal.decrease"
                     )
                 }
-                
+
                 // SubMenu 2: Filter by Proxy Status
                 Menu {
                     Button {
@@ -185,7 +184,7 @@ struct DNSRecordsView: View {
                             Text("All Statuses")
                         }
                     }
-                    
+
                     Button {
                         viewModel.selectedProxyStatus = "PROXIED"
                         HapticManager.selection()
@@ -196,7 +195,7 @@ struct DNSRecordsView: View {
                             Text("Proxied (Orange Cloud)")
                         }
                     }
-                    
+
                     Button {
                         viewModel.selectedProxyStatus = "DNS_ONLY"
                         HapticManager.selection()
@@ -213,7 +212,7 @@ struct DNSRecordsView: View {
                         systemImage: "shield.lefthalf.filled"
                     )
                 }
-                
+
                 // SubMenu 3: Sort Records
                 Menu {
                     Button {
@@ -226,7 +225,7 @@ struct DNSRecordsView: View {
                             Text("Name (A to Z)")
                         }
                     }
-                    
+
                     Button {
                         viewModel.sortOption = "type"
                         HapticManager.selection()
@@ -240,10 +239,10 @@ struct DNSRecordsView: View {
                 } label: {
                     Label("Sort Records", systemImage: "arrow.up.arrow.down")
                 }
-                
+
                 if viewModel.isFiltered {
                     Divider()
-                    
+
                     Button(role: .destructive) {
                         viewModel.resetFilters()
                         HapticManager.impact(.light)
@@ -252,9 +251,9 @@ struct DNSRecordsView: View {
                     }
                     .tint(.red)
                 }
-                
+
                 Divider()
-                
+
                 // Tools & Presets Section
                 Section("Tools") {
                     Button {
@@ -262,13 +261,13 @@ struct DNSRecordsView: View {
                     } label: {
                         Label("DNS Presets", systemImage: "wand.and.stars")
                     }
-                    
+
                     Button {
                         showingExportSheet = true
                     } label: {
                         Label("Export BIND Zone File", systemImage: "square.and.arrow.up")
                     }
-                    
+
                     Button {
                         showingImporter = true
                     } label: {
@@ -279,7 +278,7 @@ struct DNSRecordsView: View {
                 Image(systemName: viewModel.isFiltered ? "line.3.horizontal.decrease.circle.fill" : "ellipsis.circle")
             }
             .accessibilityLabel(viewModel.isFiltered ? Text("DNS Options (Filtered)") : Text("DNS Options and Filters"))
-            
+
             Button {
                 showingForm = true
             } label: {
@@ -289,15 +288,15 @@ struct DNSRecordsView: View {
             .keyboardShortcut("n", modifiers: .command)
         }
     }
-    
+
     private var groupedRecordTypes: [String] {
         Array(Set(displayRecords.map(\.type))).sorted()
     }
-    
+
     private func records(for type: String) -> [DNSRecord] {
         displayRecords.filter { $0.type == type }
     }
-    
+
     @ViewBuilder
     private var recordsSections: some View {
         if viewModel.searchQuery.isEmpty {
@@ -317,8 +316,7 @@ struct DNSRecordsView: View {
             }
         }
     }
-    
-    @ViewBuilder
+
     private func recordRow(_ record: DNSRecord) -> some View {
         Group {
             if editMode?.wrappedValue.isEditing == true {
@@ -349,13 +347,13 @@ struct DNSRecordsView: View {
             } label: {
                 Label("Copy Content", systemImage: "doc.on.doc")
             }
-            
+
             Button {
                 copyToClipboard(record.name, toast: "Record Name Copied")
             } label: {
                 Label("Copy Name", systemImage: "character.textbox")
             }
-            
+
             if record.proxiable == true {
                 Button {
                     Task { await viewModel.toggleProxy(for: record) }
@@ -366,15 +364,15 @@ struct DNSRecordsView: View {
                     )
                 }
             }
-            
+
             Button {
                 recordToEdit = record
             } label: {
                 Label("Edit Record", systemImage: "pencil")
             }
-            
+
             Divider()
-            
+
             Button(role: .destructive) {
                 recordToDelete = record
                 showingSingleDeleteDialog = true
@@ -390,7 +388,7 @@ struct DNSRecordsView: View {
                 Label("Delete", systemImage: "trash")
             }
             .tint(.red)
-            
+
             Button {
                 recordToEdit = record
             } label: {
@@ -414,18 +412,18 @@ struct DNSRecordsView: View {
 struct DNSRecordRowView: View {
     let record: DNSRecord
     var onToggleProxy: (() -> Void)?
-    
+
     private var recordTypeColor: Color {
         switch record.type.uppercased() {
-        case "A", "AAAA": return .blue
-        case "CNAME": return .green
-        case "TXT": return .purple
-        case "MX": return .orange
-        case "NS", "CAA", "SRV": return .teal
-        default: return .indigo
+        case "A", "AAAA": .blue
+        case "CNAME": .green
+        case "TXT": .purple
+        case "MX": .orange
+        case "NS", "CAA", "SRV": .teal
+        default: .indigo
         }
     }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(alignment: .center, spacing: 8) {
@@ -436,15 +434,15 @@ struct DNSRecordRowView: View {
                     .background(recordTypeColor.opacity(0.14))
                     .foregroundStyle(recordTypeColor)
                     .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
-                
+
                 Text(verbatim: record.name)
                     .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
                     .lineLimit(1)
                     .truncationMode(.middle)
-                
+
                 Spacer()
-                
+
                 if record.proxiable == true {
                     Button {
                         HapticManager.selection()
@@ -461,20 +459,20 @@ struct DNSRecordRowView: View {
                     dnsOnlyBadge
                 }
             }
-            
+
             HStack(alignment: .top) {
                 Text(record.content ?? (record.data != nil ? String(localized: "Advanced Record Data") : String(localized: "No content")))
                     .font(.subheadline.monospacedDigit())
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
-                
+
                 Spacer()
-                
+
                 Text(record.ttl == 1 ? LocalizedStringKey("Auto") : "\(record.ttl)s")
                     .font(.caption)
                     .foregroundStyle(.tertiary)
             }
-            
+
             if let comment = record.comment, !comment.isEmpty {
                 Text(comment)
                     .font(.caption)
@@ -482,7 +480,7 @@ struct DNSRecordRowView: View {
                     .lineLimit(2)
                     .padding(.top, 1)
             }
-            
+
             if let tags = record.tags, !tags.isEmpty {
                 HStack(spacing: 4) {
                     ForEach(tags, id: \.self) { tag in
@@ -501,7 +499,7 @@ struct DNSRecordRowView: View {
         .padding(.vertical, 2)
         .contentShape(Rectangle())
     }
-    
+
     @ViewBuilder
     private var proxyBadge: some View {
         if record.proxied == true {
@@ -520,7 +518,7 @@ struct DNSRecordRowView: View {
             dnsOnlyBadge
         }
     }
-    
+
     private var dnsOnlyBadge: some View {
         HStack(spacing: 4) {
             Image(systemName: "cloud")
@@ -586,7 +584,7 @@ private struct DNSRecordsSheetsModifier: ViewModifier {
 
     private func handleImportResult(_ result: Result<[URL], Error>) {
         switch result {
-        case .success(let urls):
+        case let .success(urls):
             guard let url = urls.first else { return }
             guard url.startAccessingSecurityScopedResource() else {
                 ToastManager.shared.showError("Access Denied")
@@ -647,7 +645,7 @@ private struct DNSRecordsDialogsModifier: ViewModifier {
                     editMode?.wrappedValue = .inactive
                     ToastManager.shared.showSuccess("\(count) Records Deleted", icon: "trash.fill")
                 }
-                Button("Cancel", role: .cancel) { }
+                Button("Cancel", role: .cancel) {}
             } message: {
                 Text("Are you sure you want to delete \(multiSelection.count) DNS records? This action cannot be undone.")
             }

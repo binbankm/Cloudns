@@ -32,12 +32,12 @@ extension DNSServiceProtocol {
 /// Concrete domain service for Cloudflare DNS and DNSSEC
 final class DNSService: DNSServiceProtocol {
     static let shared = DNSService()
-    
+
     private let client = HTTPNetworkClient.shared
     private let factory = AuthenticatedRequestFactory.shared
-    
+
     private init() {}
-    
+
     /// Fetches DNS records list
     func getDNSRecords(
         zoneId: String,
@@ -54,18 +54,18 @@ final class DNSService: DNSServiceProtocol {
             URLQueryItem(name: "order", value: order),
             URLQueryItem(name: "direction", value: direction)
         ]
-        if let search = search, !search.isEmpty {
+        if let search, !search.isEmpty {
             queryItems.append(URLQueryItem(name: "search", value: search))
         }
-        if let type = type, !type.isEmpty {
+        if let type, !type.isEmpty {
             queryItems.append(URLQueryItem(name: "type", value: type))
         }
-        
+
         let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/dns_records", queryItems: queryItems)
         let (records, resultInfo): ([DNSRecord]?, ResultInfo?) = try await client.performRequest(request)
         return (records ?? [], resultInfo)
     }
-    
+
     /// Creates new DNS record using DNSRecordPayload
     func createDNSRecord(zoneId: String, payload: DNSRecordPayload) async throws -> DNSRecord {
         let encoder = JSONEncoder()
@@ -77,7 +77,7 @@ final class DNSService: DNSServiceProtocol {
         }
         return record
     }
-    
+
     /// Creates new DNS record using DNSRecord
     func createDNSRecord(zoneId: String, record: DNSRecord) async throws -> DNSRecord {
         let encoder = JSONEncoder()
@@ -89,7 +89,7 @@ final class DNSService: DNSServiceProtocol {
         }
         return record
     }
-    
+
     /// Updates existing DNS record using DNSRecordPayload
     func updateDNSRecord(zoneId: String, recordId: String, payload: DNSRecordPayload) async throws -> DNSRecord {
         let encoder = JSONEncoder()
@@ -101,7 +101,7 @@ final class DNSService: DNSServiceProtocol {
         }
         return record
     }
-    
+
     /// Updates existing DNS record using DNSRecord
     func updateDNSRecord(zoneId: String, recordId: String, record: DNSRecord) async throws -> DNSRecord {
         let encoder = JSONEncoder()
@@ -113,7 +113,7 @@ final class DNSService: DNSServiceProtocol {
         }
         return record
     }
-    
+
     /// Deletes DNS record
     func deleteDNSRecord(zoneId: String, recordId: String) async throws -> String {
         let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/dns_records/\(recordId)", method: "DELETE")
@@ -121,7 +121,7 @@ final class DNSService: DNSServiceProtocol {
         let (res, _): (DeleteResult?, ResultInfo?) = try await client.performRequest(request)
         return res?.id ?? recordId
     }
-    
+
     /// Batch-deletes DNS records
     func batchDNSRecords(zoneId: String, deletes: [String]) async throws {
         let payload: [String: Any] = ["deletes": deletes.map { ["id": $0] }]
@@ -130,7 +130,7 @@ final class DNSService: DNSServiceProtocol {
         struct BatchRes: Codable { let id: String? }
         let (_, _): (BatchRes?, ResultInfo?) = try await client.performRequest(request)
     }
-    
+
     /// Exports DNS records in BIND zone file format
     func exportDNSRecords(zoneId: String) async throws -> URL {
         let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/dns_records/export", contentType: "text/plain")
@@ -139,7 +139,7 @@ final class DNSService: DNSServiceProtocol {
         try data.write(to: tempURL)
         return tempURL
     }
-    
+
     /// Imports DNS records from BIND zone file
     func importDNSRecords(zoneId: String, fileURL: URL) async throws {
         let fileData = try Data(contentsOf: fileURL)
@@ -150,7 +150,7 @@ final class DNSService: DNSServiceProtocol {
         body.append(Data("Content-Type: text/plain\r\n\r\n".utf8))
         body.append(fileData)
         body.append(Data("\r\n--\(boundary)--\r\n".utf8))
-        
+
         let request = try factory.createAuthenticatedRequest(
             path: "zones/\(zoneId)/dns_records/import",
             method: "POST",
@@ -160,24 +160,24 @@ final class DNSService: DNSServiceProtocol {
         struct ImportRes: Codable { let recursive_records: Int? }
         let (_, _): (ImportRes?, ResultInfo?) = try await client.performRequest(request)
     }
-    
+
     /// Fetches DNSSEC details
     func getDNSSEC(zoneId: String) async throws -> DNSSEC {
         let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/dnssec")
         let (dnssec, _): (DNSSEC?, ResultInfo?) = try await client.performRequest(request)
-        guard let dnssec = dnssec else {
+        guard let dnssec else {
             throw APIError.cloudflareError("DNSSEC details not found.")
         }
         return dnssec
     }
-    
+
     /// Updates DNSSEC status (active / disabled)
     func updateDNSSEC(zoneId: String, status: String) async throws -> DNSSEC {
         let payload = ["status": status]
         let data = try JSONSerialization.data(withJSONObject: payload)
         let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/dnssec", method: "PATCH", body: data)
         let (dnssec, _): (DNSSEC?, ResultInfo?) = try await client.performRequest(request)
-        guard let dnssec = dnssec else {
+        guard let dnssec else {
             throw APIError.cloudflareError("Failed to update DNSSEC status.")
         }
         return dnssec

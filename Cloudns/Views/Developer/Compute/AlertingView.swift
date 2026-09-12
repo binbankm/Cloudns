@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - AlertingView
+
 // Apple HIG Compliant Cloudflare Notification Policies & Webhook Alerts
 
 struct AlertingView: View {
@@ -9,12 +10,12 @@ struct AlertingView: View {
     @State private var selectedTab = "policies"
     @State private var policyToDelete: AlertingPolicy?
     @State private var showingDeleteAlert = false
-    
+
     init(accountId: String) {
         self.accountId = accountId
         _viewModel = StateObject(wrappedValue: AlertingViewModel(accountId: accountId))
     }
-    
+
     var body: some View {
         VStack(spacing: 0) {
             Picker("Category", selection: $selectedTab) {
@@ -29,7 +30,7 @@ struct AlertingView: View {
             .onChange(of: selectedTab) { _ in
                 HapticManager.selection()
             }
-            
+
             contentList
         }
         .background(Color(uiColor: .systemGroupedBackground))
@@ -56,8 +57,7 @@ struct AlertingView: View {
             }
         }
     }
-    
-    @ViewBuilder
+
     private var contentList: some View {
         List {
             if selectedTab == "policies" {
@@ -71,9 +71,9 @@ struct AlertingView: View {
                                     } label: {
                                         Label("Copy Policy ID", systemImage: "doc.on.doc")
                                     }
-                                    
+
                                     Divider()
-                                    
+
                                     Button(role: .destructive) {
                                         policyToDelete = p
                                         showingDeleteAlert = true
@@ -148,7 +148,7 @@ struct AlertingView: View {
             loadingMessage: "Loading Notification Policies…",
             isEmpty: viewModel.hasFetchedData && (
                 (selectedTab == "policies" && viewModel.policies.isEmpty) ||
-                (selectedTab == "webhooks" && viewModel.webhooks.isEmpty)
+                    (selectedTab == "webhooks" && viewModel.webhooks.isEmpty)
             ),
             emptyTitle: selectedTab == "policies" ? "No Policies" : "No Webhooks",
             emptySystemImage: selectedTab == "policies" ? "bell.badge.slash" : "bell.badge",
@@ -157,8 +157,7 @@ struct AlertingView: View {
                 : "No webhook destinations configured in this account."
         )
     }
-    
-    @ViewBuilder
+
     private func policyRow(_ p: AlertingPolicy) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             HStack {
@@ -173,13 +172,13 @@ struct AlertingView: View {
                     .padding(.vertical, 2)
                     .background(Capsule().fill(p.isEnabled ? Color.green.opacity(0.12) : Color.secondary.opacity(0.12)))
             }
-            
+
             if let desc = p.description, !desc.isEmpty {
                 Text(desc)
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
-            
+
             if let type = p.alertType {
                 Text(type)
                     .font(.caption2.monospaced())

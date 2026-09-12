@@ -1,35 +1,35 @@
+import Combine
 import Foundation
 import SwiftUI
-import Combine
 
 @MainActor
 final class RedirectRulesViewModel: BaseLoadableViewModel {
     @Published var rules: [RedirectRuleItem] = []
-    
+
     private let redirectService: RedirectRulesServiceProtocol
-    
+
     init(redirectService: RedirectRulesServiceProtocol = RedirectRulesService.shared) {
         self.redirectService = redirectService
         super.init()
     }
-    
+
     func fetchRules(zoneId: String) async {
         await executeLoadingTask {
             self.rules = try await self.redirectService.getRedirectRules(zoneId: zoneId)
         }
     }
-    
-    func deleteRule(zoneId: String, ruleId: String, description: String?) async -> Bool {
+
+    func deleteRule(zoneId: String, ruleId: String, description _: String?) async -> Bool {
         do {
             try await redirectService.deleteRedirectRule(zoneId: zoneId, ruleId: ruleId)
             await fetchRules(zoneId: zoneId)
             return true
         } catch {
-            self.errorMessage = APIError.formatCloudflareError(error.localizedDescription)
+            errorMessage = APIError.formatCloudflareError(error.localizedDescription)
             return false
         }
     }
-    
+
     func createRule(
         zoneId: String,
         description: String,
@@ -50,7 +50,7 @@ final class RedirectRulesViewModel: BaseLoadableViewModel {
             await fetchRules(zoneId: zoneId)
             return true
         } catch {
-            self.errorMessage = APIError.formatCloudflareError(error.localizedDescription)
+            errorMessage = APIError.formatCloudflareError(error.localizedDescription)
             return false
         }
     }

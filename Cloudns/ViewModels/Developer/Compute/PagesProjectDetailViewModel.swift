@@ -1,39 +1,39 @@
+import Combine
 import Foundation
 import SwiftUI
-import Combine
 
 @MainActor
 final class PagesProjectDetailViewModel: BaseLoadableViewModel {
     let accountId: String
     let project: PagesProject
     private let pagesService: PagesServiceProtocol
-    
+
     @Published var deployments: [PagesDeployment] = []
     @Published var domains: [PagesDomain] = []
-    
+
     init(accountId: String, project: PagesProject, pagesService: PagesServiceProtocol = PagesService.shared) {
         self.accountId = accountId
         self.project = project
         self.pagesService = pagesService
         super.init()
     }
-    
+
     func fetchProjectDetails() async {
         await executeLoadingTask {
             async let fetchDeps = self.pagesService.getPagesDeployments(accountId: self.accountId, projectName: self.project.name)
-            async let fetchDoms = (try? await self.pagesService.getPagesDomains(accountId: self.accountId, projectName: self.project.name)) ?? []
-            
-            let (deps, doms) = await (try fetchDeps, fetchDoms)
+            async let fetchDoms = await (try? self.pagesService.getPagesDomains(accountId: self.accountId, projectName: self.project.name)) ?? []
+
+            let (deps, doms) = try await (fetchDeps, fetchDoms)
             self.deployments = deps
             self.domains = doms
         }
     }
-    
+
     func addDomain(name: String) async throws {
         try await pagesService.addPagesDomain(accountId: accountId, projectName: project.name, domain: name)
         await fetchProjectDetails()
     }
-    
+
     func deleteDomain(name: String) async throws {
         try await pagesService.deletePagesDomain(accountId: accountId, projectName: project.name, domain: name)
         await fetchProjectDetails()

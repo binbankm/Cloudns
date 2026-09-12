@@ -9,13 +9,13 @@ public struct HyperdriveConfig: Codable, Identifiable, Equatable, Sendable {
     public let caching: HyperdriveCaching?
     public let createdOn: String?
     public let modifiedOn: String?
-    
+
     enum CodingKeys: String, CodingKey {
         case id, name, origin, caching
         case createdOn = "created_on"
         case modifiedOn = "modified_on"
     }
-    
+
     public init(id: String, name: String, origin: HyperdriveOrigin? = nil, caching: HyperdriveCaching? = nil, createdOn: String? = nil, modifiedOn: String? = nil) {
         self.id = id
         self.name = name
@@ -24,7 +24,6 @@ public struct HyperdriveConfig: Codable, Identifiable, Equatable, Sendable {
         self.createdOn = createdOn
         self.modifiedOn = modifiedOn
     }
-    
 }
 
 public struct HyperdriveOrigin: Codable, Equatable, Sendable {
@@ -33,7 +32,7 @@ public struct HyperdriveOrigin: Codable, Equatable, Sendable {
     public let database: String?
     public let user: String?
     public let scheme: String?
-    
+
     public init(host: String? = nil, port: Int? = nil, database: String? = nil, user: String? = nil, scheme: String? = nil) {
         self.host = host
         self.port = port
@@ -47,13 +46,13 @@ public struct HyperdriveCaching: Codable, Equatable, Sendable {
     public let disabled: Bool?
     public let maxAge: Int?
     public let staleWhileRevalidate: Int?
-    
+
     enum CodingKeys: String, CodingKey {
         case disabled
         case maxAge = "max_age"
         case staleWhileRevalidate = "stale_while_revalidate"
     }
-    
+
     public init(disabled: Bool? = nil, maxAge: Int? = nil, staleWhileRevalidate: Int? = nil) {
         self.disabled = disabled
         self.maxAge = maxAge
@@ -65,7 +64,7 @@ public struct HyperdriveCreate: Codable, Sendable {
     public let name: String
     public let origin: HyperdriveOriginInput
     public let caching: HyperdriveCaching?
-    
+
     public init(name: String, origin: HyperdriveOriginInput, caching: HyperdriveCaching? = nil) {
         self.name = name
         self.origin = origin
@@ -80,7 +79,7 @@ public struct HyperdriveOriginInput: Codable, Sendable {
     public let user: String
     public let password: String
     public let scheme: String
-    
+
     public init(host: String, port: Int, database: String, user: String, password: String, scheme: String = "postgres") {
         self.host = host
         self.port = port
@@ -95,7 +94,7 @@ public struct HyperdrivePatch: Codable, Sendable {
     public let name: String?
     public let origin: HyperdriveOriginInput?
     public let caching: HyperdriveCaching?
-    
+
     public init(name: String? = nil, origin: HyperdriveOriginInput? = nil, caching: HyperdriveCaching? = nil) {
         self.name = name
         self.origin = origin

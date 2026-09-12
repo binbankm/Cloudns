@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - QueuesView
+
 // Apple HIG Compliant Cloudflare Queues Message Hub
 
 struct QueuesView: View {
@@ -11,12 +12,12 @@ struct QueuesView: View {
     @State private var queueToPurge: CFQueue?
     @State private var showingDeleteAlert = false
     @State private var showingPurgeAlert = false
-    
+
     init(accountId: String) {
         self.accountId = accountId
         _viewModel = StateObject(wrappedValue: QueuesViewModel(accountId: accountId))
     }
-    
+
     var body: some View {
         queueListContent
             .navigationTitle("Queues")
@@ -67,8 +68,7 @@ struct QueuesView: View {
                 }
             }
     }
-    
-    @ViewBuilder
+
     private var queueListContent: some View {
         List {
             if !viewModel.queues.isEmpty {
@@ -83,15 +83,15 @@ struct QueuesView: View {
                             } label: {
                                 Label("Copy Queue Name", systemImage: "doc.on.doc")
                             }
-                            
+
                             Button {
                                 copyToClipboard(queue.id, toast: "Queue ID Copied")
                             } label: {
                                 Label("Copy Queue ID", systemImage: "link")
                             }
-                            
+
                             Divider()
-                            
+
                             Button(role: .destructive) {
                                 queueToPurge = queue
                                 showingPurgeAlert = true
@@ -99,7 +99,7 @@ struct QueuesView: View {
                             } label: {
                                 Label("Purge Messages", systemImage: "xmark.bin")
                             }
-                            
+
                             Button(role: .destructive) {
                                 queueToDelete = queue
                                 showingDeleteAlert = true
@@ -117,7 +117,7 @@ struct QueuesView: View {
                                 Label("Delete", systemImage: "trash")
                             }
                             .tint(.red)
-                            
+
                             Button {
                                 HapticManager.impact(.light)
                                 queueToPurge = queue
@@ -145,24 +145,23 @@ struct QueuesView: View {
             retryAction: { Task { await viewModel.fetchQueues() } }
         )
     }
-    
-    @ViewBuilder
+
     private func queueRow(_ queue: CFQueue) -> some View {
         HStack(spacing: 12) {
             ListRowIcon(icon: "tray.2.fill", color: .indigo)
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(queue.queueName)
                     .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
-                
+
                 HStack(spacing: 8) {
                     if let consumers = queue.consumers {
                         Text("\(consumers.count) Consumers")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
-                    
+
                     if let created = queue.createdOn, let date = DateFormatters.parseISO8601(created) {
                         Text("• Created \(date.displayFormatted(date: .abbreviated, time: .omitted))")
                             .font(.caption2)
@@ -170,9 +169,9 @@ struct QueuesView: View {
                     }
                 }
             }
-            
+
             Spacer()
-            
+
             if let producers = queue.producers, !producers.isEmpty {
                 Text("\(producers.count) producers")
                     .font(.caption2.weight(.medium))
@@ -198,10 +197,10 @@ struct QueuesView: View {
 struct CreateQueueSheetView: View {
     @ObservedObject var viewModel: QueuesViewModel
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var queueName = ""
     @State private var isCreating = false
-    
+
     var body: some View {
         NavigationStack {
             Form {

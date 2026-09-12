@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - R2BucketsView
+
 // Apple HIG Compliant R2 Object Storage Explorer
 
 struct R2BucketsView: View {
@@ -9,12 +10,12 @@ struct R2BucketsView: View {
     @State private var showingCreateSheet = false
     @State private var bucketToDelete: R2Bucket?
     @State private var showingDeleteAlert = false
-    
+
     init(accountId: String) {
         self.accountId = accountId
         _viewModel = StateObject(wrappedValue: R2ViewModel(accountId: accountId))
     }
-    
+
     var body: some View {
         List {
             if !viewModel.filteredBuckets.isEmpty {
@@ -31,9 +32,9 @@ struct R2BucketsView: View {
                             } label: {
                                 Label("Copy Bucket Name", systemImage: "doc.on.doc")
                             }
-                            
+
                             Divider()
-                            
+
                             Button(role: .destructive) {
                                 HapticManager.impact(.medium)
                                 bucketToDelete = bucket
@@ -82,8 +83,8 @@ struct R2BucketsView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button { showingCreateSheet = true } label: { Image(systemName: "plus") }
-                .accessibilityLabel("Create R2 Bucket")
-                .keyboardShortcut("n", modifiers: .command)
+                    .accessibilityLabel("Create R2 Bucket")
+                    .keyboardShortcut("n", modifiers: .command)
             }
         }
         .sheet(isPresented: $showingCreateSheet) {
@@ -120,25 +121,25 @@ struct R2BucketsView: View {
 
 struct R2BucketRowView: View {
     let bucket: R2Bucket
-    
+
     var body: some View {
         HStack(spacing: 12) {
             ListRowIcon(icon: "archivebox.fill", color: .blue)
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(bucket.name)
                     .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
-                
+
                 if let created = bucket.creationDate, let date = DateFormatters.parseISO8601(created) {
                     Text("Created \(date.displayFormatted(date: .abbreviated, time: .omitted))")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
             }
-            
+
             Spacer()
-            
+
             if let loc = bucket.location {
                 Text(loc.uppercased())
                     .font(.caption2.weight(.medium))
@@ -157,12 +158,12 @@ struct R2BucketRowView: View {
 struct R2CreateBucketSheetView: View {
     @ObservedObject var viewModel: R2ViewModel
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var bucketName = ""
     @State private var locationHint = "auto"
     @State private var isCreating = false
     @State private var errorMessage: String?
-    
+
     let locationHints = [
         ("Automatic (Recommended)", "auto"),
         ("Eastern North America", "wnam"),
@@ -171,7 +172,7 @@ struct R2CreateBucketSheetView: View {
         ("Eastern Europe", "eeur"),
         ("Asia-Pacific", "apac")
     ]
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -185,7 +186,7 @@ struct R2CreateBucketSheetView: View {
                 } footer: {
                     Text("Unique bucket name using lowercase letters, numbers, and hyphens.")
                 }
-                
+
                 Section("Location Hint") {
                     Picker("Region", selection: $locationHint) {
                         ForEach(locationHints, id: \.1) { label, value in
@@ -193,7 +194,7 @@ struct R2CreateBucketSheetView: View {
                         }
                     }
                 }
-                
+
                 if let err = errorMessage {
                     Section {
                         Text(verbatim: err)

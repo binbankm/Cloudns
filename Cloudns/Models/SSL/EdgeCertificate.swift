@@ -31,7 +31,7 @@ struct CertificatePacksResponse: Codable, Sendable {
     let result: [CertificatePack]?
 }
 
-// Unified model for display
+/// Unified model for display
 struct EdgeCertificateModel: Identifiable, Equatable, Sendable {
     let id: String
     let type: String // "universal", "advanced", "custom"

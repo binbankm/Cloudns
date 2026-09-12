@@ -1,16 +1,17 @@
 import SwiftUI
 
 // MARK: - WAFCustomRulesView
+
 // Apple HIG Compliant Cloudflare Web Application Firewall Custom Rule Engine
 
 struct WAFCustomRulesView: View {
     let zoneId: String
-    
+
     @StateObject private var viewModel = WAFViewModel()
     @State private var showingAddSheet = false
     @State private var ruleToDelete: WAFRule?
     @State private var showingDeleteConfirm = false
-    
+
     var body: some View {
         List {
             if !viewModel.rules.isEmpty {
@@ -29,7 +30,7 @@ struct WAFCustomRulesView: View {
                             } label: {
                                 Label("Copy Expression", systemImage: "doc.on.doc")
                             }
-                            
+
                             if let desc = rule.description {
                                 Button {
                                     copyToClipboard(desc, toast: "Rule Name Copied")
@@ -37,9 +38,9 @@ struct WAFCustomRulesView: View {
                                     Label("Copy Rule Name", systemImage: "tag")
                                 }
                             }
-                            
+
                             Divider()
-                            
+
                             Button(role: .destructive) {
                                 HapticManager.impact(.medium)
                                 ruleToDelete = rule
@@ -132,7 +133,7 @@ struct WAFCustomRulesView: View {
 struct WAFRuleCardView: View {
     let rule: WAFRule
     let onToggle: () -> Void
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
@@ -145,16 +146,16 @@ struct WAFRuleCardView: View {
                         .font(.body.weight(.medium))
                         .lineLimit(2)
                 }
-                
+
                 Spacer()
-                
+
                 Toggle(isOn: Binding(
                     get: { rule.enabled },
                     set: { _ in onToggle() }
-                )) { }
-                .labelsHidden()
+                )) {}
+                    .labelsHidden()
             }
-            
+
             HStack {
                 let actionColor = colorForAction(rule.action)
                 Text(actionDisplayName(rule.action))
@@ -163,9 +164,9 @@ struct WAFRuleCardView: View {
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
                     .background(Capsule().fill(actionColor.opacity(0.12)))
-                
+
                 Spacer()
-                
+
                 Text(rule.enabled ? LocalizedStringKey("Active") : LocalizedStringKey("Disabled"))
                     .font(.caption2.weight(.medium))
                     .foregroundStyle(rule.enabled ? Color.green : Color.secondary)
@@ -173,12 +174,12 @@ struct WAFRuleCardView: View {
                     .padding(.vertical, 2)
                     .background(Capsule().fill(rule.enabled ? Color.green.opacity(0.12) : Color(.tertiarySystemFill)))
             }
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 Text("Expression")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
-                
+
                 Text(verbatim: rule.expression)
                     .font(.footnote.monospaced())
                     .foregroundStyle(.primary)
@@ -191,26 +192,26 @@ struct WAFRuleCardView: View {
         }
         .padding(.vertical, 2)
     }
-    
+
     private func actionDisplayName(_ action: String) -> LocalizedStringKey {
         switch action.lowercased() {
-        case "block": return "Block"
-        case "managed_challenge": return "Managed Challenge"
-        case "js_challenge": return "JS Challenge"
-        case "challenge": return "Interactive Challenge"
-        case "log": return "Log"
-        case "skip": return "Skip"
-        default: return LocalizedStringKey(action.capitalized)
+        case "block": "Block"
+        case "managed_challenge": "Managed Challenge"
+        case "js_challenge": "JS Challenge"
+        case "challenge": "Interactive Challenge"
+        case "log": "Log"
+        case "skip": "Skip"
+        default: LocalizedStringKey(action.capitalized)
         }
     }
-    
+
     private func colorForAction(_ action: String) -> Color {
         switch action.lowercased() {
-        case "block": return .red
-        case "managed_challenge", "js_challenge", "challenge": return .orange
-        case "log": return .blue
-        case "skip": return .green
-        default: return .secondary
+        case "block": .red
+        case "managed_challenge", "js_challenge", "challenge": .orange
+        case "log": .blue
+        case "skip": .green
+        default: .secondary
         }
     }
 }

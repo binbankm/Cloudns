@@ -19,11 +19,11 @@ extension DevToolsServiceProtocol {
     func performDNSLookup(domain: String, type: String = "A") async throws -> DNSLookupResult {
         try await performDNSLookup(domain: domain, type: type)
     }
-    
+
     func getCFTrace(host: String = "www.cloudflare.com") async throws -> [HTTPHeaderItem] {
         try await getCFTrace(host: host)
     }
-    
+
     func inspectHTTPHeaders(urlString: String) async throws -> HTTPInspectionResult {
         try await inspectHTTPHeaders(urlString: urlString, method: "HEAD")
     }
@@ -32,7 +32,7 @@ extension DevToolsServiceProtocol {
 /// Concrete aggregated service for developer network diagnostic tools
 final class DevToolsService: DevToolsServiceProtocol {
     static let shared = DevToolsService()
-    
+
     private let dnsService: DNSDigServiceProtocol
     private let traceService: CFTraceServiceProtocol
     private let latencyService: EdgeLatencyServiceProtocol
@@ -42,7 +42,7 @@ final class DevToolsService: DevToolsServiceProtocol {
     private let cidrService: CIDRCalculatorServiceProtocol
     private let ipRangesService: CFIpRangesServiceProtocol
     private let statusService: CloudflareStatusServiceProtocol
-    
+
     init(
         dnsService: DNSDigServiceProtocol = DNSDigService.shared,
         traceService: CFTraceServiceProtocol = CFTraceService.shared,
@@ -64,47 +64,47 @@ final class DevToolsService: DevToolsServiceProtocol {
         self.ipRangesService = ipRangesService
         self.statusService = statusService
     }
-    
+
     func performDNSLookup(domain: String, type: String = "A") async throws -> DNSLookupResult {
         try await dnsService.performDNSLookup(domain: domain, type: type)
     }
-    
+
     func performDNSBenchmark(domain: String, type: String) async throws -> DNSBenchmarkResult {
         try await dnsService.performDNSBenchmark(domain: domain, type: type)
     }
-    
+
     func performDNSPropagation(domain: String, type: String, expectedIP: String?) async throws -> DNSPropagationResult {
         try await dnsService.performDNSPropagation(domain: domain, type: type, expectedIP: expectedIP)
     }
-    
+
     func performEdgeLatencyTest(host: String, rounds: Int = 4) async throws -> EdgeLatencyResult {
         try await latencyService.performEdgeLatencyTest(host: host, rounds: rounds)
     }
-    
+
     func getCFTrace(host: String = "www.cloudflare.com") async throws -> [HTTPHeaderItem] {
         try await traceService.getCFTrace(host: host)
     }
-    
+
     func inspectHTTPHeaders(urlString: String, method: String = "HEAD") async throws -> HTTPInspectionResult {
         try await httpService.inspectHTTPHeaders(urlString: urlString, method: method)
     }
-    
+
     func inspectSSLCertificate(domain: String) async throws -> SSLCertDetails {
         try await sslService.inspectSSLCertificate(domain: domain)
     }
-    
+
     func lookupIP(target: String) async throws -> IPLookupResult {
         try await ipService.lookupIP(target: target)
     }
-    
+
     func getCloudflareIPs() async throws -> ([String], [String]) {
         try await ipRangesService.getCloudflareIPs()
     }
-    
+
     func calculateSubnet(cidr: String) -> SubnetCalculationResult? {
         cidrService.calculateSubnet(cidr: cidr)
     }
-    
+
     func fetchCloudflareStatus() async throws -> CFStatusSummary {
         try await statusService.fetchCloudflareStatus()
     }

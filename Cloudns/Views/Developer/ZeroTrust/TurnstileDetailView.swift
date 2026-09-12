@@ -1,34 +1,36 @@
 import SwiftUI
 
 // MARK: - TurnstileDetailView
+
 // Apple HIG Compliant Cloudflare Turnstile Inspection, Key Rotation & Multi-Language Code Integration
 
 struct TurnstileDetailView: View {
     @State var widget: TurnstileWidget
     var viewModel: TurnstileViewModel?
-    
+
     @State private var selectedTab = "frontend"
     @State private var frontendFramework = "html"
     @State private var backendLang = "node"
-    
+
     @State private var showingEditSheet = false
     @State private var showingRotateAlert = false
     @State private var isRotatingSecret = false
     @State private var currentSecret: String?
-    
+
     init(widget: TurnstileWidget, viewModel: TurnstileViewModel? = nil) {
         _widget = State(initialValue: widget)
         self.viewModel = viewModel
         _currentSecret = State(initialValue: widget.secret)
     }
-    
+
     var body: some View {
         List {
             // MARK: - Keys & Overview
+
             Section("Widget Credentials") {
                 LabeledContent("Widget Name", value: widget.name)
                     .font(.body)
-                
+
                 LabeledContent("Mode") {
                     Text((widget.mode ?? "Managed").capitalized)
                         .font(.caption2.weight(.medium))
@@ -37,12 +39,12 @@ struct TurnstileDetailView: View {
                         .padding(.vertical, 2)
                         .background(Capsule().fill(Color.blue.opacity(0.12)))
                 }
-                
+
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Sitekey (Public)")
                         .font(.caption)
                         .foregroundStyle(.secondary)
-                    
+
                     HStack {
                         Text(widget.sitekey)
                             .font(.caption.monospaced())
@@ -60,13 +62,13 @@ struct TurnstileDetailView: View {
                     }
                 }
                 .padding(.vertical, 2)
-                
+
                 if let secret = currentSecret, !secret.isEmpty {
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Secret Key (Private)")
                             .font(.caption)
                             .foregroundStyle(.secondary)
-                        
+
                         HStack {
                             Text(secret)
                                 .font(.caption.monospaced())
@@ -85,7 +87,7 @@ struct TurnstileDetailView: View {
                     }
                     .padding(.vertical, 2)
                 }
-                
+
                 if let domains = widget.domains, !domains.isEmpty {
                     VStack(alignment: .leading, spacing: 3) {
                         Text("Allowed Domains")
@@ -98,8 +100,9 @@ struct TurnstileDetailView: View {
                     .padding(.vertical, 2)
                 }
             }
-            
+
             // MARK: - Management Actions
+
             if viewModel != nil {
                 Section("Management") {
                     Button {
@@ -109,7 +112,7 @@ struct TurnstileDetailView: View {
                         Label("Edit Widget Settings", systemImage: "pencil")
                             .font(.body)
                     }
-                    
+
                     Button(role: .destructive) {
                         HapticManager.impact(.medium)
                         showingRotateAlert = true
@@ -126,8 +129,9 @@ struct TurnstileDetailView: View {
                     .disabled(isRotatingSecret)
                 }
             }
-            
+
             // MARK: - Code Integration Guide
+
             Section("Integration Code Generator") {
                 Picker("Layer", selection: $selectedTab) {
                     Text("Client-side").tag("frontend")
@@ -138,7 +142,7 @@ struct TurnstileDetailView: View {
                 .onChange(of: selectedTab) { _ in
                     HapticManager.selection()
                 }
-                
+
                 if selectedTab == "frontend" {
                     Picker("Framework", selection: $frontendFramework) {
                         Text("HTML / JS").tag("html")
@@ -161,7 +165,7 @@ struct TurnstileDetailView: View {
                         HapticManager.selection()
                     }
                 }
-                
+
                 VStack(alignment: .leading, spacing: 6) {
                     ScrollView(.horizontal) {
                         Text(verbatim: snippetCode)
@@ -170,7 +174,7 @@ struct TurnstileDetailView: View {
                             .padding(.vertical, 2)
                     }
                     .scrollIndicators(.hidden)
-                    
+
                     Button {
                         copyToClipboard(snippetCode, toast: "Code Snippet Copied")
                     } label: {
@@ -188,7 +192,7 @@ struct TurnstileDetailView: View {
             Group {
                 if let vm = viewModel {
                     EditTurnstileWidgetSheetView(viewModel: vm, widget: widget) { updated in
-                        self.widget = updated
+                        widget = updated
                     }
                 }
             }
@@ -205,14 +209,14 @@ struct TurnstileDetailView: View {
             Text("Rotating the secret key will generate a new secret key for backend token verification. Existing backend deployments using the old secret key might be affected.")
         }
     }
-    
+
     private func rotateSecret(invalidateImmediately: Bool) {
         guard let vm = viewModel else { return }
         isRotatingSecret = true
         Task {
             do {
                 let newSecret = try await vm.rotateSecret(sitekey: widget.sitekey, invalidateImmediately: invalidateImmediately)
-                self.currentSecret = newSecret
+                currentSecret = newSecret
                 HapticManager.notification(.success)
                 ToastManager.shared.showSuccess("Secret Key Rotated", icon: "key.fill")
             } catch {
@@ -221,11 +225,11 @@ struct TurnstileDetailView: View {
             isRotatingSecret = false
         }
     }
-    
+
     private var snippetCode: String {
         if selectedTab == "frontend" {
             if frontendFramework == "html" {
-                return """
+                """
                 <!-- 1. Include Turnstile script in <head> -->
                 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
@@ -236,7 +240,7 @@ struct TurnstileDetailView: View {
                 </form>
                 """
             } else {
-                return """
+                """
                 // npm install @marsidev/react-turnstile
                 import { Turnstile } from '@marsidev/react-turnstile';
 
@@ -256,7 +260,7 @@ struct TurnstileDetailView: View {
         } else {
             switch backendLang {
             case "node":
-                return """
+                """
                 // POST to Cloudflare Siteverify API
                 const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
                   method: 'POST',
@@ -273,7 +277,7 @@ struct TurnstileDetailView: View {
                 }
                 """
             case "python":
-                return """
+                """
                 import requests, os
 
                 verify_res = requests.post(
@@ -289,14 +293,14 @@ struct TurnstileDetailView: View {
                     # Captcha token is valid
                 """
             case "go":
-                return """
+                """
                 resp, err := http.PostForm("https://challenges.cloudflare.com/turnstile/v0/siteverify",
                     url.Values{
                         "secret":   {os.Getenv("TURNSTILE_SECRET_KEY")},
                         "response": {token},
                     })
                 """
-            default: return ""
+            default: ""
             }
         }
     }
@@ -309,15 +313,15 @@ struct EditTurnstileWidgetSheetView: View {
     let widget: TurnstileWidget
     let onUpdated: (TurnstileWidget) -> Void
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var name: String
     @State private var domainsText: String
     @State private var mode: String
     @State private var isSaving = false
     @State private var errorMessage: String?
-    
+
     let modes = ["managed", "non-interactive", "invisible"]
-    
+
     init(viewModel: TurnstileViewModel, widget: TurnstileWidget, onUpdated: @escaping (TurnstileWidget) -> Void) {
         self.viewModel = viewModel
         self.widget = widget
@@ -326,7 +330,7 @@ struct EditTurnstileWidgetSheetView: View {
         _domainsText = State(initialValue: (widget.domains ?? []).joined(separator: ", "))
         _mode = State(initialValue: widget.mode ?? "managed")
     }
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -335,7 +339,7 @@ struct EditTurnstileWidgetSheetView: View {
                         .font(.body)
                         .submitLabel(.next)
                 }
-                
+
                 Section {
                     TextField("example.com, app.example.com", text: $domainsText)
                         .font(.body.monospaced())
@@ -347,7 +351,7 @@ struct EditTurnstileWidgetSheetView: View {
                 } footer: {
                     Text("Comma or newline separated list of hostnames.")
                 }
-                
+
                 Section("Challenge Mode") {
                     Picker("Mode", selection: $mode) {
                         ForEach(modes, id: \.self) { m in
@@ -356,7 +360,7 @@ struct EditTurnstileWidgetSheetView: View {
                     }
                     .pickerStyle(.segmented)
                 }
-                
+
                 if let err = errorMessage {
                     Section {
                         Text(verbatim: err)

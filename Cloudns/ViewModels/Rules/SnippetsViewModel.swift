@@ -1,20 +1,20 @@
+import Combine
 import Foundation
 import SwiftUI
-import Combine
 
 @MainActor
 final class SnippetsViewModel: BaseLoadableViewModel {
     @Published var snippets: [SnippetItem] = []
     @Published var rules: [WAFRule] = []
     @Published var rulesetId: String?
-    
+
     private let snippetService: SnippetServiceProtocol
-    
+
     init(snippetService: SnippetServiceProtocol = SnippetService.shared) {
         self.snippetService = snippetService
         super.init()
     }
-    
+
     func fetchSnippets(zoneId: String) async {
         await executeLoadingTask {
             async let fetchList = self.snippetService.getSnippets(zoneId: zoneId)
@@ -25,7 +25,7 @@ final class SnippetsViewModel: BaseLoadableViewModel {
             self.rules = rRules
         }
     }
-    
+
     func deleteSnippet(zoneId: String, snippetName: String) async -> Bool {
         do {
             try await snippetService.deleteSnippet(zoneId: zoneId, snippetName: snippetName)
@@ -35,7 +35,7 @@ final class SnippetsViewModel: BaseLoadableViewModel {
             return false
         }
     }
-    
+
     func saveSnippet(zoneId: String, name: String, code: String) async -> Bool {
         do {
             try await snippetService.putSnippet(zoneId: zoneId, name: name.trimmingCharacters(in: .whitespaces), code: code)
@@ -45,7 +45,7 @@ final class SnippetsViewModel: BaseLoadableViewModel {
             return false
         }
     }
-    
+
     func bindSnippetRule(zoneId: String, snippetName: String, expression: String, description: String?) async -> Bool {
         do {
             try await snippetService.bindSnippetRule(zoneId: zoneId, snippetName: snippetName, expression: expression, description: description)
@@ -55,7 +55,7 @@ final class SnippetsViewModel: BaseLoadableViewModel {
             return false
         }
     }
-    
+
     func deleteSnippetRule(zoneId: String, rulesetId: String, ruleId: String) async -> Bool {
         do {
             try await snippetService.deleteSnippetRule(zoneId: zoneId, rulesetId: rulesetId, ruleId: ruleId)
@@ -65,8 +65,8 @@ final class SnippetsViewModel: BaseLoadableViewModel {
             return false
         }
     }
-    
+
     func loadSnippetContent(zoneId: String, name: String) async -> String? {
-        return try? await snippetService.getSnippetContent(zoneId: zoneId, name: name)
+        try? await snippetService.getSnippetContent(zoneId: zoneId, name: name)
     }
 }

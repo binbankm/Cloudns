@@ -1,17 +1,18 @@
 import SwiftUI
 
 // MARK: - PagesDomainsView
+
 // Apple HIG Compliant Cloudflare Pages Custom Domains Management
 
 struct PagesDomainsView: View {
     let accountId: String
     let projectName: String
     @ObservedObject var viewModel: PagesProjectDetailViewModel
-    
+
     @State private var showingAddDomainSheet = false
     @State private var domainToDelete: PagesDomain?
     @State private var showingDeleteAlert = false
-    
+
     var body: some View {
         contentView
             .navigationTitle("Custom Domains")
@@ -50,8 +51,7 @@ struct PagesDomainsView: View {
                 Text("Are you sure you want to remove domain '\(dom.name)' from this Pages project?")
             }
     }
-    
-    @ViewBuilder
+
     private var contentView: some View {
         List {
             if !viewModel.domains.isEmpty {
@@ -64,15 +64,15 @@ struct PagesDomainsView: View {
                                 } label: {
                                     Label("Copy Domain", systemImage: "doc.on.doc")
                                 }
-                                
+
                                 if let url = URL(string: "https://\(domain.name)") {
                                     Link(destination: url) {
                                         Label("Open Domain in Safari", systemImage: "safari")
                                     }
                                 }
-                                
+
                                 Divider()
-                                
+
                                 Button(role: .destructive) {
                                     domainToDelete = domain
                                     showingDeleteAlert = true
@@ -107,26 +107,25 @@ struct PagesDomainsView: View {
             emptyAction: { showingAddDomainSheet = true }
         )
     }
-    
-    @ViewBuilder
+
     private func domainRow(_ domain: PagesDomain) -> some View {
         HStack(spacing: 12) {
             ListRowIcon(icon: "globe", color: .blue)
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(domain.name)
                     .font(.body)
                     .foregroundStyle(.primary)
-                
+
                 if let status = domain.status {
                     Text(status.capitalized)
                         .font(.caption2)
                         .foregroundStyle(status.lowercased() == "active" ? .green : .orange)
                 }
             }
-            
+
             Spacer()
-            
+
             if let status = domain.status {
                 let isActive = status.lowercased() == "active"
                 Text(status.capitalized)
@@ -146,11 +145,11 @@ struct PagesDomainsView: View {
 struct AddPagesDomainSheetView: View {
     @ObservedObject var viewModel: PagesProjectDetailViewModel
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var domain = ""
     @State private var isAdding = false
     @State private var errorMessage: String?
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -165,7 +164,7 @@ struct AddPagesDomainSheetView: View {
                         .autocorrectionDisabled()
                         .submitLabel(.done)
                 }
-                
+
                 if let err = errorMessage {
                     Section {
                         HStack(spacing: 8) {

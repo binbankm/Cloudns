@@ -7,7 +7,7 @@ public struct EdgeLatencyPing: Identifiable, Equatable, Sendable {
     public let latencyMs: Double
     public let httpStatus: Int
     public let isSuccess: Bool
-    
+
     public init(id: Int, latencyMs: Double, httpStatus: Int, isSuccess: Bool) {
         self.id = id
         self.latencyMs = latencyMs
@@ -27,7 +27,7 @@ public struct EdgeLatencyResult: Equatable, Sendable {
     public let httpProtocol: String
     public let serverHeader: String
     public let isCloudflareEdge: Bool
-    
+
     public init(
         host: String,
         pings: [EdgeLatencyPing],

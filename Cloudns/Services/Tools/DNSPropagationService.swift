@@ -7,7 +7,7 @@ protocol DNSPropagationServiceProtocol: Sendable {
 
 final class DNSPropagationService: DNSPropagationServiceProtocol {
     static let shared = DNSPropagationService()
-    
+
     private let diagnosticSession: URLSession = {
         let config = URLSessionConfiguration.ephemeral
         config.timeoutIntervalForRequest = 10.0
@@ -16,15 +16,15 @@ final class DNSPropagationService: DNSPropagationServiceProtocol {
         config.httpMaximumConnectionsPerHost = 6
         return URLSession(configuration: config)
     }()
-    
+
     private init() {}
-    
+
     func performDNSPropagation(domain: String, type: String, expectedIP: String?) async throws -> DNSPropagationResult {
         let cleanDomain = domain.trimmingCharacters(in: .whitespacesAndNewlines)
             .replacingOccurrences(of: "https://", with: "")
             .replacingOccurrences(of: "http://", with: "")
             .trimmingCharacters(in: CharacterSet(charactersIn: "/"))
-        
+
         let propagationSpecs: [(region: String, city: String, flag: String, provider: String, url: String)] = [
             ("North America", "San Jose, US", "🇺🇸", "Cloudflare Anycast", "https://1.1.1.1/dns-query"),
             ("North America", "Virginia, US", "🇺🇸", "Google Public", "https://dns.google/resolve"),
@@ -37,9 +37,9 @@ final class DNSPropagationService: DNSPropagationServiceProtocol {
             ("Oceania", "Sydney, AU", "🇦🇺", "Cloudflare Sydney", "https://1.1.1.1/dns-query"),
             ("South America", "São Paulo, BR", "🇧🇷", "Google Brazil", "https://dns.google/resolve")
         ]
-        
+
         var nodes: [DNSPropagationNode] = []
-        
+
         await withTaskGroup(of: DNSPropagationNode.self) { group in
             for spec in propagationSpecs {
                 group.addTask {
@@ -53,32 +53,32 @@ final class DNSPropagationService: DNSPropagationServiceProtocol {
                     guard let targetUrl = components.url else {
                         return DNSPropagationNode(regionName: spec.region, locationCity: spec.city, countryFlag: spec.flag, provider: spec.provider, endpointUrl: spec.url, status: .failed)
                     }
-                    
+
                     var req = URLRequest(url: targetUrl)
                     req.setValue("application/dns-json", forHTTPHeaderField: "Accept")
-                    
+
                     let start = CFAbsoluteTimeGetCurrent()
                     do {
                         let (data, response) = try await self.diagnosticSession.data(for: req)
                         let latency = (CFAbsoluteTimeGetCurrent() - start) * 1000.0
-                        
-                        guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
+
+                        guard let http = response as? HTTPURLResponse, (200 ... 299).contains(http.statusCode) else {
                             return DNSPropagationNode(regionName: spec.region, locationCity: spec.city, countryFlag: spec.flag, provider: spec.provider, endpointUrl: spec.url, status: .failed)
                         }
-                        
+
                         struct Ans: Codable { let data: String }
                         struct Res: Codable { let Answer: [Ans]? }
-                        
+
                         let decoded = try JSONDecoder().decode(Res.self, from: data)
-                        let records = (decoded.Answer ?? []).map { $0.data }
-                        
+                        let records = (decoded.Answer ?? []).map(\.data)
+
                         var nodeStatus: DNSPropagationNode.NodeStatus = .resolved
                         if let exp = expectedIP, !exp.isEmpty {
                             nodeStatus = records.contains(where: { $0.contains(exp) }) ? .resolved : .mismatch
                         } else if records.isEmpty {
                             nodeStatus = .failed
                         }
-                        
+
                         return DNSPropagationNode(
                             regionName: spec.region,
                             locationCity: spec.city,
@@ -101,12 +101,12 @@ final class DNSPropagationService: DNSPropagationServiceProtocol {
                     }
                 }
             }
-            
+
             for await node in group {
                 nodes.append(node)
             }
         }
-        
+
         return DNSPropagationResult(
             domain: cleanDomain,
             recordType: type,

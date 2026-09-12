@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - D1ConsoleView
+
 // Apple HIG Compliant Cloudflare D1 Serverless SQL Query Console & Schema Explorer
 
 struct D1ConsoleView: View {
@@ -8,16 +9,17 @@ struct D1ConsoleView: View {
     let database: D1Database
     @StateObject private var viewModel: D1ConsoleViewModel
     @FocusState private var isEditorFocused: Bool
-    
+
     init(accountId: String, database: D1Database) {
         self.accountId = accountId
         self.database = database
         _viewModel = StateObject(wrappedValue: D1ConsoleViewModel(accountId: accountId, database: database))
     }
-    
+
     var body: some View {
         List {
             // MARK: - DB Summary
+
             Section("Database Overview") {
                 HStack {
                     Text("Database Name")
@@ -28,7 +30,7 @@ struct D1ConsoleView: View {
                         .font(.body.weight(.medium))
                         .foregroundStyle(.primary)
                 }
-                
+
                 HStack {
                     Text("UUID")
                         .font(.body)
@@ -45,7 +47,7 @@ struct D1ConsoleView: View {
                         Label("Copy UUID", systemImage: "doc.on.doc")
                     }
                 }
-                
+
                 if database.fileSize != nil {
                     HStack {
                         Text("Storage Size")
@@ -58,10 +60,11 @@ struct D1ConsoleView: View {
                     }
                 }
             }
-            
+
             // MARK: - Database Tables
+
             Section("Database Tables (\(viewModel.tables.count))") {
-                if viewModel.isLoadingTables && viewModel.tables.isEmpty {
+                if viewModel.isLoadingTables, viewModel.tables.isEmpty {
                     HStack {
                         Spacer()
                         ProgressView("Loading Tables…")
@@ -79,11 +82,11 @@ struct D1ConsoleView: View {
                         } label: {
                             HStack(spacing: 12) {
                                 ListRowIcon(icon: "tablecells", color: .purple)
-                                
+
                                 Text(tableName)
                                     .font(.body.monospaced().weight(.medium))
                                     .foregroundStyle(.primary)
-                                
+
                                 Spacer()
                             }
                             .padding(.vertical, 2)
@@ -94,7 +97,7 @@ struct D1ConsoleView: View {
                             } label: {
                                 Label("Copy Table Name", systemImage: "doc.on.doc")
                             }
-                            
+
                             Button {
                                 viewModel.sqlInput = "SELECT * FROM \(tableName) LIMIT 20;"
                                 HapticManager.selection()
@@ -105,8 +108,9 @@ struct D1ConsoleView: View {
                     }
                 }
             }
-            
+
             // MARK: - SQL Query Editor
+
             Section("SQL Query Console") {
                 // Presets
                 ScrollView(.horizontal) {
@@ -130,7 +134,7 @@ struct D1ConsoleView: View {
                     .padding(.vertical, 2)
                 }
                 .scrollIndicators(.hidden)
-                
+
                 TextEditor(text: $viewModel.sqlInput)
                     .font(.body.monospaced())
                     .frame(minHeight: 90)
@@ -138,7 +142,7 @@ struct D1ConsoleView: View {
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
                     .focused($isEditorFocused)
-                
+
                 Button {
                     isEditorFocused = false
                     HapticManager.impact(.medium)
@@ -169,8 +173,9 @@ struct D1ConsoleView: View {
                 }
                 .disabled(viewModel.sqlInput.isEmpty || viewModel.isExecuting)
             }
-            
+
             // MARK: - Results
+
             if let result = viewModel.queryResult {
                 Section {
                     if result.rows.isEmpty {
@@ -186,11 +191,11 @@ struct D1ConsoleView: View {
                                             .font(.caption2.monospacedDigit())
                                             .foregroundStyle(.secondary)
                                             .frame(width: 80, alignment: .leading)
-                                        
+
                                         Text(row[col] ?? "null")
                                             .font(.caption.monospaced())
                                             .foregroundStyle(row[col] == nil ? .secondary : .primary)
-                                        
+
                                         Spacer()
                                     }
                                 }

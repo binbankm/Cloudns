@@ -4,7 +4,7 @@ import SwiftUI
 
 struct ContentView: View {
     // MARK: - Properties
-    
+
     @AppStorage(AppStorageKey.isLoggedIn) private var isLoggedIn = false
     @AppStorage(AppStorageKey.hasSeenOnboarding) private var hasSeenOnboarding = false
     @AppStorage(AppStorageKey.isAppLockEnabled) private var isAppLockEnabled = false
@@ -17,19 +17,19 @@ struct ContentView: View {
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    
+
     @ObservedObject private var router = DeepLinkRouter.shared
     @ObservedObject private var themeManager = ThemeManager.shared
-    
+
     var currentLocale: Locale {
         if appLanguage == "system" {
             return Locale.autoupdatingCurrent
         }
         return Locale(identifier: appLanguage)
     }
-    
+
     // MARK: - Body
-    
+
     var body: some View {
         Group {
             if !hasSeenOnboarding {
@@ -66,12 +66,12 @@ struct ContentView: View {
                     .overlay {
                         if isAppLockEnabled {
                             let shouldMask = !authManager.isUnlocked || scenePhase != .active
-                            
+
                             ZStack {
                                 Rectangle()
                                     .fill(.regularMaterial)
                                     .ignoresSafeArea()
-                                
+
                                 Image(systemName: "lock.shield.fill")
                                     .font(.largeTitle)
                                     .foregroundStyle(.secondary.opacity(0.6))
@@ -106,7 +106,7 @@ struct ContentView: View {
         .onAppear {
             _ = AccountManager.shared
             WidgetDataStore.shared.notifyWidgetsToReload()
-            if isAppLockEnabled && !authManager.isUnlocked {
+            if isAppLockEnabled, !authManager.isUnlocked {
                 authManager.authenticate()
             }
         }
@@ -152,15 +152,15 @@ struct ContentView: View {
                                 Button("Done") { router.activeDestination = nil }
                             }
                         }
-                case .zone(let id):
+                case let .zone(id):
                     ZoneDetailDeepLinkWrapper(zoneId: id) {
                         router.activeDestination = nil
                     }
-                case .worker(let id):
+                case let .worker(id):
                     WorkerDetailDeepLinkWrapper(workerId: id) {
                         router.activeDestination = nil
                     }
-                case .pages(let id):
+                case let .pages(id):
                     PagesDetailDeepLinkWrapper(projectId: id) {
                         router.activeDestination = nil
                     }
@@ -173,9 +173,9 @@ struct ContentView: View {
             .monospacedDigit()
         }
     }
-    
+
     // MARK: - Adaptive Layout (Compact TabView vs Regular NavigationSplitView)
-    
+
     @ViewBuilder
     private var mainRootLayout: some View {
         if horizontalSizeClass == .regular {
@@ -227,25 +227,25 @@ struct ContentView: View {
                         Label("Dashboard", systemImage: "square.grid.2x2")
                     }
                     .tag(AppTab.dashboard)
-                
+
                 ZonesListView()
                     .tabItem {
                         Label("Domains", systemImage: "globe.asia.australia")
                     }
                     .tag(AppTab.domains)
-                
+
                 DeveloperHubView()
                     .tabItem {
                         Label("Developer", systemImage: "cpu")
                     }
                     .tag(AppTab.developer)
-                
+
                 NetworkToolsView()
                     .tabItem {
                         Label("Tools", systemImage: "briefcase")
                     }
                     .tag(AppTab.tools)
-                
+
                 SettingsView()
                     .tabItem {
                         Label("Settings", systemImage: "gearshape")
@@ -256,7 +256,7 @@ struct ContentView: View {
             .accentColor(themeManager.accentColor)
         }
     }
-    
+
     @ViewBuilder
     private func detailViewForTab(_ tab: AppTab) -> some View {
         switch tab {

@@ -1,18 +1,19 @@
 import SwiftUI
 
 // MARK: - TunnelsListView
+
 // Apple HIG Compliant Cloudflare Zero Trust Tunnels Overview
 
 struct TunnelsListView: View {
     let accountId: String
     @StateObject private var viewModel: TunnelsViewModel
     @State private var showingCreateTunnelSheet = false
-    
+
     init(accountId: String) {
         self.accountId = accountId
         _viewModel = StateObject(wrappedValue: TunnelsViewModel(accountId: accountId))
     }
-    
+
     var body: some View {
         List {
             if !viewModel.filteredTunnels.isEmpty {
@@ -29,7 +30,7 @@ struct TunnelsListView: View {
                             } label: {
                                 Label("Copy Tunnel ID", systemImage: "doc.on.doc")
                             }
-                            
+
                             Button {
                                 copyToClipboard(tunnel.name, toast: "Tunnel Name Copied")
                             } label: {
@@ -68,8 +69,8 @@ struct TunnelsListView: View {
                 Button {
                     showingCreateTunnelSheet = true
                 } label: { Image(systemName: "plus") }
-                .accessibilityLabel("Create Tunnel")
-                .keyboardShortcut("n", modifiers: .command)
+                    .accessibilityLabel("Create Tunnel")
+                    .keyboardShortcut("n", modifiers: .command)
             }
         }
         .sheet(isPresented: $showingCreateTunnelSheet) {
@@ -94,31 +95,31 @@ struct TunnelsListView: View {
 
 struct TunnelRowView: View {
     let tunnel: CFTunnel
-    
+
     private var isHealthy: Bool {
         tunnel.status?.lowercased() == "healthy"
     }
-    
+
     var body: some View {
         HStack(spacing: 12) {
             ListRowIcon(
                 icon: "network.badge.shield.half.filled",
                 color: isHealthy ? .green : .orange
             )
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(tunnel.name)
                     .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
-                
+
                 Text("ID: \(tunnel.id)")
                     .font(.caption2.monospaced())
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
             }
-            
+
             Spacer()
-            
+
             Text(isHealthy ? LocalizedStringKey("Healthy") : LocalizedStringKey(tunnel.status?.capitalized ?? "Inactive"))
                 .font(.caption2.weight(.medium))
                 .foregroundStyle(isHealthy ? .green : .orange)
@@ -135,10 +136,10 @@ struct TunnelRowView: View {
 struct CreateTunnelSheetView: View {
     @ObservedObject var viewModel: TunnelsViewModel
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var tunnelName = ""
     @State private var isCreating = false
-    
+
     var body: some View {
         NavigationStack {
             Form {

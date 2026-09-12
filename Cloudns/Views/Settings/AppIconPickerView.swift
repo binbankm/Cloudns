@@ -2,7 +2,7 @@ import SwiftUI
 
 struct AppIconPickerView: View {
     @StateObject private var iconManager = AppIconManager.shared
-    
+
     var body: some View {
         List {
             Section {
@@ -27,13 +27,13 @@ struct AppIconPickerView: View {
                                             .stroke(Color.primary.opacity(0.12), lineWidth: 0.5)
                                     )
                             }
-                            
+
                             VStack(alignment: .leading, spacing: 4) {
                                 HStack(spacing: 8) {
                                     Text(option.displayName)
                                         .font(.body.weight(.semibold))
                                         .foregroundStyle(.primary)
-                                    
+
                                     if iconManager.currentIcon == option {
                                         Text("Active")
                                             .font(.caption2.weight(.medium))
@@ -43,15 +43,15 @@ struct AppIconPickerView: View {
                                             .background(Capsule().fill(Color.green.opacity(0.12)))
                                     }
                                 }
-                                
+
                                 Text(option.subtitle)
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                                     .lineLimit(2)
                             }
-                            
+
                             Spacer()
-                            
+
                             if iconManager.currentIcon == option {
                                 Image(systemName: "checkmark.circle.fill")
                                     .font(.title3)

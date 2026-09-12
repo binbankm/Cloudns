@@ -1,11 +1,12 @@
 import SwiftUI
 
 // MARK: - LoadBalancerView
+
 // Apple HIG Compliant Cloudflare Global Load Balancers, Origin Server Pools & Health Monitors
 
 struct LoadBalancerView: View {
     let zoneId: String
-    
+
     @StateObject private var viewModel: LoadBalancerViewModel
     @State private var selectedTab = 0
     @State private var showingAddSheet = false
@@ -13,12 +14,12 @@ struct LoadBalancerView: View {
     @State private var poolToDelete: LBPool?
     @State private var monitorToDelete: LBMonitor?
     @State private var showingDeleteDialog = false
-    
+
     init(zoneId: String) {
         self.zoneId = zoneId
         _viewModel = StateObject(wrappedValue: LoadBalancerViewModel(zoneId: zoneId))
     }
-    
+
     var body: some View {
         VStack(spacing: 0) {
             Picker("Section", selection: $selectedTab) {
@@ -30,7 +31,7 @@ struct LoadBalancerView: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
             .background(Color(.systemGroupedBackground))
-            
+
             contentList
         }
         .navigationTitle("Load Balancing")
@@ -118,8 +119,7 @@ struct LoadBalancerView: View {
             }
         }
     }
-    
-    @ViewBuilder
+
     private var contentList: some View {
         List {
             if selectedTab == 0 {
@@ -135,9 +135,9 @@ struct LoadBalancerView: View {
                                             Label("Copy Hostname", systemImage: "doc.on.doc")
                                         }
                                     }
-                                    
+
                                     Divider()
-                                    
+
                                     Button(role: .destructive) {
                                         lbToDelete = lb
                                         showingDeleteDialog = true
@@ -171,9 +171,9 @@ struct LoadBalancerView: View {
                                             Label("Copy Pool Name", systemImage: "doc.on.doc")
                                         }
                                     }
-                                    
+
                                     Divider()
-                                    
+
                                     Button(role: .destructive) {
                                         poolToDelete = pool
                                         showingDeleteDialog = true
@@ -207,9 +207,9 @@ struct LoadBalancerView: View {
                                             Label("Copy Description", systemImage: "doc.on.doc")
                                         }
                                     }
-                                    
+
                                     Divider()
-                                    
+
                                     Button(role: .destructive) {
                                         monitorToDelete = mon
                                         showingDeleteDialog = true
@@ -244,16 +244,20 @@ struct LoadBalancerView: View {
             }
         )
     }
-    
+
     private var isCurrentTabEmpty: Bool {
-        if selectedTab == 0 { return viewModel.loadBalancers.isEmpty }
-        if selectedTab == 1 { return viewModel.pools.isEmpty }
+        if selectedTab == 0 {
+            return viewModel.loadBalancers.isEmpty
+        }
+        if selectedTab == 1 {
+            return viewModel.pools.isEmpty
+        }
         return viewModel.monitors.isEmpty
     }
-    
+
     private var currentEmptyConfig: EmptyStateConfig {
         if selectedTab == 0 {
-            return EmptyStateConfig(
+            EmptyStateConfig(
                 title: "No Load Balancers",
                 systemImage: "arrow.triangle.branch",
                 description: "Distribute your traffic across multiple server pools with automatic failover.",
@@ -261,7 +265,7 @@ struct LoadBalancerView: View {
                 action: { showingAddSheet = true }
             )
         } else if selectedTab == 1 {
-            return EmptyStateConfig(
+            EmptyStateConfig(
                 title: "No Origin Pools",
                 systemImage: "server.rack",
                 description: "Create origin pools to group backend servers together.",
@@ -269,7 +273,7 @@ struct LoadBalancerView: View {
                 action: { showingAddSheet = true }
             )
         } else {
-            return EmptyStateConfig(
+            EmptyStateConfig(
                 title: "No Health Monitors",
                 systemImage: "waveform.path.ecg",
                 description: "Send automated HTTP/HTTPS health checks to your origin servers.",
@@ -278,8 +282,7 @@ struct LoadBalancerView: View {
             )
         }
     }
-    
-    @ViewBuilder
+
     private func lbRow(_ lb: LoadBalancer) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
@@ -303,8 +306,7 @@ struct LoadBalancerView: View {
         }
         .padding(.vertical, 2)
     }
-    
-    @ViewBuilder
+
     private func poolRow(_ pool: LBPool) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
@@ -336,8 +338,7 @@ struct LoadBalancerView: View {
         }
         .padding(.vertical, 2)
     }
-    
-    @ViewBuilder
+
     private func monRow(_ monitor: LBMonitor) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
@@ -375,14 +376,14 @@ struct LoadBalancerView: View {
 struct AddLBPoolSheetView: View {
     @ObservedObject var viewModel: LoadBalancerViewModel
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var poolName = ""
     @State private var description = ""
     @State private var originName = "origin-1"
     @State private var originAddress = "1.2.3.4"
     @State private var originWeight = 1.0
     @State private var isSaving = false
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -395,7 +396,7 @@ struct AddLBPoolSheetView: View {
                     TextField("Description (Optional)", text: $description)
                         .submitLabel(.next)
                 }
-                
+
                 Section("Initial Origin Server") {
                     TextField("Origin Name (e.g. srv-01)", text: $originName)
                         .keyboardType(.asciiCapable)
@@ -455,7 +456,7 @@ struct AddLBPoolSheetView: View {
 struct AddLBMonitorSheetView: View {
     @ObservedObject var viewModel: LoadBalancerViewModel
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var monitorType = "http"
     @State private var path = "/healthz"
     @State private var expectedCodes = "200"
@@ -463,9 +464,9 @@ struct AddLBMonitorSheetView: View {
     @State private var timeout = 5
     @State private var retries = 2
     @State private var isSaving = false
-    
+
     let monitorTypes = ["http", "https", "tcp", "udp_icmp", "icmp_ping"]
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -476,7 +477,7 @@ struct AddLBMonitorSheetView: View {
                         }
                     }
                 }
-                
+
                 Section("Health Check Request") {
                     TextField("Path (e.g. /healthz)", text: $path)
                         .font(.body.monospaced())
@@ -491,11 +492,11 @@ struct AddLBMonitorSheetView: View {
                         .autocorrectionDisabled()
                         .submitLabel(.done)
                 }
-                
+
                 Section("Check Timing") {
-                    Stepper("Interval: \(interval)s", value: $interval, in: 10...300, step: 10)
-                    Stepper("Timeout: \(timeout)s", value: $timeout, in: 1...30)
-                    Stepper("Retries: \(retries)", value: $retries, in: 1...5)
+                    Stepper("Interval: \(interval)s", value: $interval, in: 10 ... 300, step: 10)
+                    Stepper("Timeout: \(timeout)s", value: $timeout, in: 1 ... 30)
+                    Stepper("Retries: \(retries)", value: $retries, in: 1 ... 5)
                 }
             }
             .scrollDismissesKeyboard(.interactively)

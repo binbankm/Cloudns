@@ -1,15 +1,16 @@
 import SwiftUI
 
 // MARK: - AIGatewayDetailView
+
 // Apple HIG Compliant AI Gateway Endpoint & Code Generator
 
 struct AIGatewayDetailView: View {
     let accountId: String
     let gateway: AIGateway
-    
+
     @State private var selectedProvider = "openai"
     @State private var selectedCodeLanguage = "curl"
-    
+
     let providers: [(id: String, name: String, icon: String)] = [
         ("openai", "OpenAI", "brain"),
         ("anthropic", "Anthropic", "character.bubble"),
@@ -17,27 +18,28 @@ struct AIGatewayDetailView: View {
         ("huggingface", "Hugging Face", "face.smiling"),
         ("replicate", "Replicate", "cube.transparent")
     ]
-    
+
     private var universalEndpoint: String {
         "https://gateway.ai.cloudflare.com/v1/\(accountId)/\(gateway.id)/\(selectedProvider)"
     }
-    
+
     var body: some View {
         List {
             // MARK: - Overview
+
             Section(header: Text("Gateway Overview")) {
                 LabeledContent("Gateway Slug") {
                     Text(gateway.id)
                         .font(.body.monospacedDigit())
                         .foregroundStyle(.primary)
                 }
-                
+
                 LabeledContent("Logging") {
                     Text(gateway.collectLogs == true ? LocalizedStringKey("Enabled") : LocalizedStringKey("Disabled"))
                         .font(.subheadline.weight(.medium))
                         .foregroundStyle(gateway.collectLogs == true ? .green : .secondary)
                 }
-                
+
                 if let created = gateway.createdOn, let date = DateFormatters.parseISO8601(created) {
                     LabeledContent("Created") {
                         Text(date.displayFormatted(date: .abbreviated, time: .omitted))
@@ -46,8 +48,9 @@ struct AIGatewayDetailView: View {
                     }
                 }
             }
-            
+
             // MARK: - Universal AI Endpoint Generator
+
             Section(
                 header: Text("Universal AI Endpoint"),
                 footer: Text("Route requests through this endpoint to get caching, rate limiting, and analytics.")
@@ -60,14 +63,14 @@ struct AIGatewayDetailView: View {
                 .onChange(of: selectedProvider) { _ in
                     HapticManager.impact(.light)
                 }
-                
+
                 VStack(alignment: .leading, spacing: 8) {
                     Text(universalEndpoint)
                         .font(.caption.monospaced())
                         .foregroundStyle(.primary)
                         .lineLimit(2)
                         .padding(.vertical, 2)
-                    
+
                     Button {
                         copyToClipboard(universalEndpoint, toast: "Base URL Copied")
                     } label: {
@@ -82,8 +85,9 @@ struct AIGatewayDetailView: View {
                 }
                 .padding(.vertical, 2)
             }
-            
+
             // MARK: - Integration Code Examples
+
             Section(header: Text("Quick Integration Snippets")) {
                 Picker("Language", selection: $selectedCodeLanguage) {
                     Text("cURL").tag("curl")
@@ -95,7 +99,7 @@ struct AIGatewayDetailView: View {
                 .onChange(of: selectedCodeLanguage) { _ in
                     HapticManager.impact(.light)
                 }
-                
+
                 VStack(alignment: .leading, spacing: 6) {
                     ScrollView(.horizontal) {
                         Text(verbatim: codeSnippet)
@@ -104,7 +108,7 @@ struct AIGatewayDetailView: View {
                             .padding(.vertical, 2)
                     }
                     .scrollIndicators(.hidden)
-                    
+
                     Button {
                         copyToClipboard(codeSnippet, toast: "Code Snippet Copied")
                     } label: {
@@ -119,12 +123,12 @@ struct AIGatewayDetailView: View {
         .navigationTitle(gateway.id)
         .navigationBarTitleDisplayMode(.inline)
     }
-    
+
     private var codeSnippet: String {
         if selectedProvider == "openai" {
             switch selectedCodeLanguage {
             case "curl":
-                return """
+                """
                 curl \(universalEndpoint)/chat/completions \\
                   -H "Content-Type: application/json" \\
                   -H "Authorization: Bearer $OPENAI_API_KEY" \\
@@ -134,7 +138,7 @@ struct AIGatewayDetailView: View {
                   }'
                 """
             case "python":
-                return """
+                """
                 from openai import OpenAI
 
                 client = OpenAI(
@@ -149,7 +153,7 @@ struct AIGatewayDetailView: View {
                 print(response.choices[0].message.content)
                 """
             case "node":
-                return """
+                """
                 import OpenAI from "openai";
 
                 const openai = new OpenAI({
@@ -163,10 +167,10 @@ struct AIGatewayDetailView: View {
                 });
                 console.log(completion.choices[0].message.content);
                 """
-            default: return ""
+            default: ""
             }
         } else {
-            return """
+            """
             curl \(universalEndpoint)/v1/messages \\
               -H "Content-Type: application/json" \\
               -H "x-api-key: $ANTHROPIC_API_KEY" \\

@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - PagesProjectDetailView
+
 // Apple HIG Compliant Cloudflare Pages Project Hub & Top-level Management
 
 struct PagesProjectDetailView: View {
@@ -8,17 +9,17 @@ struct PagesProjectDetailView: View {
     let project: PagesProject
     @StateObject private var viewModel: PagesProjectDetailViewModel
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var showingDeleteAlert = false
     @State private var showingDomainsSheet = false
     @State private var showingBuildConfigSheet = false
-    
+
     init(accountId: String, project: PagesProject) {
         self.accountId = accountId
         self.project = project
         _viewModel = StateObject(wrappedValue: PagesProjectDetailViewModel(accountId: accountId, project: project))
     }
-    
+
     var body: some View {
         contentView
             .navigationTitle(project.name)
@@ -31,21 +32,21 @@ struct PagesProjectDetailView: View {
                                 Label("Open Project URL", systemImage: "safari")
                             }
                         }
-                        
+
                         Button {
                             showingBuildConfigSheet = true
                         } label: {
                             Label("Build Configuration", systemImage: "gearshape")
                         }
-                        
+
                         Button {
                             showingDomainsSheet = true
                         } label: {
                             Label("Custom Domains", systemImage: "globe")
                         }
-                        
+
                         Divider()
-                        
+
                         Button(role: .destructive) {
                             HapticManager.impact(.medium)
                             showingDeleteAlert = true
@@ -101,11 +102,11 @@ struct PagesProjectDetailView: View {
                 PagesBuildConfigEditorView(accountId: accountId, project: project, parentViewModel: viewModel)
             }
     }
-    
-    @ViewBuilder
+
     private var contentView: some View {
         List {
             // MARK: - Hero & Project Overview Card
+
             Section {
                 VStack(alignment: .leading, spacing: 12) {
                     HStack(alignment: .top, spacing: 12) {
@@ -115,13 +116,13 @@ struct PagesProjectDetailView: View {
                             secondaryColor: .cyan,
                             size: 44
                         )
-                        
+
                         VStack(alignment: .leading, spacing: 2) {
                             Text(project.name)
                                 .font(.title3.weight(.bold))
                                 .foregroundStyle(.primary)
                                 .lineLimit(1)
-                            
+
                             HStack(spacing: 6) {
                                 if let branch = project.productionBranch {
                                     Text(branch)
@@ -142,15 +143,15 @@ struct PagesProjectDetailView: View {
                             }
                         }
                     }
-                    
+
                     if let sub = project.subdomain, let url = URL(string: "https://\(sub)") {
                         Divider()
-                        
+
                         HStack(spacing: 10) {
                             Image(systemName: "globe")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
-                            
+
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Production URL")
                                     .font(.caption2)
@@ -160,9 +161,9 @@ struct PagesProjectDetailView: View {
                                     .foregroundStyle(.primary)
                                     .lineLimit(1)
                             }
-                            
+
                             Spacer()
-                            
+
                             Button {
                                 copyToClipboard("https://\(sub)", toast: "Production URL Copied")
                             } label: {
@@ -178,7 +179,7 @@ struct PagesProjectDetailView: View {
                             .buttonStyle(.plain)
                             .hoverEffect(.highlight)
                             .accessibilityLabel("Copy Production URL")
-                            
+
                             Link(destination: url) {
                                 Image(systemName: "arrow.up.right")
                                     .font(.caption)
@@ -197,8 +198,9 @@ struct PagesProjectDetailView: View {
                 }
                 .padding(.vertical, 2)
             }
-            
+
             // MARK: - Project Details
+
             Section(header: Text("Project Details")) {
                 if let branch = project.productionBranch {
                     HStack {
@@ -216,7 +218,7 @@ struct PagesProjectDetailView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
-                
+
                 if let repo = project.source?.config?.repoName {
                     HStack {
                         Label {
@@ -233,7 +235,7 @@ struct PagesProjectDetailView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
-                
+
                 if let created = project.createdOn {
                     HStack {
                         Label {
@@ -251,8 +253,9 @@ struct PagesProjectDetailView: View {
                     }
                 }
             }
-            
+
             // MARK: - Features Navigation
+
             Section(header: Text("Management")) {
                 NavigationLink {
                     PagesAnalyticsView(accountId: accountId, projectName: project.name)
@@ -265,7 +268,7 @@ struct PagesProjectDetailView: View {
                         Spacer()
                     }
                 }
-                
+
                 NavigationLink {
                     PagesDeploymentsListView(accountId: accountId, projectName: project.name, viewModel: viewModel)
                 } label: {
@@ -282,7 +285,7 @@ struct PagesProjectDetailView: View {
                         }
                     }
                 }
-                
+
                 NavigationLink {
                     PagesDomainsView(accountId: accountId, projectName: project.name, viewModel: viewModel)
                 } label: {
@@ -299,7 +302,7 @@ struct PagesProjectDetailView: View {
                         }
                     }
                 }
-                
+
                 NavigationLink {
                     PagesVariablesView(accountId: accountId, project: project)
                 } label: {
@@ -311,7 +314,7 @@ struct PagesProjectDetailView: View {
                         Spacer()
                     }
                 }
-                
+
                 NavigationLink {
                     PagesBindingsView(accountId: accountId, project: project)
                 } label: {
@@ -323,7 +326,7 @@ struct PagesProjectDetailView: View {
                         Spacer()
                     }
                 }
-                
+
                 Button {
                     showingBuildConfigSheet = true
                 } label: {

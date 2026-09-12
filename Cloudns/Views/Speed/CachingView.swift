@@ -1,17 +1,18 @@
 import SwiftUI
 
 // MARK: - CachingView
+
 // Apple HIG Compliant Cloudflare Edge Caching, TTL Configuration & Granular Purge (iOS 16.0+)
 
 struct CachingView: View {
     let zoneId: String
     let zoneName: String
-    
+
     init(zoneId: String, zoneName: String = "") {
         self.zoneId = zoneId
         self.zoneName = zoneName
     }
-    
+
     @StateObject private var viewModel = CachingViewModel()
     @State private var showingPurgeAlert = false
     @State private var purgeType = "url" // "url", "host", "prefix", "tag"
@@ -20,15 +21,16 @@ struct CachingView: View {
     var body: some View {
         List {
             // MARK: - Hero Header
+
             Section {
                 VStack(spacing: 12) {
                     HeroHeaderEmblemView(icon: "internaldrive.fill", primaryColor: .blue, secondaryColor: .teal)
-                    .padding(.top, 4)
-                    
+                        .padding(.top, 4)
+
                     Text("Caching")
                         .font(.title2.weight(.bold))
                         .foregroundStyle(.primary)
-                    
+
                     Text("Manage edge cache levels, TTL expiration, and purge cache assets.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
@@ -40,8 +42,9 @@ struct CachingView: View {
             }
             .listRowBackground(Color.clear)
             .listRowInsets(EdgeInsets())
-            
+
             // MARK: - Custom Granular Purge
+
             Section(
                 header: HStack {
                     Text("Custom Cache Purge")
@@ -75,7 +78,7 @@ struct CachingView: View {
                 .pickerStyle(.segmented)
                 .padding(.vertical, 2)
                 .disabled(!viewModel.hasFetchedData)
-                
+
                 VStack(alignment: .leading, spacing: 8) {
                     TextField(purgePlaceholder, text: $purgeInputText)
                         .font(.body.monospaced())
@@ -88,10 +91,10 @@ struct CachingView: View {
                         .onSubmit {
                             submitPurge()
                         }
-                    
+
                     let isEmpty = purgeInputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                     let isDisabled = isEmpty || viewModel.isPurging || !viewModel.hasFetchedData
-                    
+
                     Button(action: {
                         submitPurge()
                     }) {
@@ -112,8 +115,9 @@ struct CachingView: View {
                 }
                 .padding(.vertical, 4)
             }
-            
+
             // MARK: - Cache Level & TTL
+
             Section(
                 header: Text("Caching Configuration"),
                 footer: Text("Determine how much of your website's static content you want Cloudflare to cache at the edge.")
@@ -132,7 +136,7 @@ struct CachingView: View {
                     Picker("Cache Level", selection: Binding(
                         get: { viewModel.cacheLevel },
                         set: { newValue in
-                            guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
+                            guard viewModel.hasFetchedData, !viewModel.isLoading else { return }
                             HapticManager.selection()
                             Task {
                                 await viewModel.updateCacheLevel(zoneId: zoneId, level: newValue)
@@ -148,7 +152,7 @@ struct CachingView: View {
                     .labelsHidden()
                 }
                 .disabled(!viewModel.hasFetchedData)
-                
+
                 // Browser Cache TTL
                 HStack(spacing: 12) {
                     ListRowIcon(icon: "clock.fill", color: .indigo)
@@ -163,7 +167,7 @@ struct CachingView: View {
                     Picker("Browser Cache TTL", selection: Binding(
                         get: { viewModel.browserCacheTTL },
                         set: { newValue in
-                            guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
+                            guard viewModel.hasFetchedData, !viewModel.isLoading else { return }
                             HapticManager.selection()
                             Task {
                                 await viewModel.updateBrowserCacheTTL(zoneId: zoneId, ttl: newValue)
@@ -177,20 +181,20 @@ struct CachingView: View {
                         Text("4 Hours").tag(14400)
                         Text("8 Hours").tag(28800)
                         Text("1 Day").tag(86400)
-                        Text("8 Days").tag(691200)
-                        Text("1 Month").tag(2592000)
-                        Text("1 Year").tag(31536000)
+                        Text("8 Days").tag(691_200)
+                        Text("1 Month").tag(2_592_000)
+                        Text("1 Year").tag(31_536_000)
                     }
                     .pickerStyle(.menu)
                     .labelsHidden()
                 }
                 .disabled(!viewModel.hasFetchedData)
-                
+
                 // Always Online
                 Toggle(isOn: Binding(
                     get: { viewModel.alwaysOnline },
                     set: { newValue in
-                        guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
+                        guard viewModel.hasFetchedData, !viewModel.isLoading else { return }
                         HapticManager.selection()
                         Task {
                             await viewModel.updateAlwaysOnline(zoneId: zoneId, isOn: newValue)
@@ -210,12 +214,12 @@ struct CachingView: View {
                     }
                 }
                 .disabled(!viewModel.hasFetchedData)
-                
+
                 // Development Mode
                 Toggle(isOn: Binding(
                     get: { viewModel.developmentMode },
                     set: { newValue in
-                        guard viewModel.hasFetchedData && !viewModel.isLoading else { return }
+                        guard viewModel.hasFetchedData, !viewModel.isLoading else { return }
                         HapticManager.selection()
                         Task {
                             await viewModel.updateDevelopmentMode(zoneId: zoneId, isOn: newValue)
@@ -247,8 +251,9 @@ struct CachingView: View {
                 }
                 .disabled(!viewModel.hasFetchedData)
             }
-            
+
             // MARK: - Quick Action (Purge Everything)
+
             Section(
                 header: Text("Purge Cache"),
                 footer: Text("Purging everything removes all cached resources from Cloudflare's global edge network immediately.")
@@ -259,7 +264,7 @@ struct CachingView: View {
                 } label: {
                     HStack {
                         Spacer()
-                        if viewModel.isPurging && purgeInputText.isEmpty {
+                        if viewModel.isPurging, purgeInputText.isEmpty {
                             ProgressView()
                                 .tint(.red)
                                 .padding(.trailing, 6)
@@ -296,7 +301,7 @@ struct CachingView: View {
                     ToastManager.shared.showSuccess("Cache Purged Completely", icon: "trash.fill")
                 }
             }
-            Button("Cancel", role: .cancel) { }
+            Button("Cancel", role: .cancel) {}
         } message: {
             Text("Purging all cached resources can temporarily degrade origin server performance while assets re-cache.")
         }
@@ -306,27 +311,27 @@ struct CachingView: View {
             }
         }
     }
-    
+
     private var purgePlaceholder: String {
         switch purgeType {
-        case "url": return "https://\(zoneName.isEmpty ? "example.com" : zoneName)/style.css"
-        case "host": return "assets.\(zoneName.isEmpty ? "example.com" : zoneName)"
-        case "prefix": return "https://\(zoneName.isEmpty ? "example.com" : zoneName)/images/"
-        case "tag": return "static-v1"
-        default: return String(localized: "Input value")
+        case "url": "https://\(zoneName.isEmpty ? "example.com" : zoneName)/style.css"
+        case "host": "assets.\(zoneName.isEmpty ? "example.com" : zoneName)"
+        case "prefix": "https://\(zoneName.isEmpty ? "example.com" : zoneName)/images/"
+        case "tag": "static-v1"
+        default: String(localized: "Input value")
         }
     }
-    
+
     private var purgeButtonTitle: LocalizedStringKey {
         switch purgeType {
-        case "url": return "Purge by URL"
-        case "host": return "Purge by Host"
-        case "prefix": return "Purge by Prefix"
-        case "tag": return "Purge by Tag"
-        default: return "Purge"
+        case "url": "Purge by URL"
+        case "host": "Purge by Host"
+        case "prefix": "Purge by Prefix"
+        case "tag": "Purge by Tag"
+        default: "Purge"
         }
     }
-    
+
     @ViewBuilder
     private var purgeTypeDescriptionView: some View {
         switch purgeType {
@@ -342,7 +347,7 @@ struct CachingView: View {
             EmptyView()
         }
     }
-    
+
     private func submitPurge() {
         let text = purgeInputText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
@@ -365,13 +370,13 @@ struct CachingView: View {
             ToastManager.shared.showSuccess("Purge Request Sent", icon: "arrow.counterclockwise.circle.fill")
         }
     }
-    
+
     private func cacheLevelDescription(_ level: String) -> LocalizedStringKey {
         switch level {
-        case "basic": return "Ignores query string and serves cached static file."
-        case "simplified": return "Serves same file to all visitors regardless of query string."
-        case "aggressive": return "Delivers different asset for each unique query string."
-        default: return "Configuring…"
+        case "basic": "Ignores query string and serves cached static file."
+        case "simplified": "Serves same file to all visitors regardless of query string."
+        case "aggressive": "Delivers different asset for each unique query string."
+        default: "Configuring…"
         }
     }
 }

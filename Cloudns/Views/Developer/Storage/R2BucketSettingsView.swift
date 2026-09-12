@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - R2BucketSettingsView
+
 // Apple HIG Compliant Cloudflare R2 Bucket Configuration, Managed Domains & CORS Rules
 
 struct R2BucketSettingsView: View {
@@ -12,17 +13,18 @@ struct R2BucketSettingsView: View {
     @State private var corsIndexToDelete: Int?
     @State private var showingDeleteDomainConfirm = false
     @State private var showingDeleteCORSConfirm = false
-    
+
     init(accountId: String, bucketName: String) {
         self.accountId = accountId
         self.bucketName = bucketName
         _viewModel = StateObject(wrappedValue: R2BucketSettingsViewModel(accountId: accountId, bucketName: bucketName))
     }
-    
+
     var body: some View {
         List {
             if viewModel.hasFetchedData {
                 // MARK: - r2.dev Managed Domain
+
                 Section {
                     Toggle("Enable r2.dev Subdomain", isOn: Binding(
                         get: { viewModel.isManagedDomainEnabled },
@@ -30,7 +32,7 @@ struct R2BucketSettingsView: View {
                             Task { await viewModel.toggleManagedDomain(enabled: newValue) }
                         }
                     ))
-                    
+
                     if viewModel.isManagedDomainEnabled, let domain = viewModel.managedDomain?.domain {
                         HStack {
                             Text("Public URL")
@@ -47,8 +49,9 @@ struct R2BucketSettingsView: View {
                 } footer: {
                     Text("Allows public read access to objects in this bucket using a Cloudflare-managed r2.dev subdomain.")
                 }
-                
+
                 // MARK: - Custom Domains
+
                 Section {
                     if viewModel.customDomains.isEmpty {
                         Text("No custom domains connected.")
@@ -63,9 +66,9 @@ struct R2BucketSettingsView: View {
                                     } label: {
                                         Label("Copy Domain", systemImage: "doc.on.doc")
                                     }
-                                    
+
                                     Divider()
-                                    
+
                                     Button(role: .destructive) {
                                         domainToDelete = domain
                                         showingDeleteDomainConfirm = true
@@ -91,8 +94,9 @@ struct R2BucketSettingsView: View {
                 } footer: {
                     Text("Custom domains configured for public bucket access.")
                 }
-                
+
                 // MARK: - CORS Rules
+
                 Section {
                     if viewModel.corsRules.isEmpty {
                         Text("No CORS rules configured.")
@@ -192,17 +196,16 @@ struct R2BucketSettingsView: View {
             }
         }
     }
-    
-    @ViewBuilder
+
     private func customDomainRow(_ domain: R2CustomDomain) -> some View {
         HStack(spacing: 12) {
             ListRowIcon(icon: "globe", color: .blue)
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(domain.domain)
                     .font(.body)
                     .foregroundStyle(.primary)
-                
+
                 HStack(spacing: 8) {
                     let isActive = domain.status?.lowercased() == "active"
                     Text((domain.status ?? "Active").capitalized)
@@ -211,7 +214,7 @@ struct R2BucketSettingsView: View {
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
                         .background(Capsule().fill((isActive ? Color.green : Color.orange).opacity(0.12)))
-                    
+
                     if let zone = domain.zoneId {
                         Text("• \(zone)")
                             .font(.caption2)
@@ -219,13 +222,12 @@ struct R2BucketSettingsView: View {
                     }
                 }
             }
-            
+
             Spacer()
         }
         .padding(.vertical, 2)
     }
-    
-    @ViewBuilder
+
     private func corsRuleRow(_ rule: R2CORSRule) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
@@ -238,13 +240,13 @@ struct R2BucketSettingsView: View {
                         .foregroundStyle(.secondary)
                 }
             }
-            
+
             HStack {
                 Text("Methods: \(rule.allowedMethods.joined(separator: ", "))")
                     .font(.caption.monospaced())
                     .foregroundStyle(.secondary)
             }
-            
+
             if let headers = rule.allowedHeaders, !headers.isEmpty {
                 Text("Headers: \(headers.joined(separator: ", "))")
                     .font(.caption2.monospaced())
@@ -260,15 +262,15 @@ struct R2BucketSettingsView: View {
 struct AddCORSRuleSheetView: View {
     @ObservedObject var viewModel: R2BucketSettingsViewModel
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var originsText = "*"
     @State private var allowedMethods: Set<String> = ["GET", "HEAD"]
     @State private var maxAgeText = "3600"
     @State private var isSaving = false
     @State private var errorMessage: String?
-    
+
     let allMethods = ["GET", "PUT", "POST", "DELETE", "HEAD"]
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -283,7 +285,7 @@ struct AddCORSRuleSheetView: View {
                 } footer: {
                     Text("Comma-separated origins (e.g. https://example.com, *).")
                 }
-                
+
                 Section("Allowed HTTP Methods") {
                     ForEach(allMethods, id: \.self) { method in
                         Toggle(method, isOn: Binding(
@@ -298,13 +300,13 @@ struct AddCORSRuleSheetView: View {
                         ))
                     }
                 }
-                
+
                 Section("Max Age (Seconds)") {
                     TextField("3600", text: $maxAgeText)
                         .font(.body.monospacedDigit())
                         .keyboardType(.numberPad)
                 }
-                
+
                 if let err = errorMessage {
                     Section {
                         HStack(spacing: 8) {

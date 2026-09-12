@@ -1,21 +1,22 @@
 import SwiftUI
 
 // MARK: - TransformRulesView
+
 // Apple HIG Compliant Cloudflare Transform Rules (URL Rewrite & Header Manipulation)
 
 struct TransformRulesView: View {
     let zoneId: String
-    
+
     @StateObject private var viewModel: TransformRulesViewModel
     @State private var showingAddSheet = false
     @State private var ruleToDelete: WAFRule?
     @State private var showingDeleteAlert = false
-    
+
     init(zoneId: String) {
         self.zoneId = zoneId
         _viewModel = StateObject(wrappedValue: TransformRulesViewModel(zoneId: zoneId))
     }
-    
+
     var body: some View {
         VStack(spacing: 0) {
             Picker("Phase", selection: $viewModel.selectedPhase) {
@@ -27,7 +28,7 @@ struct TransformRulesView: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
             .background(Color(.systemGroupedBackground))
-            
+
             contentList
         }
         .background(Color(.systemGroupedBackground))
@@ -69,8 +70,7 @@ struct TransformRulesView: View {
             }
         }
     }
-    
-    @ViewBuilder
+
     private var contentList: some View {
         List {
             if !viewModel.rules.isEmpty {
@@ -100,7 +100,7 @@ struct TransformRulesView: View {
                             } label: {
                                 Label("Copy Expression", systemImage: "doc.on.doc")
                             }
-                            
+
                             if let desc = rule.description {
                                 Button {
                                     copyToClipboard(desc, toast: "Rule Name Copied")
@@ -108,9 +108,9 @@ struct TransformRulesView: View {
                                     Label("Copy Rule Name", systemImage: "tag")
                                 }
                             }
-                            
+
                             Divider()
-                            
+
                             Button(role: .destructive) {
                                 ruleToDelete = rule
                                 showingDeleteAlert = true
@@ -153,13 +153,13 @@ struct TransformRulesView: View {
     private var phaseSectionHeader: LocalizedStringKey {
         switch viewModel.selectedPhase {
         case "http_request_transform":
-            return "URL Rewrite Rules (\(viewModel.rules.count))"
+            "URL Rewrite Rules (\(viewModel.rules.count))"
         case "http_request_late_transform":
-            return "Request Header Rules (\(viewModel.rules.count))"
+            "Request Header Rules (\(viewModel.rules.count))"
         case "http_response_headers_transform":
-            return "Response Header Rules (\(viewModel.rules.count))"
+            "Response Header Rules (\(viewModel.rules.count))"
         default:
-            return "Transform Rules (\(viewModel.rules.count))"
+            "Transform Rules (\(viewModel.rules.count))"
         }
     }
 }
@@ -169,7 +169,7 @@ struct TransformRulesView: View {
 struct TransformRuleCardView: View {
     let rule: WAFRule
     let onToggle: () -> Void
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
@@ -184,10 +184,10 @@ struct TransformRuleCardView: View {
                 Toggle(isOn: Binding(
                     get: { rule.enabled },
                     set: { _ in onToggle() }
-                )) { }
-                .labelsHidden()
+                )) {}
+                    .labelsHidden()
             }
-            
+
             Text(verbatim: rule.expression)
                 .font(.caption2.monospaced())
                 .foregroundStyle(.secondary)

@@ -1,14 +1,15 @@
 import SwiftUI
 
 // MARK: - WhoisToolView
+
 // Apple HIG Compliant RDAP & WHOIS Domain Lifecycle Directory
 
 struct WhoisToolView: View {
     @StateObject private var viewModel = WhoisViewModel()
     @FocusState private var isFieldFocused: Bool
-    
+
     let presets = ["cloudflare.com", "apple.com", "github.com", "google.com"]
-    
+
     var body: some View {
         List {
             // 1. Query & Presets Section
@@ -17,7 +18,7 @@ struct WhoisToolView: View {
                     Image(systemName: "magnifyingglass")
                         .foregroundStyle(ThemeManager.shared.accentColor)
                         .accessibilityHidden(true)
-                    
+
                     TextField("example.com", text: $viewModel.domainInput)
                         .keyboardType(.URL)
                         .font(.body.monospacedDigit())
@@ -28,7 +29,7 @@ struct WhoisToolView: View {
                         .onSubmit {
                             performLookup()
                         }
-                    
+
                     if !viewModel.domainInput.isEmpty {
                         Button {
                             viewModel.domainInput = ""
@@ -42,7 +43,7 @@ struct WhoisToolView: View {
                         .accessibilityLabel("Clear Input")
                     }
                 }
-                
+
                 // Quick Presets
                 ScrollView(.horizontal) {
                     HStack(spacing: 8) {
@@ -64,7 +65,7 @@ struct WhoisToolView: View {
                     }
                 }
                 .scrollIndicators(.hidden)
-                
+
                 Button {
                     performLookup()
                 } label: {
@@ -86,20 +87,20 @@ struct WhoisToolView: View {
             } footer: {
                 Text("Queries global RDAP (Registration Data Access Protocol) and authoritative WHOIS directories for registrar lifecycle dates.")
             }
-            
+
             if let info = viewModel.info {
                 // 2. Registration Hero Section
                 Section("Domain Registration") {
                     registrationRows(info: info)
                 }
-                
+
                 // 3. Domain Statuses Section
                 if !info.statuses.isEmpty {
                     Section("Registry Statuses (\(info.statuses.count))") {
                         statusesRows(info: info)
                     }
                 }
-                
+
                 // 4. Nameservers Section
                 if !info.nameservers.isEmpty {
                     Section("Authoritative Nameservers (\(info.nameservers.count))") {
@@ -132,14 +133,15 @@ struct WhoisToolView: View {
         .navigationTitle("WHOIS & RDAP")
         .navigationBarTitleDisplayMode(.inline)
     }
-    
+
     private func performLookup() {
         isFieldFocused = false
         HapticManager.impact(.light)
         Task { await viewModel.performLookup() }
     }
-    
+
     // MARK: - 2. Registration Rows
+
     @ViewBuilder
     private func registrationRows(info: WhoisInfo) -> some View {
         HStack {
@@ -151,9 +153,9 @@ struct WhoisToolView: View {
                     .font(.headline)
                     .foregroundStyle(.primary)
             }
-            
+
             Spacer()
-            
+
             if let reg = info.registrar {
                 Text(reg)
                     .font(.caption2.weight(.medium))
@@ -170,7 +172,7 @@ struct WhoisToolView: View {
                 Label("Copy Domain Name", systemImage: "doc.on.doc")
             }
         }
-        
+
         if let created = info.created {
             HStack {
                 Text("Created Date")
@@ -203,7 +205,7 @@ struct WhoisToolView: View {
                     Text(expires.displayFormatted(date: .abbreviated, time: .shortened))
                         .font(.subheadline.monospacedDigit())
                         .foregroundStyle(.primary)
-                    
+
                     let days = Calendar.current.dateComponents([.day], from: Date(), to: expires).day ?? 0
                     if days > 0 {
                         Text("\(days) Days Remaining")
@@ -218,9 +220,9 @@ struct WhoisToolView: View {
             }
         }
     }
-    
+
     // MARK: - 3. Statuses Rows
-    @ViewBuilder
+
     private func statusesRows(info: WhoisInfo) -> some View {
         ForEach(info.statuses, id: \.self) { status in
             HStack(spacing: 8) {
@@ -233,9 +235,9 @@ struct WhoisToolView: View {
             }
         }
     }
-    
+
     // MARK: - 4. Nameservers Rows
-    @ViewBuilder
+
     private func nameserversRows(info: WhoisInfo) -> some View {
         ForEach(info.nameservers, id: \.self) { ns in
             HStack {

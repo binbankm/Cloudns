@@ -12,11 +12,11 @@ public struct PagesProject: Codable, Identifiable, Equatable, Hashable, Sendable
     public let buildConfig: PagesBuildConfig?
     public let source: PagesProjectSource?
     public let deploymentConfigs: PagesDeploymentConfigs?
-    
+
     public func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
-    
+
     enum CodingKeys: String, CodingKey {
         case id, name, subdomain, domains
         case productionBranch = "production_branch"
@@ -25,32 +25,31 @@ public struct PagesProject: Codable, Identifiable, Equatable, Hashable, Sendable
         case source
         case deploymentConfigs = "deployment_configs"
     }
-    
+
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
-        self.name = try container.decodeIfPresent(String.self, forKey: .name) ?? "Pages Project"
-        self.subdomain = try container.decodeIfPresent(String.self, forKey: .subdomain)
-        self.domains = try container.decodeIfPresent([String].self, forKey: .domains)
-        self.productionBranch = try container.decodeIfPresent(String.self, forKey: .productionBranch)
-        self.createdOn = try container.decodeIfPresent(String.self, forKey: .createdOn)
-        self.buildConfig = try container.decodeIfPresent(PagesBuildConfig.self, forKey: .buildConfig)
-        self.source = try container.decodeIfPresent(PagesProjectSource.self, forKey: .source)
-        self.deploymentConfigs = try container.decodeIfPresent(PagesDeploymentConfigs.self, forKey: .deploymentConfigs)
+        id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
+        name = try container.decodeIfPresent(String.self, forKey: .name) ?? "Pages Project"
+        subdomain = try container.decodeIfPresent(String.self, forKey: .subdomain)
+        domains = try container.decodeIfPresent([String].self, forKey: .domains)
+        productionBranch = try container.decodeIfPresent(String.self, forKey: .productionBranch)
+        createdOn = try container.decodeIfPresent(String.self, forKey: .createdOn)
+        buildConfig = try container.decodeIfPresent(PagesBuildConfig.self, forKey: .buildConfig)
+        source = try container.decodeIfPresent(PagesProjectSource.self, forKey: .source)
+        deploymentConfigs = try container.decodeIfPresent(PagesDeploymentConfigs.self, forKey: .deploymentConfigs)
     }
-    
+
     public init(id: String, name: String, subdomain: String? = "pages.dev", domains: [String]? = nil, productionBranch: String? = "main") {
         self.id = id
         self.name = name
         self.subdomain = subdomain
         self.domains = domains
         self.productionBranch = productionBranch
-        self.createdOn = "2024-01-01T00:00:00Z"
-        self.buildConfig = nil
-        self.source = nil
-        self.deploymentConfigs = nil
+        createdOn = "2024-01-01T00:00:00Z"
+        buildConfig = nil
+        source = nil
+        deploymentConfigs = nil
     }
-    
 }
 
 public struct PagesProjectSource: Codable, Equatable, Sendable {
@@ -62,7 +61,7 @@ public struct PagesProjectSourceConfig: Codable, Equatable, Sendable {
     public let repoName: String?
     public let owner: String?
     public let productionBranch: String?
-    
+
     enum CodingKeys: String, CodingKey {
         case repoName = "repo_name"
         case owner
@@ -84,7 +83,7 @@ public struct PagesEnvConfig: Codable, Equatable, Sendable {
     public let r2Buckets: [String: PagesR2Binding]?
     public let aiBindings: [String: PagesAIBinding]?
     public let queueProducers: [String: PagesQueueBinding]?
-    
+
     enum CodingKeys: String, CodingKey {
         case envVars = "env_vars"
         case compatibilityDate = "compatibility_date"
@@ -100,9 +99,11 @@ public struct PagesEnvConfig: Codable, Equatable, Sendable {
 public struct PagesEnvVarValue: Codable, Equatable, Sendable {
     public let value: String?
     public let type: String?
-    
-    public var isSecret: Bool { type == "secret_text" }
-    
+
+    public var isSecret: Bool {
+        type == "secret_text"
+    }
+
     public init(value: String?, type: String? = "plain_text") {
         self.value = value
         self.type = type
@@ -111,7 +112,9 @@ public struct PagesEnvVarValue: Codable, Equatable, Sendable {
 
 public struct PagesD1Binding: Codable, Equatable, Sendable {
     public let id: String?
-    public init(id: String?) { self.id = id }
+    public init(id: String?) {
+        self.id = id
+    }
 }
 
 public struct PagesKVBinding: Codable, Equatable, Sendable {
@@ -119,12 +122,17 @@ public struct PagesKVBinding: Codable, Equatable, Sendable {
     enum CodingKeys: String, CodingKey {
         case namespaceId = "namespace_id"
     }
-    public init(namespaceId: String?) { self.namespaceId = namespaceId }
+
+    public init(namespaceId: String?) {
+        self.namespaceId = namespaceId
+    }
 }
 
 public struct PagesR2Binding: Codable, Equatable, Sendable {
     public let name: String?
-    public init(name: String?) { self.name = name }
+    public init(name: String?) {
+        self.name = name
+    }
 }
 
 public struct PagesAIBinding: Codable, Equatable, Sendable {
@@ -132,12 +140,17 @@ public struct PagesAIBinding: Codable, Equatable, Sendable {
     enum CodingKeys: String, CodingKey {
         case projectId = "project_id"
     }
-    public init(projectId: String? = "") { self.projectId = projectId }
+
+    public init(projectId: String? = "") {
+        self.projectId = projectId
+    }
 }
 
 public struct PagesQueueBinding: Codable, Equatable, Sendable {
     public let name: String?
-    public init(name: String?) { self.name = name }
+    public init(name: String?) {
+        self.name = name
+    }
 }
 
 public struct PagesBuildConfig: Codable, Equatable, Sendable {
@@ -146,7 +159,7 @@ public struct PagesBuildConfig: Codable, Equatable, Sendable {
     public let rootDir: String?
     public let webAnalyticsTag: String?
     public let webAnalyticsToken: String?
-    
+
     enum CodingKeys: String, CodingKey {
         case buildCommand = "build_command"
         case destinationDir = "destination_dir"
@@ -157,20 +170,23 @@ public struct PagesBuildConfig: Codable, Equatable, Sendable {
 }
 
 public struct PagesDomain: Codable, Identifiable, Equatable, Sendable {
-    public var id: String { name }
+    public var id: String {
+        name
+    }
+
     public let name: String
     public let status: String?
     public let sslStatus: String?
     public let verificationStatus: String?
     public let createdOn: String?
-    
+
     enum CodingKeys: String, CodingKey {
         case name, status
         case sslStatus = "ssl_status"
         case verificationStatus = "verification_status"
         case createdOn = "created_on"
     }
-    
+
     public init(
         name: String,
         status: String? = "active",
@@ -184,7 +200,6 @@ public struct PagesDomain: Codable, Identifiable, Equatable, Sendable {
         self.verificationStatus = verificationStatus
         self.createdOn = createdOn
     }
-    
 }
 
 public struct PagesDeployment: Codable, Identifiable, Equatable, Sendable {
@@ -195,7 +210,7 @@ public struct PagesDeployment: Codable, Identifiable, Equatable, Sendable {
     public let modifiedOn: String?
     public let latestStage: PagesStage?
     public let deploymentTrigger: PagesTrigger?
-    
+
     enum CodingKeys: String, CodingKey {
         case id, url, environment
         case createdOn = "created_on"
@@ -203,7 +218,7 @@ public struct PagesDeployment: Codable, Identifiable, Equatable, Sendable {
         case latestStage = "latest_stage"
         case deploymentTrigger = "deployment_trigger"
     }
-    
+
     public init(
         id: String,
         url: String? = nil,
@@ -221,11 +236,13 @@ public struct PagesDeployment: Codable, Identifiable, Equatable, Sendable {
         self.latestStage = latestStage
         self.deploymentTrigger = deploymentTrigger
     }
-    
 }
 
 public struct PagesDeploymentLog: Codable, Identifiable, Equatable, Sendable {
-    public var id: String { "\(ts)-\(line.hashValue)" }
+    public var id: String {
+        "\(ts)-\(line.hashValue)"
+    }
+
     public let ts: String
     public let line: String
 }
@@ -240,14 +257,14 @@ public struct PagesStage: Codable, Equatable, Sendable {
     public let status: String?
     public let startedOn: String?
     public let endedOn: String?
-    
+
     public init(name: String? = nil, status: String? = nil, startedOn: String? = nil, endedOn: String? = nil) {
         self.name = name
         self.status = status
         self.startedOn = startedOn
         self.endedOn = endedOn
     }
-    
+
     enum CodingKeys: String, CodingKey {
         case name, status
         case startedOn = "started_on"
@@ -264,7 +281,7 @@ public struct PagesTriggerMetadata: Codable, Equatable, Sendable {
     public let branch: String?
     public let commitHash: String?
     public let commitMessage: String?
-    
+
     enum CodingKeys: String, CodingKey {
         case branch
         case commitHash = "commit_hash"

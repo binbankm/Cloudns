@@ -10,13 +10,13 @@ public struct RedirectList: Codable, Identifiable, Equatable, Sendable {
     public let count: Int?
     public let createdOn: String?
     public let modifiedOn: String?
-    
+
     enum CodingKeys: String, CodingKey {
         case id, name, description, kind, count
         case createdOn = "created_on"
         case modifiedOn = "modified_on"
     }
-    
+
     public init(id: String, name: String, description: String? = nil, kind: String = "redirect", count: Int? = 12, createdOn: String? = nil, modifiedOn: String? = nil) {
         self.id = id
         self.name = name
@@ -26,7 +26,6 @@ public struct RedirectList: Codable, Identifiable, Equatable, Sendable {
         self.createdOn = createdOn
         self.modifiedOn = modifiedOn
     }
-    
 }
 
 public struct RedirectListItem: Codable, Identifiable, Equatable, Sendable {
@@ -34,20 +33,19 @@ public struct RedirectListItem: Codable, Identifiable, Equatable, Sendable {
     public let redirect: RedirectItemDetail
     public let createdOn: String?
     public let modifiedOn: String?
-    
+
     enum CodingKeys: String, CodingKey {
         case id, redirect
         case createdOn = "created_on"
         case modifiedOn = "modified_on"
     }
-    
+
     public init(id: String, redirect: RedirectItemDetail, createdOn: String? = nil, modifiedOn: String? = nil) {
         self.id = id
         self.redirect = redirect
         self.createdOn = createdOn
         self.modifiedOn = modifiedOn
     }
-    
 }
 
 public struct RedirectItemDetail: Codable, Equatable, Sendable {
@@ -58,7 +56,7 @@ public struct RedirectItemDetail: Codable, Equatable, Sendable {
     public let includeSubdomains: Bool?
     public let subpathMatching: Bool?
     public let preservePathSuffix: Bool?
-    
+
     enum CodingKeys: String, CodingKey {
         case sourceUrl = "source_url"
         case targetUrl = "target_url"
@@ -68,7 +66,7 @@ public struct RedirectItemDetail: Codable, Equatable, Sendable {
         case subpathMatching = "subpath_matching"
         case preservePathSuffix = "preserve_path_suffix"
     }
-    
+
     public init(sourceUrl: String, targetUrl: String, statusCode: Int? = 301, preserveQueryString: Bool? = nil, includeSubdomains: Bool? = nil, subpathMatching: Bool? = nil, preservePathSuffix: Bool? = nil) {
         self.sourceUrl = sourceUrl
         self.targetUrl = targetUrl
@@ -85,7 +83,7 @@ public struct BulkOperationRef: Codable, Sendable {
     enum CodingKeys: String, CodingKey {
         case operationId = "operation_id"
     }
-    
+
     public init(operationId: String) {
         self.operationId = operationId
     }
@@ -96,7 +94,7 @@ public struct BulkOperation: Codable, Sendable {
     public let status: String
     public let error: String?
     public let completed: String?
-    
+
     public init(id: String, status: String, error: String? = nil, completed: String? = nil) {
         self.id = id
         self.status = status

@@ -2,6 +2,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 // MARK: - R2BucketDetailView
+
 // Apple HIG Compliant Cloudflare R2 Object Storage Bucket Explorer
 
 struct R2BucketDetailView: View {
@@ -12,13 +13,13 @@ struct R2BucketDetailView: View {
     @State private var selectedObject: R2Object?
     @State private var objectToDelete: R2Object?
     @State private var showingDeleteConfirm = false
-    
+
     init(accountId: String, bucket: R2Bucket) {
         self.accountId = accountId
         self.bucket = bucket
         _viewModel = StateObject(wrappedValue: R2BucketDetailViewModel(accountId: accountId, bucket: bucket))
     }
-    
+
     var body: some View {
         List {
             if !viewModel.objects.isEmpty {
@@ -30,7 +31,7 @@ struct R2BucketDetailView: View {
                                 .foregroundStyle(.secondary)
                         }
                     }
-                    
+
                     if let loc = bucket.location {
                         LabeledContent("Location") {
                             Text(loc.uppercased())
@@ -40,7 +41,7 @@ struct R2BucketDetailView: View {
                     }
                 }
             }
-            
+
             if !viewModel.filteredObjects.isEmpty {
                 Section("Objects (\(viewModel.filteredObjects.count))") {
                     ForEach(viewModel.filteredObjects) { obj in
@@ -56,9 +57,9 @@ struct R2BucketDetailView: View {
                             } label: {
                                 Label("Copy Key", systemImage: "doc.on.doc")
                             }
-                            
+
                             Divider()
-                            
+
                             Button(role: .destructive) {
                                 HapticManager.impact(.medium)
                                 objectToDelete = obj
@@ -114,7 +115,7 @@ struct R2BucketDetailView: View {
                         Image(systemName: "gearshape")
                     }
                     .accessibilityLabel("Bucket Settings")
-                    
+
                     Button {
                         showingUploadSheet = true
                     } label: {
@@ -164,7 +165,7 @@ struct R2BucketDetailView: View {
 
 struct R2ObjectRowView: View {
     let object: R2Object
-    
+
     private var fileIcon: String {
         let ext = (object.key as NSString).pathExtension.lowercased()
         switch ext {
@@ -177,22 +178,22 @@ struct R2ObjectRowView: View {
         default: return "doc"
         }
     }
-    
+
     var body: some View {
         HStack(spacing: 12) {
             ListRowIcon(icon: fileIcon, color: .blue)
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(object.key)
                     .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
                     .lineLimit(1)
-                
+
                 HStack(spacing: 8) {
                     Text(ByteCountFormatter.string(fromByteCount: Int64(object.size), countStyle: .file))
                         .font(.caption2.monospacedDigit())
                         .foregroundStyle(.secondary)
-                    
+
                     if let uploaded = object.uploaded, let date = DateFormatters.parseISO8601(uploaded) {
                         Text(date.displayFormatted(date: .abbreviated, time: .omitted))
                             .font(.caption2)
@@ -200,7 +201,7 @@ struct R2ObjectRowView: View {
                     }
                 }
             }
-            
+
             Spacer()
         }
         .padding(.vertical, 2)
@@ -212,13 +213,13 @@ struct R2ObjectRowView: View {
 struct R2UploadObjectSheetView: View {
     @ObservedObject var viewModel: R2BucketDetailViewModel
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var objectKey = ""
     @State private var textContent = ""
     @State private var contentType = "text/plain"
     @State private var isUploading = false
     @State private var errorMessage: String?
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -233,7 +234,7 @@ struct R2UploadObjectSheetView: View {
                 } footer: {
                     Text("Path/filename in the bucket (e.g. assets/config.json).")
                 }
-                
+
                 Section("Content Type") {
                     TextField("text/plain", text: $contentType)
                         .font(.body.monospaced())
@@ -241,13 +242,13 @@ struct R2UploadObjectSheetView: View {
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                 }
-                
+
                 Section("Text Content") {
                     TextEditor(text: $textContent)
                         .font(.footnote.monospaced())
                         .frame(minHeight: 140)
                 }
-                
+
                 if let err = errorMessage {
                     Section {
                         HStack(spacing: 8) {
@@ -304,7 +305,7 @@ struct R2ObjectDetailSheetView: View {
     @ObservedObject var viewModel: R2BucketDetailViewModel
     let object: R2Object
     @Environment(\.dismiss) private var dismiss
-    
+
     var body: some View {
         NavigationStack {
             List {
@@ -323,7 +324,7 @@ struct R2ObjectDetailSheetView: View {
                         LabeledContent("Storage Class", value: storageClass)
                     }
                 }
-                
+
                 Section {
                     Button(role: .destructive) {
                         HapticManager.impact(.medium)

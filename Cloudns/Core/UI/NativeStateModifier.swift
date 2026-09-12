@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - NativeStateModifier & State Views
+
 // Apple HIG Declarative state views conforming to standard iOS 16.0+ styling
 
 public struct EmptyStateConfig {
@@ -9,7 +10,7 @@ public struct EmptyStateConfig {
     public var description: LocalizedStringKey?
     public var actionTitle: LocalizedStringKey?
     public var action: (() -> Void)?
-    
+
     public init(
         title: LocalizedStringKey,
         systemImage: String,
@@ -29,11 +30,11 @@ public struct EmptyStateConfig {
 
 public struct NativeLoadingStateView: View {
     public let message: LocalizedStringKey
-    
+
     public init(message: LocalizedStringKey = "Loading…") {
         self.message = message
     }
-    
+
     public var body: some View {
         VStack(spacing: 12) {
             ProgressView()
@@ -51,7 +52,7 @@ public struct NativeErrorStateView: View {
     public var title: LocalizedStringKey = "Unable to Load"
     public let message: LocalizedStringKey
     public var onRetry: (() -> Void)?
-    
+
     public init(title: LocalizedStringKey = "Unable to Load", message: LocalizedStringKey, onRetry: (() -> Void)? = nil) {
         self.title = title
         self.message = message
@@ -63,19 +64,19 @@ public struct NativeErrorStateView: View {
         self.message = LocalizedStringKey(message)
         self.onRetry = onRetry
     }
-    
+
     public init(errorMessage: String, title: LocalizedStringKey = "Unable to Load", onRetry: (() -> Void)? = nil) {
         self.title = title
-        self.message = LocalizedStringKey(errorMessage)
+        message = LocalizedStringKey(errorMessage)
         self.onRetry = onRetry
     }
-    
+
     public init(errorMessage: LocalizedStringKey, title: LocalizedStringKey = "Unable to Load", onRetry: (() -> Void)? = nil) {
         self.title = title
-        self.message = errorMessage
+        message = errorMessage
         self.onRetry = onRetry
     }
-    
+
     public var body: some View {
         VStack(spacing: 14) {
             ZStack {
@@ -89,24 +90,24 @@ public struct NativeErrorStateView: View {
                     )
                     .frame(width: 64, height: 64)
                     .shadow(color: Color.orange.opacity(0.25), radius: 8, x: 0, y: 4)
-                
+
                 Image(systemName: "exclamationmark.triangle.fill")
                     .font(.system(size: 28, weight: .semibold))
                     .symbolRenderingMode(.hierarchical)
                     .foregroundStyle(.white)
             }
             .padding(.bottom, 2)
-            
+
             Text(title)
                 .font(.headline)
                 .foregroundStyle(.primary)
-            
+
             Text(message)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 24)
-            
+
             if let onRetry {
                 Button("Try Again", action: onRetry)
                     .buttonStyle(.bordered)
@@ -124,9 +125,9 @@ public struct NativeEmptyStateView: View {
     public var description: LocalizedStringKey?
     public var actionTitle: LocalizedStringKey?
     public var action: (() -> Void)?
-    
+
     @ObservedObject private var themeManager = ThemeManager.shared
-    
+
     public init(
         title: LocalizedStringKey,
         systemImage: String,
@@ -140,7 +141,7 @@ public struct NativeEmptyStateView: View {
         self.actionTitle = actionTitle
         self.action = action
     }
-    
+
     public init(
         icon: String,
         title: LocalizedStringKey,
@@ -149,12 +150,12 @@ public struct NativeEmptyStateView: View {
         action: (() -> Void)? = nil
     ) {
         self.title = title
-        self.systemImage = icon
-        self.description = message
+        systemImage = icon
+        description = message
         self.actionTitle = actionTitle
         self.action = action
     }
-    
+
     public init(
         icon: String,
         title: LocalizedStringKey,
@@ -163,12 +164,12 @@ public struct NativeEmptyStateView: View {
         action: (() -> Void)? = nil
     ) {
         self.title = title
-        self.systemImage = icon
-        self.description = LocalizedStringKey(message)
+        systemImage = icon
+        description = LocalizedStringKey(message)
         self.actionTitle = actionTitle
         self.action = action
     }
-    
+
     public var body: some View {
         VStack(spacing: 14) {
             ZStack {
@@ -182,18 +183,18 @@ public struct NativeEmptyStateView: View {
                     )
                     .frame(width: 76, height: 76)
                     .shadow(color: themeManager.accentColor.opacity(0.25), radius: 10, x: 0, y: 5)
-                
+
                 Image(systemName: systemImage)
                     .font(.system(size: 34, weight: .semibold))
                     .symbolRenderingMode(.hierarchical)
                     .foregroundStyle(.white)
             }
             .padding(.bottom, 4)
-            
+
             Text(title)
                 .font(.headline.weight(.semibold))
                 .foregroundStyle(.primary)
-            
+
             if let description {
                 Text(description)
                     .font(.subheadline)
@@ -201,7 +202,7 @@ public struct NativeEmptyStateView: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 32)
             }
-            
+
             if let actionTitle, let action {
                 Button(actionTitle, action: action)
                     .buttonStyle(.borderedProminent)
@@ -216,11 +217,11 @@ public struct NativeEmptyStateView: View {
 
 public struct NativeSearchEmptyStateView: View {
     public let query: String
-    
+
     public init(query: String) {
         self.query = query
     }
-    
+
     public var body: some View {
         VStack(spacing: 14) {
             ZStack {
@@ -233,18 +234,18 @@ public struct NativeSearchEmptyStateView: View {
                         )
                     )
                     .frame(width: 64, height: 64)
-                
+
                 Image(systemName: "magnifyingglass")
                     .font(.system(size: 28, weight: .semibold))
                     .symbolRenderingMode(.hierarchical)
                     .foregroundStyle(.secondary)
             }
             .padding(.bottom, 2)
-            
+
             Text("No Results for \"\(query)\"")
                 .font(.headline)
                 .foregroundStyle(.primary)
-            
+
             Text("Check the spelling or try a new search.")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
@@ -259,7 +260,6 @@ public struct NativeSearchEmptyStateView: View {
 public extension View {
     /// Declarative view state overlay handling loading, errors, search results, and empty states.
     /// iOS 16.0+ compatible, replacing 30+ lines of duplicated branching in each screen.
-    @ViewBuilder
     func listState(
         isLoading: Bool = false,
         loadingMessage: LocalizedStringKey = "Loading…",
@@ -289,7 +289,6 @@ public extension View {
     }
 
     /// Overload allowing direct parameter configuration without instantiating EmptyStateConfig.
-    @ViewBuilder
     func listState(
         isLoading: Bool = false,
         loadingMessage: LocalizedStringKey = "Loading…",
@@ -309,7 +308,7 @@ public extension View {
                 NativeLoadingStateView(message: loadingMessage)
             } else if let errorMessage {
                 NativeErrorStateView(message: errorMessage, onRetry: retryAction)
-            } else if isSearchEmpty && !searchQuery.isEmpty {
+            } else if isSearchEmpty, !searchQuery.isEmpty {
                 NativeSearchEmptyStateView(query: searchQuery)
             } else if isEmpty {
                 NativeEmptyStateView(

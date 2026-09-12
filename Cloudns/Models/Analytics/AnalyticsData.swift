@@ -26,11 +26,14 @@ struct AnalyticsZone: Codable, Sendable {
 }
 
 struct CountryDataPoint: Codable, Identifiable, Equatable, Sendable {
-    var id: String { dimensions.clientCountryName ?? UUID().uuidString }
+    var id: String {
+        dimensions.clientCountryName ?? UUID().uuidString
+    }
+
     let dimensions: CountryDimensions
     let count: Int?
     let sum: CountrySum?
-    
+
     var requestsCount: Int {
         count ?? sum?.requests ?? 0
     }
@@ -52,7 +55,10 @@ public struct CountryMapEntry: Codable, Equatable, Sendable {
 }
 
 public struct AnalyticsDataPoint: Codable, Identifiable, Equatable, Sendable {
-    public var id: String { dimensions.datetime ?? dimensions.date ?? UUID().uuidString }
+    public var id: String {
+        dimensions.datetime ?? dimensions.date ?? UUID().uuidString
+    }
+
     public let dimensions: AnalyticsDimensions
     public let sum: AnalyticsSum
 }
@@ -69,7 +75,7 @@ public struct AnalyticsSum: Codable, Equatable, Sendable {
     public let cachedBytes: Int
     public let threats: Int?
     public let countryMap: [CountryMapEntry]?
-    
+
     enum CodingKeys: String, CodingKey {
         case requests
         case bytes
@@ -78,17 +84,17 @@ public struct AnalyticsSum: Codable, Equatable, Sendable {
         case threats
         case countryMap
     }
-    
+
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.requests = try container.decodeIfPresent(Int.self, forKey: .requests) ?? 0
-        self.bytes = try container.decodeIfPresent(Int.self, forKey: .bytes) ?? 0
-        self.cachedRequests = try container.decodeIfPresent(Int.self, forKey: .cachedRequests) ?? 0
-        self.cachedBytes = try container.decodeIfPresent(Int.self, forKey: .cachedBytes) ?? 0
-        self.threats = try container.decodeIfPresent(Int.self, forKey: .threats)
-        self.countryMap = try container.decodeIfPresent([CountryMapEntry].self, forKey: .countryMap)
+        requests = try container.decodeIfPresent(Int.self, forKey: .requests) ?? 0
+        bytes = try container.decodeIfPresent(Int.self, forKey: .bytes) ?? 0
+        cachedRequests = try container.decodeIfPresent(Int.self, forKey: .cachedRequests) ?? 0
+        cachedBytes = try container.decodeIfPresent(Int.self, forKey: .cachedBytes) ?? 0
+        threats = try container.decodeIfPresent(Int.self, forKey: .threats)
+        countryMap = try container.decodeIfPresent([CountryMapEntry].self, forKey: .countryMap)
     }
-    
+
     public init(requests: Int, bytes: Int, cachedRequests: Int, cachedBytes: Int, threats: Int? = nil, countryMap: [CountryMapEntry]? = nil) {
         self.requests = requests
         self.bytes = bytes
@@ -107,10 +113,11 @@ public struct WorkerAnalyticsItem: Codable, Identifiable, Equatable, Sendable {
         let status = dimensions.status ?? ""
         return "\(dim)_\(status)"
     }
+
     public let dimensions: WorkerAnalyticsDimensions
     public let sum: WorkerAnalyticsSum?
     public let quantiles: WorkerAnalyticsQuantiles?
-    
+
     public struct WorkerAnalyticsDimensions: Codable, Equatable, Sendable {
         public let datetimeHour: String?
         public let datetime: String?
@@ -119,13 +126,13 @@ public struct WorkerAnalyticsItem: Codable, Identifiable, Equatable, Sendable {
         public let scriptName: String?
         public let environment: String?
     }
-    
+
     public struct WorkerAnalyticsSum: Codable, Equatable, Sendable {
         public let requests: Int?
         public let errors: Int?
         public let subrequests: Int?
     }
-    
+
     public struct WorkerAnalyticsQuantiles: Codable, Equatable, Sendable {
         public let cpuTimeP50: Double?
         public let cpuTimeP99: Double?

@@ -15,7 +15,7 @@ public struct SubnetCalculationResult: Equatable, Sendable {
     public let totalUsableHosts: String
     public let binaryMask: String
     public let ipClass: String
-    
+
     public init(
         cidrInput: String,
         ipAddress: String,

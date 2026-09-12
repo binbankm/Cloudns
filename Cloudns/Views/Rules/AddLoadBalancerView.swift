@@ -1,13 +1,14 @@
 import SwiftUI
 
 // MARK: - AddLoadBalancerView
+
 // Apple HIG Compliant Cloudflare Load Balancer Wizard
 
 struct AddLoadBalancerView: View {
     let zoneId: String
     @ObservedObject var viewModel: LoadBalancerViewModel
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var name: String = ""
     @State private var enabled: Bool = true
     @State private var proxied: Bool = true
@@ -16,9 +17,9 @@ struct AddLoadBalancerView: View {
     @State private var sessionAffinity: String = "none"
     @State private var selectedPools: Set<String> = []
     @State private var fallbackPool: String = ""
-    
+
     @State private var isSubmitting: Bool = false
-    
+
     let steeringOptions = [
         ("Off", "off"),
         ("Geo", "geo"),
@@ -26,21 +27,29 @@ struct AddLoadBalancerView: View {
         ("Dynamic Latency", "dynamic_latency"),
         ("Proximity", "proximity")
     ]
-    
+
     let affinityOptions = [
         ("None", "none"),
         ("Cookie", "cookie"),
         ("IP", "ip_fallback")
     ]
-    
+
     var isValid: Bool {
-        if name.trimmingCharacters(in: .whitespaces).isEmpty { return false }
-        if selectedPools.isEmpty { return false }
-        if fallbackPool.isEmpty { return false }
-        if !proxied && Int(ttl) == nil { return false }
+        if name.trimmingCharacters(in: .whitespaces).isEmpty {
+            return false
+        }
+        if selectedPools.isEmpty {
+            return false
+        }
+        if fallbackPool.isEmpty {
+            return false
+        }
+        if !proxied, Int(ttl) == nil {
+            return false
+        }
         return true
     }
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -55,7 +64,7 @@ struct AddLoadBalancerView: View {
                     }
                     .padding(.vertical, 2)
                 }
-                
+
                 Section(header: Text("Basic Details"), footer: Text(proxied ? LocalizedStringKey("When proxied, DNS TTL is managed by Cloudflare.") : LocalizedStringKey("TTL applies to DNS-only mode."))) {
                     TextField("Hostname (e.g., lb.example.com)", text: $name)
                         .font(.body.monospaced())
@@ -63,10 +72,10 @@ struct AddLoadBalancerView: View {
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .submitLabel(.done)
-                    
+
                     Toggle("Enabled", isOn: $enabled)
                     Toggle("Proxied through Cloudflare", isOn: $proxied)
-                    
+
                     if !proxied {
                         HStack {
                             Text("TTL (seconds)")
@@ -83,21 +92,21 @@ struct AddLoadBalancerView: View {
                     }
                 }
                 .scrollDismissesKeyboard(.interactively)
-                
+
                 Section("Traffic Steering") {
                     Picker("Steering Policy", selection: $steeringPolicy) {
                         ForEach(steeringOptions, id: \.1) { option in
                             Text(option.0).tag(option.1)
                         }
                     }
-                    
+
                     Picker("Session Affinity", selection: $sessionAffinity) {
                         ForEach(affinityOptions, id: \.1) { option in
                             Text(option.0).tag(option.1)
                         }
                     }
                 }
-                
+
                 Section(header: Text("Default Pools"), footer: Text("Select pools to be used as default. Must have at least one.")) {
                     if viewModel.pools.isEmpty {
                         Text("No origin pools available in this account.")
@@ -129,7 +138,7 @@ struct AddLoadBalancerView: View {
                         }
                     }
                 }
-                
+
                 if !viewModel.pools.isEmpty {
                     Section(header: Text("Fallback Pool"), footer: Text("Traffic will be routed here if all default pools fail.")) {
                         Picker("Select Fallback Pool", selection: $fallbackPool) {
@@ -140,7 +149,7 @@ struct AddLoadBalancerView: View {
                         }
                     }
                 }
-                
+
                 if let error = viewModel.errorMessage, !error.isEmpty {
                     Section {
                         Text(verbatim: error)
@@ -174,13 +183,13 @@ struct AddLoadBalancerView: View {
             .interactiveDismissDisabled(isSubmitting)
         }
     }
-    
+
     private func save() {
         isSubmitting = true
         HapticManager.impact(.medium)
-        
+
         let poolsArray = Array(selectedPools)
-        
+
         let payload = LoadBalancerUpdate(
             name: name.trimmingCharacters(in: .whitespaces),
             enabled: enabled,
@@ -191,7 +200,7 @@ struct AddLoadBalancerView: View {
             steeringPolicy: steeringPolicy,
             sessionAffinity: sessionAffinity
         )
-        
+
         Task {
             let success = await viewModel.createLoadBalancer(payload: payload)
             isSubmitting = false

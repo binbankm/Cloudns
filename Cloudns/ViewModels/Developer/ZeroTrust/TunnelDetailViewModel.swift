@@ -1,24 +1,24 @@
+import Combine
 import Foundation
 import SwiftUI
-import Combine
 
 @MainActor
 final class TunnelDetailViewModel: BaseLoadableViewModel {
     let accountId: String
     let tunnel: CFTunnel
     private let tunnelService: TunnelServiceProtocol
-    
+
     @Published var ingressRules: [TunnelIngressRule] = []
     @Published var token: String?
     @Published var isDeleting = false
-    
+
     init(accountId: String, tunnel: CFTunnel, tunnelService: TunnelServiceProtocol = TunnelService.shared) {
         self.accountId = accountId
         self.tunnel = tunnel
         self.tunnelService = tunnelService
         super.init()
     }
-    
+
     func fetchConfiguration() async {
         await executeLoadingTask {
             async let fetchConfig = self.tunnelService.getTunnelConfigurations(accountId: self.accountId, tunnelId: self.tunnel.id)
@@ -28,11 +28,11 @@ final class TunnelDetailViewModel: BaseLoadableViewModel {
             self.token = tok
         }
     }
-    
+
     func addIngressRule(hostname: String, path: String?, service: String) async -> Bool {
         var updated = ingressRules
         let newRule = TunnelIngressRule(hostname: hostname.isEmpty ? nil : hostname, path: path?.isEmpty == true ? nil : path, service: service)
-        if let last = updated.last, last.hostname == nil && last.path == nil {
+        if let last = updated.last, last.hostname == nil, last.path == nil {
             updated.insert(newRule, at: updated.count - 1)
         } else {
             updated.append(newRule)
@@ -40,16 +40,16 @@ final class TunnelDetailViewModel: BaseLoadableViewModel {
                 updated.append(TunnelIngressRule(hostname: nil, path: nil, service: "http_status:404"))
             }
         }
-        
+
         do {
             try await tunnelService.updateTunnelConfigurations(accountId: accountId, tunnelId: tunnel.id, ingressRules: updated)
-            self.ingressRules = updated
+            ingressRules = updated
             return true
         } catch {
             return false
         }
     }
-    
+
     func deleteIngressRule(at index: Int) async {
         var updated = ingressRules
         guard index < updated.count else { return }
@@ -59,11 +59,10 @@ final class TunnelDetailViewModel: BaseLoadableViewModel {
         }
         do {
             try await tunnelService.updateTunnelConfigurations(accountId: accountId, tunnelId: tunnel.id, ingressRules: updated)
-            self.ingressRules = updated
-        } catch {
-        }
+            ingressRules = updated
+        } catch {}
     }
-    
+
     func deleteTunnel() async -> Bool {
         isDeleting = true
         do {

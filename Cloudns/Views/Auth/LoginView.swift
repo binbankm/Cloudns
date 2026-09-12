@@ -1,45 +1,47 @@
 import SwiftUI
 
 // MARK: - LoginView
+
 // Apple HIG Compliant Authentication & Onboarding Sign-in Screen (iOS 16.0+)
 
 struct LoginView: View {
     @Environment(\.dismiss) private var dismiss
     @AppStorage(AppStorageKey.hasSeenOnboarding) private var hasSeenOnboarding = true
-    
+
     @StateObject private var viewModel = LoginViewModel()
     @ObservedObject private var themeManager = ThemeManager.shared
-    
-    // Manage keyboard focus
+
+    /// Manage keyboard focus
     enum Field {
         case email
         case apiKey
     }
+
     @FocusState private var focusedField: Field?
     @State private var isShowingApiKey = false
-    
+
     var onLoginSuccess: (() -> Void)?
-    
+
     private var accentColor: Color {
         themeManager.accentColor
     }
-    
+
     var body: some View {
         ZStack {
             // 1. Ambient Background
             Color(uiColor: .systemGroupedBackground)
                 .ignoresSafeArea()
-            
+
             GeometryReader { proxy in
                 let w = proxy.size.width
-                
+
                 ZStack {
                     Circle()
                         .fill(accentColor.opacity(0.12))
                         .frame(width: w * 0.85, height: w * 0.85)
                         .blur(radius: 60)
                         .offset(x: -w * 0.2, y: -w * 0.35)
-                    
+
                     Circle()
                         .fill(Color.blue.opacity(0.08))
                         .frame(width: w * 0.75, height: w * 0.75)
@@ -48,7 +50,7 @@ struct LoginView: View {
                 }
             }
             .ignoresSafeArea()
-            
+
             VStack(spacing: 0) {
                 // Top Navigation Bar
                 HStack {
@@ -89,17 +91,17 @@ struct LoginView: View {
                         .buttonStyle(.plain)
                         .accessibilityLabel("Close")
                     }
-                    
+
                     Spacer()
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 12)
                 .padding(.bottom, 6)
-                
+
                 ScrollView {
                     VStack(spacing: 20) {
                         Spacer(minLength: 12)
-                    
+
                         // 2. Glowing Hero Logo & Header
                         VStack(spacing: 12) {
                             ZStack {
@@ -114,7 +116,7 @@ struct LoginView: View {
                                     )
                                     .frame(width: 110, height: 110)
                                     .blur(radius: 12)
-                                
+
                                 Circle()
                                     .fill(Color(uiColor: .secondarySystemGroupedBackground))
                                     .frame(width: 76, height: 76)
@@ -123,7 +125,7 @@ struct LoginView: View {
                                         Circle()
                                             .stroke(Color.orange.opacity(0.25), lineWidth: 1.5)
                                     )
-                                
+
                                 Image(systemName: "cloud.fill")
                                     .font(.largeTitle.weight(.semibold))
                                     .foregroundStyle(
@@ -136,12 +138,12 @@ struct LoginView: View {
                                     .shadow(color: .orange.opacity(0.4), radius: 6, x: 0, y: 2)
                             }
                             .frame(height: 80)
-                            
+
                             VStack(spacing: 6) {
                                 Text(onLoginSuccess == nil ? LocalizedStringKey("Welcome to Cloudns") : LocalizedStringKey("Add Account"))
                                     .font(.title2.weight(.bold))
                                     .foregroundStyle(.primary)
-                                
+
                                 Text(onLoginSuccess == nil ? LocalizedStringKey("Connect your Cloudflare API to manage edge fleets.") : LocalizedStringKey("Enter your Cloudflare credentials."))
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
@@ -150,7 +152,7 @@ struct LoginView: View {
                             }
                         }
                         .padding(.bottom, 6)
-                        
+
                         // 3. Credentials Card
                         VStack(spacing: 16) {
                             // Email Field
@@ -158,13 +160,13 @@ struct LoginView: View {
                                 Text("Account Email")
                                     .font(.caption.weight(.semibold))
                                     .foregroundStyle(.secondary)
-                                
+
                                 HStack(spacing: 12) {
                                     Image(systemName: "envelope.fill")
                                         .font(.subheadline)
                                         .foregroundStyle(focusedField == .email ? accentColor : .gray)
                                         .frame(width: 20)
-                                    
+
                                     TextField("name@example.com", text: $viewModel.email)
                                         .keyboardType(.emailAddress)
                                         .textContentType(.username)
@@ -176,8 +178,8 @@ struct LoginView: View {
                                         .onSubmit {
                                             focusedField = .apiKey
                                         }
-                                    
-                                    if !viewModel.email.isEmpty && focusedField == .email {
+
+                                    if !viewModel.email.isEmpty, focusedField == .email {
                                         Button {
                                             viewModel.email = ""
                                         } label: {
@@ -198,16 +200,16 @@ struct LoginView: View {
                                         .stroke(focusedField == .email ? accentColor : Color.clear, lineWidth: 1.5)
                                 )
                             }
-                            
+
                             // API Key Field
                             VStack(alignment: .leading, spacing: 6) {
                                 HStack {
                                     Text("Global API Key")
                                         .font(.caption.weight(.semibold))
                                         .foregroundStyle(.secondary)
-                                    
+
                                     Spacer()
-                                    
+
                                     if viewModel.apiKey.isEmpty {
                                         Button {
                                             if let clip = UIPasteboard.general.string?.trimmingCharacters(in: .whitespacesAndNewlines), !clip.isEmpty {
@@ -226,13 +228,13 @@ struct LoginView: View {
                                         .accessibilityLabel("Paste API Key from Clipboard")
                                     }
                                 }
-                                
+
                                 HStack(spacing: 12) {
                                     Image(systemName: "key.fill")
                                         .font(.subheadline)
                                         .foregroundStyle(focusedField == .apiKey ? accentColor : .gray)
                                         .frame(width: 20)
-                                    
+
                                     if isShowingApiKey {
                                         TextField("Enter Global API Key", text: $viewModel.apiKey)
                                             .keyboardType(.asciiCapable)
@@ -263,7 +265,7 @@ struct LoginView: View {
                                                 }
                                             }
                                     }
-                                    
+
                                     Button {
                                         isShowingApiKey.toggle()
                                         HapticManager.selection()
@@ -285,7 +287,7 @@ struct LoginView: View {
                                         .stroke(focusedField == .apiKey ? accentColor : Color.clear, lineWidth: 1.5)
                                 )
                             }
-                            
+
                             // Error Message Banner
                             if let errorMessage = viewModel.errorMessage {
                                 HStack(spacing: 8) {
@@ -304,11 +306,11 @@ struct LoginView: View {
                                     HapticManager.notification(.error)
                                 }
                             }
-                            
+
                             // Login Action Button
                             let isFormValid = !viewModel.email.isEmpty && !viewModel.apiKey.isEmpty
                             let isButtonDisabled = viewModel.isLoading || !isFormValid
-                            
+
                             Button(action: {
                                 focusedField = nil
                                 HapticManager.impact(.medium)
@@ -351,7 +353,7 @@ struct LoginView: View {
                         .background(Color(uiColor: .secondarySystemGroupedBackground))
                         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                         .padding(.horizontal, 16)
-                        
+
                         // 4. Helper Links & Guide
                         VStack(spacing: 12) {
                             Button(action: {
@@ -367,7 +369,7 @@ struct LoginView: View {
                                 }
                                 .foregroundStyle(accentColor)
                             }
-                            
+
                             // Apple Keychain Security Seal
                             HStack(spacing: 6) {
                                 Image(systemName: "lock.shield.fill")

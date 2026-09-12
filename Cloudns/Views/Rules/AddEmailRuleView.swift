@@ -1,23 +1,24 @@
 import SwiftUI
 
 // MARK: - AddEmailRuleView
+
 // Apple HIG Compliant Cloudflare Email Routing Rule Creator
 
 struct AddEmailRuleView: View {
     @ObservedObject var viewModel: EmailRoutingViewModel
     let zoneName: String
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var customAddress = ""
     @State private var destinationAddress = ""
     @State private var isSubmitting = false
     @FocusState private var isCustomAddressFocused: Bool
-    
+
     init(viewModel: EmailRoutingViewModel, zoneName: String = "") {
         self.viewModel = viewModel
         self.zoneName = zoneName
     }
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -33,7 +34,7 @@ struct AddEmailRuleView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
-                
+
                 Section(header: Text("Destination"), footer: Text("The verified destination address where messages will be forwarded.")) {
                     if viewModel.destinations.isEmpty {
                         HStack(spacing: 6) {
@@ -44,7 +45,7 @@ struct AddEmailRuleView: View {
                         .foregroundStyle(.orange)
                     } else {
                         Picker("Forward to", selection: $destinationAddress) {
-                            ForEach(viewModel.destinations.filter { $0.isVerified }) { dest in
+                            ForEach(viewModel.destinations.filter(\.isVerified)) { dest in
                                 Text(verbatim: dest.email).tag(dest.email)
                             }
                         }
@@ -60,7 +61,7 @@ struct AddEmailRuleView: View {
                         dismiss()
                     }
                 }
-                
+
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
                         HapticManager.impact(.medium)
@@ -93,26 +94,25 @@ struct AddEmailRuleView: View {
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
     }
-    
+
     private func submitRule() async {
         isSubmitting = true
-        
+
         let trimmedCustom = customAddress.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        let fullCustomAddress: String
-        if trimmedCustom.contains("@") {
-            fullCustomAddress = trimmedCustom
+        let fullCustomAddress: String = if trimmedCustom.contains("@") {
+            trimmedCustom
         } else if !zoneName.isEmpty {
-            fullCustomAddress = "\(trimmedCustom)@\(zoneName)"
+            "\(trimmedCustom)@\(zoneName)"
         } else {
-            fullCustomAddress = trimmedCustom
+            trimmedCustom
         }
-        
+
         await viewModel.createForwardRule(
             name: "Forward \(trimmedCustom)",
             customAddress: fullCustomAddress,
             destinationAddress: destinationAddress
         )
-        
+
         isSubmitting = false
         if viewModel.errorMessage == nil {
             HapticManager.notification(.success)

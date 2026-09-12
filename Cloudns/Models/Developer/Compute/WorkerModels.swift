@@ -3,7 +3,10 @@ import Foundation
 // MARK: - Workers Models
 
 public struct WorkerScript: Codable, Identifiable, Equatable, Hashable, Sendable {
-    public var id: String { id_field ?? id_name ?? "worker" }
+    public var id: String {
+        id_field ?? id_name ?? "worker"
+    }
+
     public let id_field: String?
     public let id_name: String?
     public let etag: String?
@@ -13,10 +16,10 @@ public struct WorkerScript: Codable, Identifiable, Equatable, Hashable, Sendable
     public let compatibilityDate: String?
     public let routes: [String]?
     public let cronTriggers: [String]?
-    
+
     enum CodingKeys: String, CodingKey {
         case id_field = "id"
-        case id_name = "id_name"
+        case id_name
         case etag
         case modifiedOn = "modified_on"
         case createdOn = "created_on"
@@ -25,28 +28,30 @@ public struct WorkerScript: Codable, Identifiable, Equatable, Hashable, Sendable
         case routes
         case cronTriggers = "cron_triggers"
     }
-    
+
     public init(id: String, modifiedOn: String? = "2024-01-01T00:00:00Z", usageModel: String? = "bundled", routes: [String]? = ["example.com/*"]) {
-        self.id_field = id
-        self.id_name = id
-        self.etag = "placeholder"
+        id_field = id
+        id_name = id
+        etag = "placeholder"
         self.modifiedOn = modifiedOn
-        self.createdOn = "2024-01-01T00:00:00Z"
+        createdOn = "2024-01-01T00:00:00Z"
         self.usageModel = usageModel
-        self.compatibilityDate = "2024-01-01"
+        compatibilityDate = "2024-01-01"
         self.routes = routes
-        self.cronTriggers = []
+        cronTriggers = []
     }
-    
 }
 
 public struct WorkerModuleItem: Identifiable, Hashable, Codable, Sendable {
-    public var id: String { name }
+    public var id: String {
+        name
+    }
+
     public let name: String
     public let code: String
     public let isMain: Bool
     public let contentType: String?
-    
+
     public init(name: String, code: String, isMain: Bool = false, contentType: String? = nil) {
         self.name = name
         self.code = code
@@ -60,17 +65,20 @@ public struct WorkerScriptContentResult: Equatable, Sendable {
     public let modules: [WorkerModuleItem]
     public let mainModuleName: String?
     public let isMultiModule: Bool
-    
+
     public init(rawCode: String, modules: [WorkerModuleItem] = [], mainModuleName: String? = nil) {
         self.rawCode = rawCode
         self.modules = modules
         self.mainModuleName = mainModuleName
-        self.isMultiModule = modules.count > 1
+        isMultiModule = modules.count > 1
     }
 }
 
 public struct WorkerBinding: Codable, Identifiable, Equatable, Sendable {
-    public var id: String { name }
+    public var id: String {
+        name
+    }
+
     public let name: String
     public let type: String
     public let namespaceId: String?
@@ -80,7 +88,7 @@ public struct WorkerBinding: Codable, Identifiable, Equatable, Sendable {
     public let queueName: String?
     public let service: String?
     public let environment: String?
-    
+
     public init(
         name: String,
         type: String = "plain_text",
@@ -102,7 +110,7 @@ public struct WorkerBinding: Codable, Identifiable, Equatable, Sendable {
         self.service = service
         self.environment = environment
     }
-    
+
     enum CodingKeys: String, CodingKey {
         case name, type, service, environment
         case namespaceId = "namespace_id"
@@ -111,26 +119,27 @@ public struct WorkerBinding: Codable, Identifiable, Equatable, Sendable {
         case queueName = "queue_name"
         case text
     }
-    
 }
 
 public struct WorkerSecret: Codable, Identifiable, Equatable, Sendable {
-    public var id: String { name }
+    public var id: String {
+        name
+    }
+
     public let name: String
     public let type: String
     public let modifiedOn: String?
-    
+
     public init(name: String, type: String = "secret_text", modifiedOn: String? = "2024-01-01T00:00:00Z") {
         self.name = name
         self.type = type
         self.modifiedOn = modifiedOn
     }
-    
+
     enum CodingKeys: String, CodingKey {
         case name, type
         case modifiedOn = "modified_on"
     }
-    
 }
 
 public struct WorkerCustomRoute: Codable, Identifiable, Equatable, Sendable {
@@ -145,13 +154,13 @@ public struct WorkerCustomDomain: Codable, Identifiable, Equatable, Sendable {
     public let zoneName: String?
     public let zoneId: String?
     public let service: String?
-    
+
     enum CodingKeys: String, CodingKey {
         case id, hostname, service
         case zoneName = "zone_name"
         case zoneId = "zone_id"
     }
-    
+
     public init(id: String, hostname: String, zoneName: String? = nil, zoneId: String? = nil, service: String? = nil) {
         self.id = id
         self.hostname = hostname
@@ -159,7 +168,6 @@ public struct WorkerCustomDomain: Codable, Identifiable, Equatable, Sendable {
         self.zoneId = zoneId
         self.service = service
     }
-    
 }
 
 public struct WorkerSubdomain: Codable, Equatable, Sendable {
@@ -168,23 +176,25 @@ public struct WorkerSubdomain: Codable, Equatable, Sendable {
 }
 
 public struct WorkerSchedule: Codable, Identifiable, Equatable, Sendable {
-    public var id: String { cron }
+    public var id: String {
+        cron
+    }
+
     public let cron: String
     public let createdOn: String?
     public let modifiedOn: String?
-    
+
     enum CodingKeys: String, CodingKey {
         case cron
         case createdOn = "created_on"
         case modifiedOn = "modified_on"
     }
-    
+
     public init(cron: String, createdOn: String? = nil, modifiedOn: String? = nil) {
         self.cron = cron
         self.createdOn = createdOn
         self.modifiedOn = modifiedOn
     }
-    
 }
 
 public struct WorkerSchedulesResult: Codable, Sendable {
@@ -199,7 +209,7 @@ public struct WorkerTailSession: Codable, Sendable {
     public let id: String
     public let url: String
     public let expiresAt: String?
-    
+
     enum CodingKeys: String, CodingKey {
         case id, url
         case expiresAt = "expires_at"
@@ -214,7 +224,7 @@ public struct TailTraceItem: Codable, Identifiable, Sendable {
     public let event: TailEventInfo?
     public let logs: [TailLog]?
     public let exceptions: [TailException]?
-    
+
     enum CodingKeys: String, CodingKey {
         case outcome, scriptName, eventTimestamp, event, logs, exceptions
     }
@@ -235,7 +245,7 @@ public struct TailLog: Codable, Identifiable, Sendable {
     public let level: String?
     public let timestamp: Int?
     public let message: [JSONValue]?
-    
+
     enum CodingKeys: String, CodingKey {
         case level, timestamp, message
     }
@@ -246,7 +256,7 @@ public struct TailException: Codable, Identifiable, Sendable {
     public let name: String?
     public let message: String?
     public let timestamp: Int?
-    
+
     enum CodingKeys: String, CodingKey {
         case name, message, timestamp
     }
@@ -282,30 +292,30 @@ public indirect enum JSONValue: Codable, Sendable, Equatable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         switch self {
-        case .string(let value): try container.encode(value)
-        case .number(let value): try container.encode(value)
-        case .bool(let value):   try container.encode(value)
-        case .null:              try container.encodeNil()
-        case .array(let value):  try container.encode(value)
-        case .object(let value): try container.encode(value)
+        case let .string(value): try container.encode(value)
+        case let .number(value): try container.encode(value)
+        case let .bool(value): try container.encode(value)
+        case .null: try container.encodeNil()
+        case let .array(value): try container.encode(value)
+        case let .object(value): try container.encode(value)
         }
     }
 
     public var displayText: String {
         switch self {
-        case .string(let value):
+        case let .string(value):
             return value
-        case .number(let value):
+        case let .number(value):
             return value.truncatingRemainder(dividingBy: 1) == 0
                 ? String(Int(value))
                 : String(value)
-        case .bool(let value):
+        case let .bool(value):
             return value ? "true" : "false"
         case .null:
             return "null"
-        case .array(let values):
+        case let .array(values):
             return "[" + values.map(\.displayText).joined(separator: ", ") + "]"
-        case .object(let dict):
+        case let .object(dict):
             let pairs = dict.sorted { $0.key < $1.key }
                 .map { "\($0.key): \($0.value.displayText)" }
             return "{" + pairs.joined(separator: ", ") + "}"
@@ -318,12 +328,12 @@ public struct WorkerZoneRoute: Codable, Identifiable, Equatable, Sendable {
     public let pattern: String
     public let script: String?
     public let requestLimitFailOpen: Bool?
-    
+
     enum CodingKeys: String, CodingKey {
         case id, pattern, script
         case requestLimitFailOpen = "request_limit_fail_open"
     }
-    
+
     public init(id: String, pattern: String, script: String?, requestLimitFailOpen: Bool? = nil) {
         self.id = id
         self.pattern = pattern
@@ -335,7 +345,10 @@ public struct WorkerZoneRoute: Codable, Identifiable, Equatable, Sendable {
 // MARK: - Worker Deployment Models
 
 public struct WorkerDeployment: Codable, Identifiable, Equatable, Sendable {
-    public var id: String { id_field ?? uuid ?? "deployment-\(number ?? 1)" }
+    public var id: String {
+        id_field ?? uuid ?? "deployment-\(number ?? 1)"
+    }
+
     public let id_field: String?
     public let uuid: String?
     public let number: Int?
@@ -347,7 +360,7 @@ public struct WorkerDeployment: Codable, Identifiable, Equatable, Sendable {
     public let annotations: WorkerDeploymentAnnotations?
     public let compatibilityDate: String?
     public let usageModel: String?
-    
+
     enum CodingKeys: String, CodingKey {
         case id_field = "id"
         case uuid
@@ -361,7 +374,7 @@ public struct WorkerDeployment: Codable, Identifiable, Equatable, Sendable {
         case compatibilityDate = "compatibility_date"
         case usageModel = "usage_model"
     }
-    
+
     public init(
         id: String,
         number: Int? = 1,
@@ -370,19 +383,19 @@ public struct WorkerDeployment: Codable, Identifiable, Equatable, Sendable {
         source: String? = "dash",
         annotations: WorkerDeploymentAnnotations? = nil
     ) {
-        self.id_field = id
-        self.uuid = id
+        id_field = id
+        uuid = id
         self.number = number
         self.createdOn = createdOn
-        self.author = authorEmail
+        author = authorEmail
         self.authorEmail = authorEmail
         self.source = source
-        self.strategy = "percentage"
+        strategy = "percentage"
         self.annotations = annotations
-        self.compatibilityDate = "2024-01-01"
-        self.usageModel = "bundled"
+        compatibilityDate = "2024-01-01"
+        usageModel = "bundled"
     }
-    
+
     public var displaySource: String {
         guard let s = source, !s.isEmpty else { return "Dashboard" }
         switch s.lowercased() {
@@ -394,18 +407,17 @@ public struct WorkerDeployment: Codable, Identifiable, Equatable, Sendable {
         default: return s.capitalized
         }
     }
-    
 }
 
 public struct WorkerDeploymentAnnotations: Codable, Equatable, Sendable {
     public let message: String?
     public let triggeredBy: String?
-    
+
     enum CodingKeys: String, CodingKey {
         case message = "workers/message"
         case triggeredBy = "workers/triggered_by"
     }
-    
+
     public init(message: String? = nil, triggeredBy: String? = nil) {
         self.message = message
         self.triggeredBy = triggeredBy

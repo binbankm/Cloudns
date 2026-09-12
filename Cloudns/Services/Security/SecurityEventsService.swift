@@ -8,16 +8,16 @@ protocol SecurityEventsServiceProtocol: Sendable {
 /// Concrete domain service for Cloudflare security events
 final class SecurityEventsService: SecurityEventsServiceProtocol {
     static let shared = SecurityEventsService()
-    
+
     private let client = HTTPNetworkClient.shared
     private let factory = AuthenticatedRequestFactory.shared
-    
+
     private init() {}
-    
+
     func fetchSecurityEvents(zoneId: String, limit: Int = 30) async throws -> [SecurityEvent] {
         let date = Calendar.current.date(byAdding: .hour, value: -23, to: Date()) ?? Date()
         let dateString = DateFormatters.formatISO8601(date)
-        
+
         let query = """
         query {
             viewer {
@@ -41,7 +41,7 @@ final class SecurityEventsService: SecurityEventsServiceProtocol {
         let data = try JSONSerialization.data(withJSONObject: payload)
         let request = try factory.createAuthenticatedRequest(path: "graphql", method: "POST", body: data)
         let rawData = try await client.performDataRequest(request)
-        
+
         do {
             let decoded = try JSONDecoder().decode(GraphQLResponse<SecurityGraphQLData>.self, from: rawData)
             if let errors = decoded.errors, !errors.isEmpty, decoded.data == nil {

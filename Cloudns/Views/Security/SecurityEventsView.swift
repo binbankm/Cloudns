@@ -1,25 +1,28 @@
 import SwiftUI
 
 // MARK: - SecurityEventsView
+
 // Apple HIG Compliant Cloudflare Security Events Log & Threat Activity Timeline
 
 struct SecurityEventsView: View {
     let zoneId: String
-    
+
     @StateObject private var viewModel = SecurityEventsViewModel()
     @State private var searchText = ""
-    
+
     private var displayedEvents: [SecurityEvent] {
-        if searchText.isEmpty { return viewModel.events }
+        if searchText.isEmpty {
+            return viewModel.events
+        }
         return viewModel.events.filter {
             $0.clientIP.localizedStandardContains(searchText) ||
-            $0.clientCountryName.localizedStandardContains(searchText) ||
-            $0.action.localizedStandardContains(searchText) ||
-            $0.host.localizedStandardContains(searchText) ||
-            ($0.clientAsn ?? "").localizedStandardContains(searchText)
+                $0.clientCountryName.localizedStandardContains(searchText) ||
+                $0.action.localizedStandardContains(searchText) ||
+                $0.host.localizedStandardContains(searchText) ||
+                ($0.clientAsn ?? "").localizedStandardContains(searchText)
         }
     }
-    
+
     var body: some View {
         List {
             if !displayedEvents.isEmpty {
@@ -32,7 +35,7 @@ struct SecurityEventsView: View {
                                 } label: {
                                     Label("Copy IP Address", systemImage: "doc.on.doc")
                                 }
-                                
+
                                 Button {
                                     copyToClipboard(event.host, toast: "Host Copied")
                                 } label: {
@@ -80,7 +83,7 @@ struct SecurityEventsView: View {
 
 struct SecurityEventCardView: View {
     let event: SecurityEvent
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
@@ -91,9 +94,9 @@ struct SecurityEventCardView: View {
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
                     .background(Capsule().fill(actionColor.opacity(0.12)))
-                
+
                 Spacer()
-                
+
                 if let date = DateFormatters.parseISO8601(event.datetime) {
                     Text(date.displayFormatted(date: .abbreviated, time: .shortened))
                         .font(.caption)
@@ -104,22 +107,22 @@ struct SecurityEventCardView: View {
                         .foregroundStyle(.secondary)
                 }
             }
-            
+
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("IP Address")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
-                    
+
                     HStack(spacing: 4) {
                         Text(countryFlag(countryCode: event.clientCountryName))
                         Text(event.clientIP)
                             .font(.subheadline.monospacedDigit())
                     }
                 }
-                
+
                 Spacer()
-                
+
                 if let asn = event.clientAsn {
                     VStack(alignment: .trailing, spacing: 2) {
                         Text("ASN")
@@ -130,9 +133,9 @@ struct SecurityEventCardView: View {
                     }
                 }
             }
-            
+
             Divider()
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 Text("Source / Engine")
                     .font(.caption2)
@@ -140,7 +143,7 @@ struct SecurityEventCardView: View {
                 Text(event.source.capitalized)
                     .font(.footnote)
             }
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 Text("Target URL")
                     .font(.caption2)
@@ -152,28 +155,28 @@ struct SecurityEventCardView: View {
         }
         .padding(.vertical, 2)
     }
-    
+
     private func actionDisplayName(_ action: String) -> String {
         switch action {
-        case "block": return "BLOCK"
-        case "challenge": return "LEGACY CAPTCHA"
-        case "js_challenge": return "JS CHALLENGE"
-        case "managed_challenge": return "MANAGED CHALLENGE"
-        case "log": return "LOG"
-        case "connectionClose": return "CONNECTION CLOSE"
-        default: return action.uppercased()
+        case "block": "BLOCK"
+        case "challenge": "LEGACY CAPTCHA"
+        case "js_challenge": "JS CHALLENGE"
+        case "managed_challenge": "MANAGED CHALLENGE"
+        case "log": "LOG"
+        case "connectionClose": "CONNECTION CLOSE"
+        default: action.uppercased()
         }
     }
-    
+
     private func colorForAction(_ action: String) -> Color {
         switch action {
-        case "block", "connectionClose": return .red
-        case "challenge", "js_challenge", "managed_challenge": return .orange
-        case "log": return .blue
-        default: return .secondary
+        case "block", "connectionClose": .red
+        case "challenge", "js_challenge", "managed_challenge": .orange
+        case "log": .blue
+        default: .secondary
         }
     }
-    
+
     private func countryFlag(countryCode: String) -> String {
         CountryCoordinates.flag(for: countryCode)
     }

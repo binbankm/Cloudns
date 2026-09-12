@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - AccountsView
+
 // Apple HIG Compliant Multi-Account Switcher & Authentication Vault (iOS 16.0+)
 
 struct AccountsView: View {
@@ -9,13 +10,13 @@ struct AccountsView: View {
     @State private var emailToRemove: String?
     @State private var showingRemoveAccountAlert = false
     @Environment(\.dismiss) private var dismiss
-    
+
     @ObservedObject private var themeManager = ThemeManager.shared
-    
+
     private var accentColor: Color {
         themeManager.accentColor
     }
-    
+
     var body: some View {
         NavigationStack {
             List {
@@ -25,7 +26,7 @@ struct AccountsView: View {
                         activeAccountHeroRow(email: accountManager.activeEmail)
                     }
                 }
-                
+
                 // 2. Other Accounts Switcher
                 let otherEmails = accountManager.accountEmails.filter { $0 != accountManager.activeEmail }
                 if !otherEmails.isEmpty {
@@ -52,7 +53,7 @@ struct AccountsView: View {
                         }
                     }
                 }
-                
+
                 // 3. Add Account Action
                 Section {
                     Button {
@@ -61,19 +62,19 @@ struct AccountsView: View {
                     } label: {
                         HStack(spacing: 12) {
                             ListRowIcon(icon: "person.badge.plus", color: accentColor)
-                            
+
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Add Another Account")
                                     .font(.body.weight(.medium))
                                     .foregroundStyle(.primary)
-                                
+
                                 Text("Manage multiple Cloudflare organizations")
                                     .font(.caption2)
                                     .foregroundStyle(.secondary)
                             }
-                            
+
                             Spacer()
-                            
+
                             Image(systemName: "chevron.right")
                                 .font(.caption.weight(.semibold))
                                 .foregroundStyle(.tertiary)
@@ -83,14 +84,14 @@ struct AccountsView: View {
                     }
                     .buttonStyle(.plain)
                 }
-                
+
                 // 4. Security & Keychain Footer Section
                 Section {
                     HStack(spacing: 8) {
                         Image(systemName: "lock.shield.fill")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
-                        
+
                         Text("All API keys and tokens are securely stored in the iOS Keychain with hardware-level Secure Enclave encryption.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -132,13 +133,13 @@ struct AccountsView: View {
             }
         }
     }
-    
+
     // MARK: - Active Account Hero Row
-    @ViewBuilder
+
     private func activeAccountHeroRow(email: String) -> some View {
         HStack(spacing: 12) {
             AccountAvatarView(identifier: email, size: 46)
-            
+
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 6) {
                     Text(email)
@@ -146,7 +147,7 @@ struct AccountsView: View {
                         .foregroundStyle(.primary)
                         .minimumScaleFactor(0.75)
                         .lineLimit(1)
-                    
+
                     Button {
                         copyToClipboard(email, toast: "Account Email Copied")
                     } label: {
@@ -156,7 +157,7 @@ struct AccountsView: View {
                     }
                     .buttonStyle(.plain)
                 }
-                
+
                 HStack(spacing: 6) {
                     Text("Active")
                         .font(.caption2.weight(.medium))
@@ -165,7 +166,7 @@ struct AccountsView: View {
                         .background(Color.green.opacity(0.14))
                         .foregroundStyle(.green)
                         .clipShape(Capsule())
-                    
+
                     let key = accountManager.getAPIKey(for: email) ?? ""
                     let isToken = key.count > 37 || key.contains("_")
                     Text(isToken ? LocalizedStringKey("API Token") : LocalizedStringKey("Global Key"))
@@ -177,9 +178,9 @@ struct AccountsView: View {
                         .clipShape(Capsule())
                 }
             }
-            
+
             Spacer(minLength: 6)
-            
+
             Image(systemName: "checkmark.circle.fill")
                 .font(.title3)
                 .foregroundStyle(accentColor)
@@ -187,28 +188,28 @@ struct AccountsView: View {
         }
         .padding(.vertical, 4)
     }
-    
+
     // MARK: - Account Row
-    @ViewBuilder
-    private func accountRow(email: String, isActive: Bool) -> some View {
+
+    private func accountRow(email: String, isActive _: Bool) -> some View {
         HStack(spacing: 12) {
             AccountAvatarView(identifier: email, size: 34)
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(email)
                     .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
                     .lineLimit(1)
-                
+
                 let key = accountManager.getAPIKey(for: email) ?? ""
                 let isToken = key.count > 37 || key.contains("_")
                 Text(isToken ? LocalizedStringKey("Scoped API Token") : LocalizedStringKey("Global API Key"))
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
-            
+
             Spacer()
-            
+
             Text("Switch")
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(accentColor)
@@ -220,7 +221,7 @@ struct AccountsView: View {
         .padding(.vertical, 2)
         .contentShape(Rectangle())
     }
-    
+
     private func switchAccount(to email: String) {
         HapticManager.selection()
         withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {

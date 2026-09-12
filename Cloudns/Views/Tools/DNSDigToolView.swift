@@ -1,13 +1,14 @@
 import SwiftUI
 
 // MARK: - DNSDigToolView
+
 // Apple HIG Compliant 1.1.1.1 DNS Resolver Query & Global Benchmark
 
 struct DNSDigToolView: View {
     @StateObject private var viewModel = DNSDigViewModel()
     @FocusState private var isFieldFocused: Bool
     @State private var queryMode = 0 // 0: Single (1.1.1.1), 1: Benchmark
-    
+
     var body: some View {
         List {
             // 1. Query Configuration Section
@@ -20,12 +21,12 @@ struct DNSDigToolView: View {
                 .onChange(of: queryMode) { _ in
                     HapticManager.selection()
                 }
-                
+
                 HStack(spacing: 8) {
                     Image(systemName: "globe")
                         .foregroundStyle(.tint)
                         .accessibilityHidden(true)
-                    
+
                     TextField("e.g. example.com", text: $viewModel.domainInput)
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
@@ -36,7 +37,7 @@ struct DNSDigToolView: View {
                         .onSubmit {
                             startQuery()
                         }
-                    
+
                     if !viewModel.domainInput.isEmpty {
                         Button {
                             viewModel.domainInput = ""
@@ -50,15 +51,15 @@ struct DNSDigToolView: View {
                         .accessibilityLabel("Clear Domain")
                     }
                 }
-                
+
                 if queryMode == 0 {
                     HStack {
                         Text("Record Type")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
-                        
+
                         Spacer()
-                        
+
                         Picker("Record Type", selection: $viewModel.selectedRecordType) {
                             ForEach(viewModel.recordTypes, id: \.self) { type in
                                 Text(type).tag(type)
@@ -67,10 +68,10 @@ struct DNSDigToolView: View {
                         .pickerStyle(.menu)
                         .labelsHidden()
                     }
-                    
+
                     Toggle("DNSSEC Validation", isOn: $viewModel.dnssecEnabled)
                 }
-                
+
                 Button {
                     isFieldFocused = false
                     HapticManager.impact(.light)
@@ -94,7 +95,7 @@ struct DNSDigToolView: View {
             } footer: {
                 Text("Queries 1.1.1.1 Anycast edge resolver with optional DNSSEC verification or benchmarks worldwide public resolvers.")
             }
-            
+
             // 2. Results Sections
             if queryMode == 0 {
                 if viewModel.isDnsLoading {
@@ -128,7 +129,7 @@ struct DNSDigToolView: View {
                                 .padding(.vertical, 2)
                                 .background(Capsule().fill(ThemeManager.shared.accentColor.opacity(0.12)))
                         }
-                        
+
                         if result.answers.isEmpty {
                             Text("No DNS records found for this query.")
                                 .font(.subheadline)
@@ -138,7 +139,7 @@ struct DNSDigToolView: View {
                                 DNSAnswerRowView(item: item)
                             }
                         }
-                        
+
                         Button {
                             HapticManager.impact(.light)
                             viewModel.showingRFCExport = true
@@ -167,7 +168,7 @@ struct DNSDigToolView: View {
                     }
                 }
             }
-            
+
             if let error = viewModel.dnsError {
                 Section("Error") {
                     HStack(spacing: 8) {
@@ -221,17 +222,16 @@ struct DNSDigToolView: View {
             }
         }
     }
-    
-    @ViewBuilder
+
     private func benchmarkRow(_ item: DNSBenchmarkItem, rank: Int? = nil) -> some View {
         HStack(spacing: 12) {
-            if let rank = rank {
+            if let rank {
                 Text("\(rank)")
                     .font(.body.weight(.bold).monospacedDigit())
                     .foregroundStyle(rank == 1 ? Color.yellow : Color.secondary)
                     .frame(width: 20)
             }
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(verbatim: item.resolverName)
                     .font(.body.weight(.medium))
@@ -240,9 +240,9 @@ struct DNSDigToolView: View {
                     .font(.caption2.monospacedDigit())
                     .foregroundStyle(.secondary)
             }
-            
+
             Spacer()
-            
+
             if item.status == "OK", let lat = item.latencyMs {
                 let badgeColor = rank == 1 ? Color.green : ThemeManager.shared.accentColor
                 Text("\(lat.formatted(.number.precision(.fractionLength(1)))) ms")
@@ -269,7 +269,7 @@ struct DNSDigToolView: View {
             }
         }
     }
-    
+
     private func startQuery() {
         Task {
             if queryMode == 0 {
@@ -285,7 +285,7 @@ struct DNSDigToolView: View {
 
 struct DNSAnswerRowView: View {
     let item: DNSAnswerItem
-    
+
     var body: some View {
         HStack(alignment: .center, spacing: 8) {
             Text(item.typeName)
@@ -294,18 +294,18 @@ struct DNSAnswerRowView: View {
                 .padding(.horizontal, 6)
                 .padding(.vertical, 2)
                 .background(Capsule().fill(Color.indigo.opacity(0.12)))
-            
+
             Text(verbatim: item.data)
                 .font(.body.monospaced())
                 .foregroundStyle(.primary)
                 .lineLimit(1)
-            
+
             Spacer()
-            
+
             Text("TTL \(item.ttl)s")
                 .font(.caption2.monospacedDigit())
                 .foregroundStyle(.secondary)
-            
+
             Button {
                 copyToClipboard(item.data, toast: "Record Data Copied")
             } label: {

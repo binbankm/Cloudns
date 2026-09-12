@@ -3,7 +3,10 @@ import Foundation
 // MARK: - SSL & TLS Certificate Diagnostic Models
 
 public struct SSLCertDetails: Identifiable, Equatable, Sendable {
-    public var id: String { commonName + (issuer ?? "") }
+    public var id: String {
+        commonName + (issuer ?? "")
+    }
+
     public let commonName: String
     public let issuer: String?
     public let validityDaysRemaining: Int?
@@ -18,7 +21,7 @@ public struct SSLCertDetails: Identifiable, Equatable, Sendable {
     public let signatureAlgorithm: String?
     public let keyTypeAndBits: String?
     public let isExpired: Bool
-    
+
     public init(
         commonName: String,
         issuer: String? = nil,

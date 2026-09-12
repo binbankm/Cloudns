@@ -1,28 +1,29 @@
-import SwiftUI
 import Charts
 import MapKit
+import SwiftUI
 
 // MARK: - ZoneAnalyticsView
+
 // Apple HIG Compliant Cloudflare Zone Analytics, Swift Charts & Geolocation Map (iOS 16.0+)
 
 struct ZoneAnalyticsView: View {
     let zoneId: String
     let zoneName: String
-    
+
     @StateObject private var viewModel = ZoneAnalyticsViewModel()
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var timeRange: Int = 1
-    
+
     // Interactive Scrubbing States
     @State private var selectedPoint: AnalyticsDataPoint?
     @State private var selectedBandwidthPoint: AnalyticsDataPoint?
     @ObservedObject private var themeManager = ThemeManager.shared
-    
+
     init(zoneId: String, zoneName: String) {
         self.zoneId = zoneId
         self.zoneName = zoneName
     }
-    
+
     private var isHourlyData: Bool {
         if let first = viewModel.dataPoints.first?.dimensions {
             if let dt = first.datetime, dt.contains("T") {
@@ -34,38 +35,38 @@ struct ZoneAnalyticsView: View {
         }
         return viewModel.loadedDays == 1
     }
-    
+
     private var chartXRange: ClosedRange<Date> {
         if let first = viewModel.dataPoints.first,
            let last = viewModel.dataPoints.last {
             let start = dateFromString(first.dimensions.datetime ?? first.dimensions.date ?? "")
             let end = dateFromString(last.dimensions.datetime ?? last.dimensions.date ?? "")
             if start < end {
-                return start...end
+                return start ... end
             } else if start == end {
-                return start.addingTimeInterval(-1800)...end.addingTimeInterval(1800)
+                return start.addingTimeInterval(-1800) ... end.addingTimeInterval(1800)
             }
         }
         let now = Date()
-        return now...now.addingTimeInterval(3600)
+        return now ... now.addingTimeInterval(3600)
     }
-    
+
     private var accentColor: Color {
         themeManager.accentColor
     }
-    
-    public var body: some View {
+
+    var body: some View {
         VStack(spacing: 0) {
             // 1. Unified Header & Time Range Picker Bar
             headerBar
                 .padding(.horizontal, 16)
                 .padding(.top, 12)
                 .padding(.bottom, 12)
-            
-            if !viewModel.hasFetchedData && viewModel.isLoading {
+
+            if !viewModel.hasFetchedData, viewModel.isLoading {
                 NativeLoadingStateView(message: "Loading Analytics…")
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.hasFetchedData && viewModel.dataPoints.isEmpty {
+            } else if viewModel.hasFetchedData, viewModel.dataPoints.isEmpty {
                 ScrollView {
                     VStack {
                         Spacer(minLength: 40)
@@ -96,16 +97,16 @@ struct ZoneAnalyticsView: View {
                     VStack(spacing: 16) {
                         // 2. 4 Key Metrics Cards Grid
                         metricsGrid
-                        
+
                         requestsLineChartCard
-                        
+
                         bandwidthBarChartCard
-                        
+
                         // 5. Traffic by Country Map Section
                         if !viewModel.mapDataPoints.isEmpty {
                             trafficMapCard
                         }
-                        
+
                         // 6. CDN Origin Savings Summary Card
                         insightsCard
                     }
@@ -132,22 +133,23 @@ struct ZoneAnalyticsView: View {
             }
         }
     }
-    
+
     // MARK: - 1. Header Bar
+
     private var headerBar: some View {
         HStack(alignment: .center, spacing: 12) {
             Image(systemName: "globe")
                 .foregroundStyle(accentColor)
                 .font(.title3)
-            
+
             Text(verbatim: zoneName)
                 .font(.headline.weight(.semibold))
                 .foregroundStyle(.primary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
-            
+
             Spacer(minLength: 4)
-            
+
             Picker("Range", selection: $timeRange) {
                 Text("24h").tag(1)
                 Text("7d").tag(7)
@@ -168,8 +170,9 @@ struct ZoneAnalyticsView: View {
         .background(Color(uiColor: .secondarySystemGroupedBackground))
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
-    
+
     // MARK: - 2. Key Metrics Grid
+
     private var metricsGrid: some View {
         Grid(horizontalSpacing: 12, verticalSpacing: 12) {
             GridRow {
@@ -180,7 +183,7 @@ struct ZoneAnalyticsView: View {
                     color: .blue,
                     badge: "\(ByteCountFormatters.format(viewModel.totalBandwidthBytes)) Transferred"
                 )
-                
+
                 metricCard(
                     title: "Cached Requests",
                     value: MetricFormatters.compactNumber(viewModel.totalCachedRequests),
@@ -189,7 +192,7 @@ struct ZoneAnalyticsView: View {
                     badge: "\(viewModel.cachedRatio.formatted(.percent.precision(.fractionLength(1)))) Cache Rate"
                 )
             }
-            
+
             GridRow {
                 metricCard(
                     title: "Cache Hit Ratio",
@@ -198,7 +201,7 @@ struct ZoneAnalyticsView: View {
                     color: .green,
                     badge: "Edge Served"
                 )
-                
+
                 metricCard(
                     title: "Data Transferred",
                     value: ByteCountFormatters.format(viewModel.totalBandwidthBytes),
@@ -209,30 +212,30 @@ struct ZoneAnalyticsView: View {
             }
         }
     }
-    
+
     private func metricCard(title: LocalizedStringKey, value: String, icon: String, color: Color, badge: LocalizedStringKey) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 8) {
                 ListRowIcon(icon: icon, color: color, size: 24, cornerRadius: 6)
-                
+
                 Text(title)
                     .font(.caption.weight(.medium))
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
-                
+
                 Spacer()
             }
-            
+
             Spacer(minLength: 2)
-            
+
             Text(value)
                 .font(.title2.weight(.bold).monospacedDigit())
                 .foregroundStyle(.primary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.75)
-            
+
             Spacer(minLength: 2)
-            
+
             Text(badge)
                 .font(.caption2)
                 .foregroundStyle(.secondary)
@@ -244,11 +247,11 @@ struct ZoneAnalyticsView: View {
         .background(Color(uiColor: .secondarySystemGroupedBackground))
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
-    
+
     private var requestsLineChartCard: some View {
-        let maxReq = viewModel.dataPoints.map { $0.sum.requests }.max() ?? 10
+        let maxReq = viewModel.dataPoints.map(\.sum.requests).max() ?? 10
         let yUpper = max(10.0, Double(maxReq) * 1.18)
-        
+
         return VStack(alignment: .leading, spacing: 14) {
             HStack(alignment: .center) {
                 VStack(alignment: .leading, spacing: 2) {
@@ -260,7 +263,7 @@ struct ZoneAnalyticsView: View {
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(.secondary)
                     }
-                    
+
                     HStack(alignment: .lastTextBaseline, spacing: 6) {
                         Text(verbatim: MetricFormatters.compactNumber(selectedPoint?.sum.requests ?? viewModel.totalRequests))
                             .font(.title.weight(.bold).monospacedDigit())
@@ -270,9 +273,9 @@ struct ZoneAnalyticsView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
-                
+
                 Spacer()
-                
+
                 if let selected = selectedPoint {
                     let dateStr = formattedPointDate(selected)
                     HStack(spacing: 6) {
@@ -294,11 +297,11 @@ struct ZoneAnalyticsView: View {
                 }
             }
             .frame(minHeight: 48)
-            
+
             Chart {
                 ForEach(viewModel.dataPoints) { point in
                     let ptDate = dateFromString(point.dimensions.datetime ?? point.dimensions.date ?? "")
-                    
+
                     AreaMark(
                         x: .value("Date", ptDate),
                         y: .value("Requests", point.sum.requests)
@@ -311,7 +314,7 @@ struct ZoneAnalyticsView: View {
                         )
                     )
                     .interpolationMethod(.monotone)
-                    
+
                     LineMark(
                         x: .value("Date", ptDate),
                         y: .value("Requests", point.sum.requests)
@@ -320,13 +323,13 @@ struct ZoneAnalyticsView: View {
                     .lineStyle(StrokeStyle(lineWidth: 2.4, lineCap: .round, lineJoin: .round))
                     .interpolationMethod(.monotone)
                 }
-                
+
                 if let selected = selectedPoint {
                     let selDate = dateFromString(selected.dimensions.datetime ?? selected.dimensions.date ?? "")
                     RuleMark(x: .value("Date", selDate))
                         .foregroundStyle(Color.blue.opacity(0.6))
                         .lineStyle(StrokeStyle(lineWidth: 1.2, dash: [4, 3]))
-                    
+
                     PointMark(
                         x: .value("Date", selDate),
                         y: .value("Requests", selected.sum.requests)
@@ -352,7 +355,7 @@ struct ZoneAnalyticsView: View {
             .chartPlotStyle { plot in
                 plot.clipped()
             }
-            .chartYScale(domain: 0...yUpper)
+            .chartYScale(domain: 0 ... yUpper)
             .chartXScale(domain: chartXRange)
             .transaction { $0.animation = nil }
             .chartXAxis {
@@ -392,7 +395,7 @@ struct ZoneAnalyticsView: View {
                                     let origin = geo[proxy.plotAreaFrame].origin
                                     let locationX = value.location.x - origin.x
                                     guard locationX >= 0, locationX <= proxy.plotAreaSize.width else { return }
-                                    
+
                                     if let date: Date = proxy.value(atX: locationX) {
                                         if let closest = findClosestPoint(for: date, in: viewModel.dataPoints) {
                                             if selectedPoint?.id != closest.id {
@@ -413,11 +416,11 @@ struct ZoneAnalyticsView: View {
         .background(Color(uiColor: .secondarySystemGroupedBackground))
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
-    
+
     private var bandwidthBarChartCard: some View {
-        let maxBytes = viewModel.dataPoints.map { $0.sum.bytes }.max() ?? 1024
+        let maxBytes = viewModel.dataPoints.map(\.sum.bytes).max() ?? 1024
         let yUpper = max(1024.0, Double(maxBytes) * 1.18)
-        
+
         return VStack(alignment: .leading, spacing: 14) {
             HStack(alignment: .center) {
                 VStack(alignment: .leading, spacing: 2) {
@@ -429,7 +432,7 @@ struct ZoneAnalyticsView: View {
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(.secondary)
                     }
-                    
+
                     HStack(alignment: .lastTextBaseline, spacing: 6) {
                         Text(verbatim: ByteCountFormatters.format(selectedBandwidthPoint?.sum.bytes ?? viewModel.totalBandwidthBytes))
                             .font(.title.weight(.bold).monospacedDigit())
@@ -439,9 +442,9 @@ struct ZoneAnalyticsView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
-                
+
                 Spacer()
-                
+
                 if let selected = selectedBandwidthPoint {
                     let dateStr = formattedPointDate(selected)
                     HStack(spacing: 6) {
@@ -463,12 +466,12 @@ struct ZoneAnalyticsView: View {
                 }
             }
             .frame(minHeight: 48)
-            
+
             Chart {
                 ForEach(viewModel.dataPoints) { point in
                     let ptDate = dateFromString(point.dimensions.datetime ?? point.dimensions.date ?? "")
                     let isSelected = selectedBandwidthPoint?.id == point.id
-                    
+
                     BarMark(
                         x: .value("Date", ptDate),
                         y: .value("Bytes", point.sum.bytes),
@@ -485,7 +488,7 @@ struct ZoneAnalyticsView: View {
                     )
                     .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                 }
-                
+
                 if let selected = selectedBandwidthPoint {
                     let selDate = dateFromString(selected.dimensions.datetime ?? selected.dimensions.date ?? "")
                     RuleMark(x: .value("Date", selDate))
@@ -498,7 +501,7 @@ struct ZoneAnalyticsView: View {
             .chartPlotStyle { plot in
                 plot.clipped()
             }
-            .chartYScale(domain: 0...yUpper)
+            .chartYScale(domain: 0 ... yUpper)
             .chartXScale(domain: chartXRange)
             .transaction { $0.animation = nil }
             .chartXAxis {
@@ -538,7 +541,7 @@ struct ZoneAnalyticsView: View {
                                     let origin = geo[proxy.plotAreaFrame].origin
                                     let locationX = value.location.x - origin.x
                                     guard locationX >= 0, locationX <= proxy.plotAreaSize.width else { return }
-                                    
+
                                     if let date: Date = proxy.value(atX: locationX) {
                                         if let closest = findClosestPoint(for: date, in: viewModel.dataPoints) {
                                             if selectedBandwidthPoint?.id != closest.id {
@@ -559,8 +562,9 @@ struct ZoneAnalyticsView: View {
         .background(Color(uiColor: .secondarySystemGroupedBackground))
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
-    
+
     // MARK: - 5. Traffic by Country Map
+
     private var trafficMapCard: some View {
         VStack(alignment: .leading, spacing: 14) {
             HStack {
@@ -575,7 +579,7 @@ struct ZoneAnalyticsView: View {
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
-            
+
             trafficMapView
                 .frame(height: 260)
                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
@@ -584,9 +588,9 @@ struct ZoneAnalyticsView: View {
         .background(Color(uiColor: .secondarySystemGroupedBackground))
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
-    
+
     private var mapAnnotations: [MapAnnotationItem] {
-        guard let maxRequests = viewModel.mapDataPoints.map({ $0.requestsCount }).max(), maxRequests > 0 else { return [] }
+        guard let maxRequests = viewModel.mapDataPoints.map(\.requestsCount).max(), maxRequests > 0 else { return [] }
         return viewModel.mapDataPoints.compactMap { point in
             guard let code = point.dimensions.clientCountryName,
                   let coordinate = CountryCoordinates.map[code] else { return nil }
@@ -596,13 +600,13 @@ struct ZoneAnalyticsView: View {
             return MapAnnotationItem(countryCode: code, coordinate: coordinate, size: size, requests: requests, ratio: ratio)
         }
     }
-    
+
     @State private var mapRegion = MKCoordinateRegion(
         center: CLLocationCoordinate2D(latitude: 30, longitude: 0),
         span: MKCoordinateSpan(latitudeDelta: 120, longitudeDelta: 120)
     )
     @State private var selectedCountry: String?
-    
+
     private var trafficMapView: some View {
         ZStack(alignment: .bottom) {
             Map(coordinateRegion: $mapRegion, annotationItems: mapAnnotations) { item in
@@ -618,7 +622,7 @@ struct ZoneAnalyticsView: View {
                     .buttonStyle(.plain)
                 }
             }
-            
+
             Button {
                 withAnimation(.easeInOut) { selectedCountry = nil }
             } label: {
@@ -627,7 +631,7 @@ struct ZoneAnalyticsView: View {
             }
             .buttonStyle(.plain)
             .allowsHitTesting(selectedCountry != nil)
-            
+
             if let selected = selectedCountry,
                let item = mapAnnotations.first(where: { $0.countryCode == selected }) {
                 HStack(spacing: 12) {
@@ -660,14 +664,15 @@ struct ZoneAnalyticsView: View {
             }
         }
     }
-    
+
     // MARK: - 6. Performance Insights Card
+
     private var insightsCard: some View {
         VStack(alignment: .leading, spacing: 14) {
             Label("Edge Caching Savings", systemImage: "sparkles")
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(Color.orange)
-            
+
             LabeledContent {
                 Text(verbatim: ByteCountFormatters.format(viewModel.totalCachedBandwidthBytes))
                     .font(.caption.weight(.semibold).monospacedDigit())
@@ -676,9 +681,9 @@ struct ZoneAnalyticsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
-            
+
             Divider()
-            
+
             LabeledContent {
                 Text(viewModel.cachedRatio, format: .percent.precision(.fractionLength(1)))
                     .font(.caption.weight(.medium))
@@ -693,17 +698,18 @@ struct ZoneAnalyticsView: View {
         .background(Color(uiColor: .secondarySystemGroupedBackground))
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
-    
+
     // MARK: - Helpers
+
     private func dateFromString(_ dateString: String) -> Date {
         DateFormatters.parseChartDate(dateString)
     }
-    
+
     private func formattedPointDate(_ point: AnalyticsDataPoint) -> String {
         let date = dateFromString(point.dimensions.datetime ?? point.dimensions.date ?? "")
         return DateFormatters.formatChartDetailDate(date, isHourly: isHourlyData)
     }
-    
+
     private func findClosestPoint(for date: Date, in points: [AnalyticsDataPoint]) -> AnalyticsDataPoint? {
         guard !points.isEmpty else { return nil }
         return points.min(by: {
@@ -723,7 +729,7 @@ struct MapAnnotationItem: Identifiable, Sendable {
     let size: CGFloat
     let requests: Int
     let ratio: Double
-    
+
     init(
         id: UUID = UUID(),
         countryCode: String,
@@ -745,21 +751,21 @@ struct PulsingAnnotationView: View {
     let item: MapAnnotationItem
     let isSelected: Bool
     @State private var isPulsing = false
-    
+
     init(item: MapAnnotationItem, isSelected: Bool) {
         self.item = item
         self.isSelected = isSelected
     }
-    
+
     private var heatColor: Color {
         switch item.ratio {
-        case 0.7...: return .red
-        case 0.3..<0.7: return .orange
-        case 0.1..<0.3: return .yellow
-        default: return .cyan
+        case 0.7...: .red
+        case 0.3 ..< 0.7: .orange
+        case 0.1 ..< 0.3: .yellow
+        default: .cyan
         }
     }
-    
+
     var body: some View {
         ZStack {
             Circle()
@@ -767,7 +773,7 @@ struct PulsingAnnotationView: View {
                 .frame(width: item.size, height: item.size)
                 .scaleEffect(isPulsing ? 2.5 : 1.0)
                 .opacity(isPulsing ? 0.0 : 0.8)
-            
+
             Circle()
                 .fill(heatColor)
                 .frame(width: item.size, height: item.size)

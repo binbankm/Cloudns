@@ -10,11 +10,11 @@ protocol RedirectRulesServiceProtocol: Sendable {
 /// Concrete domain service for Cloudflare dynamic redirect rules
 final class RedirectRulesService: RedirectRulesServiceProtocol {
     static let shared = RedirectRulesService()
-    
+
     private let wafRulesService = WAFRulesService.shared
-    
+
     private init() {}
-    
+
     func getRedirectRules(zoneId: String) async throws -> [RedirectRuleItem] {
         let rs = try? await wafRulesService.fetchRulesetByPhase(zoneId: zoneId, phase: "http_request_dynamic_redirect")
         guard let rules = rs?.rules else { return [] }
@@ -31,7 +31,7 @@ final class RedirectRulesService: RedirectRulesServiceProtocol {
             )
         }
     }
-    
+
     func createRedirectRule(
         zoneId: String,
         description: String,
@@ -72,7 +72,7 @@ final class RedirectRulesService: RedirectRulesServiceProtocol {
             )
         }
     }
-    
+
     func deleteRedirectRule(zoneId: String, ruleId: String) async throws {
         guard let rs = try await wafRulesService.fetchRulesetByPhase(zoneId: zoneId, phase: "http_request_dynamic_redirect") else { return }
         try await wafRulesService.deleteWAFRule(zoneId: zoneId, rulesetId: rs.id, ruleId: ruleId)

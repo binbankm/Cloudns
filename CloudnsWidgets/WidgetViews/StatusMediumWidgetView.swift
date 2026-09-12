@@ -5,11 +5,11 @@ import WidgetKit
 
 public struct StatusMediumWidgetView: View {
     let snapshot: CFStatusWidgetSnapshot
-    
+
     public init(snapshot: CFStatusWidgetSnapshot) {
         self.snapshot = snapshot
     }
-    
+
     public var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             // Header
@@ -17,13 +17,13 @@ public struct StatusMediumWidgetView: View {
                 Image(systemName: "cloud.fill")
                     .font(.body.weight(.bold))
                     .foregroundStyle(.orange)
-                
+
                 Text("Cloudflare Global Status")
                     .font(.headline.weight(.bold))
                     .foregroundStyle(.primary)
-                
+
                 Spacer()
-                
+
                 HStack(spacing: 4) {
                     Circle()
                         .fill(statusColor)
@@ -37,9 +37,9 @@ public struct StatusMediumWidgetView: View {
                 .background(statusColor.opacity(0.12))
                 .clipShape(Capsule())
             }
-            
+
             Divider()
-            
+
             // Status Info Body
             HStack(alignment: .center, spacing: 14) {
                 ZStack {
@@ -50,13 +50,13 @@ public struct StatusMediumWidgetView: View {
                         .font(.system(size: 22, weight: .semibold))
                         .foregroundStyle(statusColor)
                 }
-                
+
                 VStack(alignment: .leading, spacing: 4) {
                     Text(snapshot.description)
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(.primary)
                         .lineLimit(1)
-                    
+
                     if let incident = snapshot.latestIncidentTitle, !incident.isEmpty {
                         Text(incident)
                             .font(.caption)
@@ -69,21 +69,21 @@ public struct StatusMediumWidgetView: View {
                             .lineLimit(1)
                     }
                 }
-                
+
                 Spacer()
             }
         }
         .padding(14)
         .widgetURL(URL(string: "cloudns://tools/status"))
     }
-    
+
     private var statusColor: Color {
         switch snapshot.indicator.lowercased() {
-        case "none": return .green
-        case "minor": return .yellow
-        case "major": return .orange
-        case "critical": return .red
-        default: return .green
+        case "none": .green
+        case "minor": .yellow
+        case "major": .orange
+        case "critical": .red
+        default: .green
         }
     }
 }

@@ -1,6 +1,6 @@
+import Combine
 import Foundation
 import SwiftUI
-import Combine
 
 @MainActor
 final class PagesDeploymentDetailViewModel: BaseLoadableViewModel {
@@ -8,10 +8,12 @@ final class PagesDeploymentDetailViewModel: BaseLoadableViewModel {
     let projectName: String
     let deployment: PagesDeployment
     private let pagesService: PagesServiceProtocol
-    
+
     @Published var logs: [PagesDeploymentLog] = []
-    var isLoadingLogs: Bool { isLoading }
-    
+    var isLoadingLogs: Bool {
+        isLoading
+    }
+
     init(
         accountId: String,
         projectName: String,
@@ -24,7 +26,7 @@ final class PagesDeploymentDetailViewModel: BaseLoadableViewModel {
         self.pagesService = pagesService
         super.init()
     }
-    
+
     func fetchLogs() async {
         await executeLoadingTask {
             self.logs = try await self.pagesService.getPagesDeploymentLogs(accountId: self.accountId, projectName: self.projectName, deploymentId: self.deployment.id)

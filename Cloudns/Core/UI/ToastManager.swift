@@ -1,5 +1,5 @@
-import SwiftUI
 import Combine
+import SwiftUI
 
 // MARK: - Apple HIG Toast Item Model
 
@@ -36,7 +36,7 @@ public final class ToastManager: ObservableObject {
     @Published public private(set) var currentToast: ToastItem?
     private var dismissTask: Task<Void, Never>?
 
-    private init() { }
+    private init() {}
 
     /// Presents standard informational toast HUD
     public func show(
@@ -103,7 +103,7 @@ public struct ToastOverlay: View {
     @ObservedObject private var toastManager = ToastManager.shared
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    public init() { }
+    public init() {}
 
     public var body: some View {
         Group {

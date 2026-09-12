@@ -1,12 +1,13 @@
 import SwiftUI
 
 // MARK: - CertInspectToolView
+
 // Apple HIG Compliant SSL/TLS Handshake & Chain Inspector
 
 struct CertInspectToolView: View {
     @StateObject private var viewModel = SSLCertInspectorViewModel()
     @FocusState private var isFieldFocused: Bool
-    
+
     var body: some View {
         List {
             // 1. Search / Input Section
@@ -15,7 +16,7 @@ struct CertInspectToolView: View {
                     Image(systemName: "lock.shield.fill")
                         .foregroundStyle(ThemeManager.shared.accentColor)
                         .accessibilityHidden(true)
-                    
+
                     TextField("example.com or hostname", text: $viewModel.domainInput)
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
@@ -26,7 +27,7 @@ struct CertInspectToolView: View {
                         .onSubmit {
                             performInspect()
                         }
-                    
+
                     if !viewModel.domainInput.isEmpty {
                         Button {
                             viewModel.domainInput = ""
@@ -40,7 +41,7 @@ struct CertInspectToolView: View {
                         .accessibilityLabel("Clear Domain Input")
                     }
                 }
-                
+
                 Button {
                     performInspect()
                 } label: {
@@ -62,23 +63,23 @@ struct CertInspectToolView: View {
             } footer: {
                 Text("Inspects remote SSL/TLS certificate validity, expiration, intermediate trust chain & cryptographic cipher suites.")
             }
-            
+
             if let details = viewModel.certDetails {
                 // 2. Validity Hero Section
                 Section("Certificate Validity") {
                     validityRows(details: details)
                 }
-                
+
                 // 3. Chain Hierarchy Section
                 Section("Certificate Chain Hierarchy (\(details.chainNames.count))") {
                     chainRows(details: details)
                 }
-                
+
                 // 4. Crypto Parameters Section
                 Section("Cryptographic Parameters") {
                     cryptoRows(details: details)
                 }
-                
+
                 // 5. SANs Domains Section
                 Section("Subject Alternative Names (\(details.sans.count))") {
                     sansRows(details: details)
@@ -109,14 +110,15 @@ struct CertInspectToolView: View {
         .navigationTitle("SSL Certificate Inspector")
         .navigationBarTitleDisplayMode(.inline)
     }
-    
+
     private func performInspect() {
         isFieldFocused = false
         HapticManager.impact(.light)
         Task { await viewModel.inspectCert() }
     }
-    
+
     // MARK: - 2. Validity Rows
+
     @ViewBuilder
     private func validityRows(details: SSLCertDetails) -> some View {
         HStack {
@@ -124,15 +126,15 @@ struct CertInspectToolView: View {
                 Text("Validity Status")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
-                
+
                 let days = details.validityDaysRemaining ?? 0
                 Text("\(days) Days Remaining")
                     .font(.title3.weight(.bold).monospacedDigit())
                     .foregroundStyle(days > 30 ? .green : (days > 7 ? .orange : .red))
             }
-            
+
             Spacer()
-            
+
             Text(details.isCloudflareEdge ? LocalizedStringKey("Cloudflare Universal SSL") : LocalizedStringKey("Origin SSL"))
                 .font(.caption2.weight(.medium))
                 .foregroundStyle(ThemeManager.shared.accentColor)
@@ -140,11 +142,11 @@ struct CertInspectToolView: View {
                 .padding(.vertical, 2)
                 .background(Capsule().fill(ThemeManager.shared.accentColor.opacity(0.12)))
         }
-        
+
         let days = details.validityDaysRemaining ?? 0
         ProgressView(value: min(1.0, max(0.0, Double(days) / 90.0)))
             .tint(days > 30 ? .green : .orange)
-        
+
         HStack {
             Text("Valid From")
                 .font(.subheadline)
@@ -154,7 +156,7 @@ struct CertInspectToolView: View {
                 .font(.subheadline.monospacedDigit())
                 .foregroundStyle(.primary)
         }
-        
+
         HStack {
             Text("Valid Until")
                 .font(.subheadline)
@@ -165,9 +167,9 @@ struct CertInspectToolView: View {
                 .foregroundStyle(.primary)
         }
     }
-    
+
     // MARK: - 3. Chain Rows
-    @ViewBuilder
+
     private func chainRows(details: SSLCertDetails) -> some View {
         ForEach(Array(details.chainNames.enumerated()), id: \.offset) { index, name in
             HStack(spacing: 12) {
@@ -175,18 +177,18 @@ struct CertInspectToolView: View {
                     icon: index == 0 ? "leaf.fill" : (index == details.chainNames.count - 1 ? "lock.shield.fill" : "link"),
                     color: index == 0 ? .green : ThemeManager.shared.accentColor
                 )
-                
+
                 VStack(alignment: .leading, spacing: 2) {
                     Text(name)
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(.primary)
                         .lineLimit(1)
-                    
+
                     Text(index == 0 ? LocalizedStringKey("Leaf / Server Certificate") : (index == details.chainNames.count - 1 ? LocalizedStringKey("Root Authority") : LocalizedStringKey("Intermediate CA")))
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
-                
+
                 Spacer()
             }
             .contextMenu {
@@ -198,8 +200,9 @@ struct CertInspectToolView: View {
             }
         }
     }
-    
+
     // MARK: - 4. Crypto Rows
+
     @ViewBuilder
     private func cryptoRows(details: SSLCertDetails) -> some View {
         if let proto = details.protocolNegotiated {
@@ -215,8 +218,7 @@ struct CertInspectToolView: View {
             cryptoRow(title: "Signature Hash", value: sig)
         }
     }
-    
-    @ViewBuilder
+
     private func cryptoRow(title: LocalizedStringKey, value: String, isMono: Bool = false, isBadge: Bool = false) -> some View {
         HStack {
             Text(title)
@@ -238,22 +240,22 @@ struct CertInspectToolView: View {
             }
         }
     }
-    
+
     // MARK: - 5. SANs Rows
-    @ViewBuilder
+
     private func sansRows(details: SSLCertDetails) -> some View {
         ForEach(details.sans, id: \.self) { san in
             HStack {
                 Image(systemName: "globe")
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                
+
                 Text(san)
                     .font(.subheadline.monospaced())
                     .foregroundStyle(.primary)
-                
+
                 Spacer()
-                
+
                 Button {
                     copyToClipboard(san, toast: "SAN Copied")
                 } label: {

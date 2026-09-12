@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - WorkerSourceCodeView
+
 // Apple HIG Compliant Cloudflare Worker ESM Module & Code Editor
 
 struct WorkerSourceCodeView: View {
@@ -8,12 +9,12 @@ struct WorkerSourceCodeView: View {
     let scriptName: String
     let modules: [WorkerModuleItem]
     let singleScriptContent: String
-    
+
     @State private var selectedModule: WorkerModuleItem?
     @State private var currentCode: String = ""
     @State private var isSaving = false
     @State private var errorMessage: String?
-    
+
     init(
         parentViewModel: WorkerDetailViewModel,
         scriptName: String,
@@ -24,12 +25,12 @@ struct WorkerSourceCodeView: View {
         self.scriptName = scriptName
         self.modules = modules
         self.singleScriptContent = singleScriptContent
-        
+
         let initialMod = modules.first(where: { $0.isMain }) ?? modules.first
         _selectedModule = State(initialValue: initialMod)
         _currentCode = State(initialValue: initialMod?.code ?? singleScriptContent)
     }
-    
+
     var body: some View {
         VStack(spacing: 0) {
             if !modules.isEmpty {
@@ -60,10 +61,10 @@ struct WorkerSourceCodeView: View {
                     .padding(.vertical, 8)
                 }
                 .background(Color(uiColor: .secondarySystemBackground))
-                
+
                 Divider()
             }
-            
+
             TextEditor(text: $currentCode)
                 .font(.caption.monospaced())
                 .scrollContentBackground(.hidden)
@@ -81,7 +82,7 @@ struct WorkerSourceCodeView: View {
                         Image(systemName: "doc.on.doc")
                     }
                     .accessibilityLabel("Copy Code")
-                    
+
                     Button {
                         Task {
                             isSaving = true

@@ -10,38 +10,38 @@ public struct RedirectRuleItem: Codable, Identifiable, Equatable, Sendable {
     public let statusCode: Int?
     public let preserveQueryString: Bool?
     public let enabled: Bool?
-    
+
     enum CodingKeys: String, CodingKey {
         case id, description, expression, enabled
         case actionParameters = "action_parameters"
         case targetUrl = "target_url"
         case statusCode = "status_code"
     }
-    
+
     private struct ActionParams: Codable, Sendable {
         let fromValue: FromValue?
         enum CodingKeys: String, CodingKey {
             case fromValue = "from_value"
         }
     }
-    
+
     private struct FromValue: Codable, Sendable {
         let statusCode: Int?
         let targetUrl: TargetUrlObj?
         let preserveQueryString: Bool?
-        
+
         enum CodingKeys: String, CodingKey {
             case statusCode = "status_code"
             case targetUrl = "target_url"
             case preserveQueryString = "preserve_query_string"
         }
     }
-    
+
     private struct TargetUrlObj: Codable, Sendable {
         let value: String?
         let expression: String?
     }
-    
+
     public init(id: String, description: String?, expression: String?, targetUrl: String?, statusCode: Int?, preserveQueryString: Bool? = nil, enabled: Bool? = true) {
         self.id = id
         self.description = description
@@ -51,26 +51,26 @@ public struct RedirectRuleItem: Codable, Identifiable, Equatable, Sendable {
         self.preserveQueryString = preserveQueryString
         self.enabled = enabled
     }
-    
+
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.id = try container.decode(String.self, forKey: .id)
-        self.description = try container.decodeIfPresent(String.self, forKey: .description)
-        self.expression = try container.decodeIfPresent(String.self, forKey: .expression)
-        self.enabled = try container.decodeIfPresent(Bool.self, forKey: .enabled)
-        
+        id = try container.decode(String.self, forKey: .id)
+        description = try container.decodeIfPresent(String.self, forKey: .description)
+        expression = try container.decodeIfPresent(String.self, forKey: .expression)
+        enabled = try container.decodeIfPresent(Bool.self, forKey: .enabled)
+
         if let params = try container.decodeIfPresent(ActionParams.self, forKey: .actionParameters),
            let fromVal = params.fromValue {
-            self.statusCode = fromVal.statusCode
-            self.targetUrl = fromVal.targetUrl?.value ?? fromVal.targetUrl?.expression
-            self.preserveQueryString = fromVal.preserveQueryString
+            statusCode = fromVal.statusCode
+            targetUrl = fromVal.targetUrl?.value ?? fromVal.targetUrl?.expression
+            preserveQueryString = fromVal.preserveQueryString
         } else {
-            self.targetUrl = try container.decodeIfPresent(String.self, forKey: .targetUrl)
-            self.statusCode = try container.decodeIfPresent(Int.self, forKey: .statusCode)
-            self.preserveQueryString = nil
+            targetUrl = try container.decodeIfPresent(String.self, forKey: .targetUrl)
+            statusCode = try container.decodeIfPresent(Int.self, forKey: .statusCode)
+            preserveQueryString = nil
         }
     }
-    
+
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(id, forKey: .id)

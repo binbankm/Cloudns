@@ -1,6 +1,6 @@
+import Combine
 import Foundation
 import SwiftUI
-import Combine
 
 nonisolated struct ZoneAnalyticsSnapshot: Codable, Sendable {
     let dataPoints: [AnalyticsDataPoint]
@@ -13,49 +13,49 @@ final class ZoneAnalyticsViewModel: BaseLoadableViewModel {
     @Published var dataPoints: [AnalyticsDataPoint] = []
     @Published var mapDataPoints: [CountryDataPoint] = []
     @Published var loadedDays: Int = 30
-    
+
     private let analyticsService: AnalyticsServiceProtocol
-    
+
     init(analyticsService: AnalyticsServiceProtocol = AnalyticsService.shared) {
         self.analyticsService = analyticsService
         super.init()
     }
-    
+
     func resetState() {
-        self.dataPoints = []
-        self.mapDataPoints = []
-        self.resetLoadingState()
+        dataPoints = []
+        mapDataPoints = []
+        resetLoadingState()
     }
-    
-    // Aggregated Metrics
+
+    /// Aggregated Metrics
     var totalRequests: Int {
         dataPoints.reduce(0) { $0 + $1.sum.requests }
     }
-    
+
     var totalCachedRequests: Int {
         dataPoints.reduce(0) { $0 + $1.sum.cachedRequests }
     }
-    
+
     var totalBandwidthBytes: Int {
         dataPoints.reduce(0) { $0 + $1.sum.bytes }
     }
-    
+
     var totalCachedBandwidthBytes: Int {
         dataPoints.reduce(0) { $0 + $1.sum.cachedBytes }
     }
-    
+
     var cachedRatio: Double {
         guard totalRequests > 0 else { return 0 }
         return Double(totalCachedRequests) / Double(totalRequests)
     }
-    
+
     private func cacheKey(zoneTag: String, days: Int) -> String {
         "zone_analytics_\(zoneTag)_\(days)"
     }
-    
-    func fetchAnalytics(zoneTag: String, days: Int, isRefresh: Bool = false) async {
+
+    func fetchAnalytics(zoneTag: String, days: Int, isRefresh _: Bool = false) async {
         let scopedKey = SWRCacheStore.accountScopedKey(cacheKey(zoneTag: zoneTag, days: days))
-        
+
         if !hasFetchedData, let cached = await SWRCacheStore.shared.get(forKey: scopedKey, as: ZoneAnalyticsSnapshot.self) {
             await MainActor.run {
                 self.dataPoints = cached.dataPoints
@@ -64,13 +64,13 @@ final class ZoneAnalyticsViewModel: BaseLoadableViewModel {
                 self.hasFetchedData = true
             }
         }
-        
+
         await executeLoadingTask(clearError: true) {
             let result = try await self.analyticsService.fetchGraphQLAnalytics(zoneTag: zoneTag, days: days)
             if let zones = result.viewer.zones, let zone = zones.first {
                 let groups = zone.httpRequests1dGroups ?? zone.httpRequests1hGroups ?? []
                 self.dataPoints = groups
-                
+
                 // Aggregate countryMap across all time buckets
                 var countryAgg: [String: Int] = [:]
                 for group in groups {
@@ -82,17 +82,17 @@ final class ZoneAnalyticsViewModel: BaseLoadableViewModel {
                         }
                     }
                 }
-                
-                self.mapDataPoints = countryAgg.map { (code, count) in
+
+                self.mapDataPoints = countryAgg.map { code, count in
                     CountryDataPoint(
                         dimensions: CountryDimensions(clientCountryName: code),
                         count: count,
                         sum: CountrySum(requests: count)
                     )
                 }.sorted { ($0.count ?? 0) > ($1.count ?? 0) }
-                
+
                 self.loadedDays = days
-                
+
                 let snapshot = ZoneAnalyticsSnapshot(
                     dataPoints: self.dataPoints,
                     mapDataPoints: self.mapDataPoints,
@@ -103,16 +103,16 @@ final class ZoneAnalyticsViewModel: BaseLoadableViewModel {
             }
         }
     }
-    
+
     private func syncAnalyticsToWidget(zoneTag: String) {
-        guard self.loadedDays == 1 else { return }
+        guard loadedDays == 1 else { return }
         Task {
             let current = WidgetDataStore.shared.loadZoneSnapshot()
             var domainName = current.name
             var status = current.status
             var plan = current.plan
             var isProxied = current.isProxied
-            
+
             if current.id != zoneTag || domainName == "example.com" || domainName == "Active Zone" {
                 let cacheKey = SWRCacheStore.accountScopedKey("cloudflare_zones_list")
                 if let cachedZones = await SWRCacheStore.shared.get(forKey: cacheKey, as: [Zone].self),
@@ -123,12 +123,12 @@ final class ZoneAnalyticsViewModel: BaseLoadableViewModel {
                     isProxied = !matched.paused
                 }
             }
-            
+
             var totalBytes24h = 0
             for dp in self.dataPoints {
                 totalBytes24h += dp.sum.bytes
             }
-            
+
             let snap = ZoneWidgetSnapshot(
                 id: zoneTag,
                 name: domainName,

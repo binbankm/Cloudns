@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - CFIpRangesToolView
+
 // Apple HIG Compliant Cloudflare IP Range Matcher & Firewall Exporter
 
 struct CFIpRangesToolView: View {
@@ -9,9 +10,9 @@ struct CFIpRangesToolView: View {
     @State private var testResult: String?
     @State private var showingExportSheet = false
     @State private var exportFormat = 0 // 0: Nginx, 1: Apache, 2: UFW, 3: Caddy, 4: iptables, 5: JSON
-    
+
     private let exportFormats = ["Nginx", "Apache", "UFW", "Caddy", "iptables", "JSON"]
-    
+
     var body: some View {
         List {
             // 1. IP Range Tester
@@ -20,7 +21,7 @@ struct CFIpRangesToolView: View {
                     Image(systemName: "checkmark.shield.fill")
                         .foregroundStyle(ThemeManager.shared.accentColor)
                         .accessibilityHidden(true)
-                    
+
                     TextField("Enter IP e.g. 104.21.45.12", text: $testIpInput)
                         .keyboardType(.numbersAndPunctuation)
                         .textInputAutocapitalization(.never)
@@ -30,7 +31,7 @@ struct CFIpRangesToolView: View {
                         .onSubmit {
                             testIP()
                         }
-                    
+
                     if !testIpInput.isEmpty {
                         Button {
                             testIpInput = ""
@@ -45,7 +46,7 @@ struct CFIpRangesToolView: View {
                         .accessibilityLabel("Clear Input")
                     }
                 }
-                
+
                 Button {
                     testIP()
                 } label: {
@@ -53,7 +54,7 @@ struct CFIpRangesToolView: View {
                         .frame(maxWidth: .infinity, alignment: .center)
                 }
                 .disabled(testIpInput.trimmingCharacters(in: .whitespaces).isEmpty)
-                
+
                 if let result = testResult {
                     HStack(spacing: 6) {
                         Image(systemName: result.contains("Official") ? "checkmark.circle.fill" : "xmark.circle.fill")
@@ -68,7 +69,7 @@ struct CFIpRangesToolView: View {
             } footer: {
                 Text("Verifies if an IP address belongs to Cloudflare's official proxy edge CIDR network blocks.")
             }
-            
+
             // 2. IPv4 Ranges
             Section {
                 ForEach(viewModel.ipv4List, id: \.self) { cidr in
@@ -104,7 +105,7 @@ struct CFIpRangesToolView: View {
                     }
                 }
             }
-            
+
             // 3. IPv6 Ranges
             Section {
                 ForEach(viewModel.ipv6List, id: \.self) { cidr in
@@ -164,7 +165,7 @@ struct CFIpRangesToolView: View {
                     }
                     .pickerStyle(.segmented)
                     .padding()
-                    
+
                     ScrollView {
                         Text(generateExportCode())
                             .font(.caption.monospaced())
@@ -200,11 +201,11 @@ struct CFIpRangesToolView: View {
             }
         }
     }
-    
+
     func testIP() {
         let ip = testIpInput.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !ip.isEmpty else { return }
-        
+
         let allRanges = viewModel.ipv4List + viewModel.ipv6List
         for cidr in allRanges where ipMatchesCIDR(ip: ip, cidr: cidr) {
             testResult = "Official Cloudflare IP (Matched CIDR: \(cidr))"
@@ -214,7 +215,7 @@ struct CFIpRangesToolView: View {
         testResult = "Not a recognized Cloudflare proxy IP"
         HapticManager.notification(.warning)
     }
-    
+
     private func ipMatchesCIDR(ip: String, cidr: String) -> Bool {
         if ip == cidr || ip.hasPrefix(cidr.split(separator: "/").first.map(String.init) ?? "xxx") {
             return true
@@ -222,22 +223,22 @@ struct CFIpRangesToolView: View {
         let parts = cidr.split(separator: "/")
         guard parts.count == 2, let prefix = Int(parts[1]) else { return false }
         let cidrIp = String(parts[0])
-        
+
         let ipOctets = ip.split(separator: ".").compactMap { UInt32($0) }
         let cidrOctets = cidrIp.split(separator: ".").compactMap { UInt32($0) }
         guard ipOctets.count == 4, cidrOctets.count == 4 else { return false }
-        
+
         let ipInt = (ipOctets[0] << 24) | (ipOctets[1] << 16) | (ipOctets[2] << 8) | ipOctets[3]
         let cidrInt = (cidrOctets[0] << 24) | (cidrOctets[1] << 16) | (cidrOctets[2] << 8) | cidrOctets[3]
         let mask = prefix == 0 ? 0 : (~UInt32(0) << (32 - prefix))
-        
+
         return (ipInt & mask) == (cidrInt & mask)
     }
-    
+
     private func generateExportCode() -> String {
         let v4 = viewModel.ipv4List
         let v6 = viewModel.ipv6List
-        
+
         switch exportFormat {
         case 0: // Nginx
             var lines = ["# Cloudflare Real IP Configuration for Nginx"]
@@ -246,7 +247,7 @@ struct CFIpRangesToolView: View {
             }
             lines.append("real_ip_header CF-Connecting-IP;")
             return lines.joined(separator: "\n")
-            
+
         case 1: // Apache
             var lines = ["# Cloudflare RemoteIP Configuration for Apache (.htaccess / httpd.conf)"]
             lines.append("RemoteIPHeader CF-Connecting-IP")
@@ -254,28 +255,28 @@ struct CFIpRangesToolView: View {
                 lines.append("RemoteIPTrustedProxy \(ip)")
             }
             return lines.joined(separator: "\n")
-            
+
         case 2: // UFW
             var lines = ["# Cloudflare UFW Allow Rules"]
             for ip in v4 + v6 {
                 lines.append("sudo ufw allow proto tcp from \(ip) to any port 80,443")
             }
             return lines.joined(separator: "\n")
-            
+
         case 3: // Caddy
             var lines = ["# Cloudflare Trusted Proxies for Caddyfile", "trusted_proxies static \\"]
             for ip in v4 + v6 {
                 lines.append("    \(ip) \\")
             }
             return lines.joined(separator: "\n")
-            
+
         case 4: // iptables
             var lines = ["# Cloudflare iptables Rules"]
             for ip in v4 {
                 lines.append("iptables -A INPUT -p tcp -m multiport --dports 80,443 -s \(ip) -j ACCEPT")
             }
             return lines.joined(separator: "\n")
-            
+
         default: // JSON
             let dict: [String: [String]] = ["ipv4_cidrs": v4, "ipv6_cidrs": v6]
             if let data = try? JSONSerialization.data(withJSONObject: dict, options: .prettyPrinted),
@@ -285,7 +286,7 @@ struct CFIpRangesToolView: View {
             return "{}"
         }
     }
-    
+
     private func copyList(_ list: [String], title: String) {
         copyToClipboard(list.joined(separator: "\n"), toast: "\(title) Copied")
     }

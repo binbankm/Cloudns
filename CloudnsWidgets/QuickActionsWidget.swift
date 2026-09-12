@@ -5,16 +5,16 @@ import WidgetKit
 
 struct QuickActionsTimelineProvider: TimelineProvider {
     typealias Entry = QuickActionsWidgetEntry
-    
-    func placeholder(in context: Context) -> QuickActionsWidgetEntry {
+
+    func placeholder(in _: Context) -> QuickActionsWidgetEntry {
         QuickActionsWidgetEntry(date: Date())
     }
-    
-    func getSnapshot(in context: Context, completion: @escaping (QuickActionsWidgetEntry) -> Void) {
+
+    func getSnapshot(in _: Context, completion: @escaping (QuickActionsWidgetEntry) -> Void) {
         completion(QuickActionsWidgetEntry(date: Date()))
     }
-    
-    func getTimeline(in context: Context, completion: @escaping (Timeline<QuickActionsWidgetEntry>) -> Void) {
+
+    func getTimeline(in _: Context, completion: @escaping (Timeline<QuickActionsWidgetEntry>) -> Void) {
         let entry = QuickActionsWidgetEntry(date: Date())
         let timeline = Timeline(entries: [entry], policy: .never)
         completion(timeline)
@@ -31,9 +31,9 @@ struct QuickActionsWidgetEntry: TimelineEntry {
 
 public struct QuickActionsWidget: Widget {
     public let kind: String = "QuickActionsWidget"
-    
+
     public init() {}
-    
+
     public var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: QuickActionsTimelineProvider()) { _ in
             QuickActionsWidgetView()

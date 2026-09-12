@@ -1,32 +1,33 @@
 import SwiftUI
 
 // MARK: - AddWAFRuleView
+
 // Apple HIG Compliant Cloudflare WAF Rule Builder & Wireshark Filter Editor
 
 struct AddWAFRuleView: View {
     let zoneId: String
     @ObservedObject var viewModel: WAFViewModel
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var ruleName = ""
     @State private var action = "block"
     @State private var editorMode = 0 // 0: Visual Builder, 1: Raw Expression
-    
+
     // Visual Builder states
     @State private var field = "ip.src"
     @State private var operatorType = "eq"
     @State private var value = ""
-    
-    // Raw Expression state
+
+    /// Raw Expression state
     @State private var rawExpression = ""
-    
+
     @State private var isSubmitting = false
     @FocusState private var focusedField: FocusableField?
-    
+
     enum FocusableField {
         case name, value, rawExpression
     }
-    
+
     let actions = [
         ("Block", "block"),
         ("Managed Challenge", "managed_challenge"),
@@ -35,7 +36,7 @@ struct AddWAFRuleView: View {
         ("Log", "log"),
         ("Skip", "skip")
     ]
-    
+
     let fields = [
         ("IP Address", "ip.src"),
         ("Country/Region", "ip.geoip.country"),
@@ -48,7 +49,7 @@ struct AddWAFRuleView: View {
         ("Referer Header", "http.request.headers[\"referer\"]"),
         ("Threat Score (0-100)", "cf.threat_score")
     ]
-    
+
     let operatorsForString = [
         ("Equals", "eq"),
         ("Does not equal", "ne"),
@@ -57,13 +58,13 @@ struct AddWAFRuleView: View {
         ("Starts with", "starts_with"),
         ("Ends with", "ends_with")
     ]
-    
+
     let operatorsForIP = [
         ("Equals", "eq"),
         ("Does not equal", "ne"),
         ("In list", "in")
     ]
-    
+
     let operatorsForNumber = [
         ("Equals", "eq"),
         ("Greater than", "gt"),
@@ -71,7 +72,7 @@ struct AddWAFRuleView: View {
         ("Less than", "lt"),
         ("Less than or equal", "le")
     ]
-    
+
     var currentOperators: [(String, String)] {
         if field == "ip.src" || field == "ip.geoip.asnum" {
             return operatorsForIP
@@ -80,7 +81,7 @@ struct AddWAFRuleView: View {
         }
         return operatorsForString
     }
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -92,7 +93,7 @@ struct AddWAFRuleView: View {
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .focused($focusedField, equals: .name)
-                    
+
                     Picker("Editor Mode", selection: $editorMode) {
                         Text("Visual Builder").tag(0)
                         Text("Raw Expression").tag(1)
@@ -100,7 +101,7 @@ struct AddWAFRuleView: View {
                     .pickerStyle(.segmented)
                     .padding(.vertical, 2)
                 }
-                
+
                 // Quick Presets
                 Section(header: Text("Quick Security Presets")) {
                     ScrollView(.horizontal) {
@@ -113,7 +114,7 @@ struct AddWAFRuleView: View {
                                 action = "managed_challenge"
                                 rawExpression = "(http.request.uri.path contains \"/wp-login.php\" or http.request.uri.path contains \"/xmlrpc.php\")"
                             }
-                            
+
                             presetButton("Block Malicious Bots") {
                                 ruleName = "Block Vulnerability Scanners"
                                 field = "http.user_agent"
@@ -122,7 +123,7 @@ struct AddWAFRuleView: View {
                                 action = "block"
                                 rawExpression = "(http.user_agent contains \"sqlmap\" or http.user_agent contains \"nikto\" or http.user_agent contains \"nmap\")"
                             }
-                            
+
                             presetButton("Challenge Foreign Traffic") {
                                 ruleName = "Challenge Non-Domestic Visitors"
                                 field = "ip.geoip.country"
@@ -136,7 +137,7 @@ struct AddWAFRuleView: View {
                     }
                     .scrollIndicators(.hidden)
                 }
-                
+
                 if editorMode == 0 {
                     // Visual Builder Section
                     Section(header: Text("When incoming requests match…")) {
@@ -145,7 +146,7 @@ struct AddWAFRuleView: View {
                                 Text(name).tag(val)
                             }
                         }
-                        
+
                         Picker("Operator", selection: $operatorType) {
                             ForEach(currentOperators, id: \.1) { name, val in
                                 Text(name).tag(val)
@@ -154,7 +155,7 @@ struct AddWAFRuleView: View {
                         .onChange(of: field) { _ in
                             operatorType = currentOperators.first?.1 ?? "eq"
                         }
-                        
+
                         if field == "ip.geoip.country" {
                             TextField("Value (e.g. CN, US, RU)", text: $value)
                                 .font(.body.monospaced())
@@ -203,7 +204,7 @@ struct AddWAFRuleView: View {
                             .focused($focusedField, equals: .rawExpression)
                     }
                 }
-                
+
                 Section(header: Text("Then…")) {
                     Picker("Take Action", selection: $action) {
                         ForEach(actions, id: \.1) { name, val in
@@ -211,7 +212,7 @@ struct AddWAFRuleView: View {
                         }
                     }
                 }
-                
+
                 Section(header: Text("Generated Expression Preview")) {
                     if finalEffectiveExpression.isEmpty {
                         Text("No expression configured")
@@ -223,7 +224,7 @@ struct AddWAFRuleView: View {
                             .foregroundStyle(.primary)
                     }
                 }
-                
+
                 if let error = viewModel.errorMessage {
                     Section {
                         HStack(spacing: 8) {
@@ -246,7 +247,7 @@ struct AddWAFRuleView: View {
                         dismiss()
                     }
                 }
-                
+
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
                         HapticManager.impact(.medium)
@@ -272,8 +273,7 @@ struct AddWAFRuleView: View {
             )
         }
     }
-    
-    @ViewBuilder
+
     private func presetButton(_ title: LocalizedStringKey, action: @escaping () -> Void) -> some View {
         Button {
             HapticManager.impact(.light)
@@ -294,34 +294,34 @@ struct AddWAFRuleView: View {
         }
         .buttonStyle(.plain)
     }
-    
+
     private var generatedVisualExpression: String {
         guard !value.isEmpty else { return "" }
-        
+
         let needsQuotes = (field != "ip.src" && field != "ip.geoip.asnum" && field != "ip.geoip.country" && field != "cf.threat_score" && operatorType != "in") || field == "http.request.uri.path" || field == "http.user_agent" || field == "http.host" || field == "http.request.method" || field == "http.request.uri.query"
-        
+
         var formattedValue = value
         if field == "ip.geoip.country" || field == "http.request.method" {
             formattedValue = "\"\(value.uppercased())\""
         } else if needsQuotes {
             formattedValue = "\"\(value)\""
         }
-        
+
         return "(\(field) \(operatorType) \(formattedValue))"
     }
-    
+
     private var finalEffectiveExpression: String {
         if editorMode == 1 {
-            return rawExpression.trimmingCharacters(in: .whitespacesAndNewlines)
+            rawExpression.trimmingCharacters(in: .whitespacesAndNewlines)
         } else {
-            return generatedVisualExpression
+            generatedVisualExpression
         }
     }
-    
+
     private func submitRule() async {
         isSubmitting = true
         let expression = finalEffectiveExpression
-        
+
         await viewModel.createRule(
             zoneId: zoneId,
             action: action,
@@ -329,7 +329,7 @@ struct AddWAFRuleView: View {
             description: ruleName,
             enabled: true
         )
-        
+
         isSubmitting = false
         if viewModel.errorMessage == nil {
             HapticManager.notification(.success)

@@ -9,14 +9,13 @@ public struct DNSAnswerItem: Identifiable, Equatable, Sendable {
     public let typeName: String
     public let ttl: Int
     public let data: String
-    
+
     public init(name: String, typeName: String, ttl: Int, data: String) {
         self.name = name
         self.typeName = typeName
         self.ttl = ttl
         self.data = data
     }
-    
 }
 
 public struct DNSLookupResult: Equatable, Sendable {
@@ -28,7 +27,7 @@ public struct DNSLookupResult: Equatable, Sendable {
     public let latencyMs: Double
     public let isDNSSECValidated: Bool
     public let rawResponseRFC: String
-    
+
     public init(
         questionName: String,
         questionType: String,
@@ -61,7 +60,7 @@ public struct DNSBenchmarkItem: Identifiable, Equatable, Sendable {
     public let status: String
     public let isFastest: Bool
     public let isSuccess: Bool
-    
+
     public init(
         resolverName: String,
         resolverIP: String,
@@ -89,7 +88,7 @@ public struct DNSBenchmarkResult: Equatable, Sendable {
     public let domain: String
     public let recordType: String
     public let items: [DNSBenchmarkItem]
-    
+
     public init(domain: String, recordType: String, items: [DNSBenchmarkItem]) {
         self.domain = domain
         self.recordType = recordType

@@ -17,7 +17,7 @@ struct DNSRecord: Codable, Identifiable, Equatable, Sendable {
     let comment: String?
     let tags: [String]?
     let data: DNSRecordData?
-    
+
     init(
         id: String,
         type: String,
@@ -53,7 +53,7 @@ struct DNSRecord: Codable, Identifiable, Equatable, Sendable {
         self.tags = tags
         self.data = data
     }
-    
+
     enum CodingKeys: String, CodingKey {
         case id, type, name, content, proxiable, proxied, ttl, locked, priority, comment, tags, data
         case zoneId = "zone_id"
@@ -61,25 +61,25 @@ struct DNSRecord: Codable, Identifiable, Equatable, Sendable {
         case modifiedOn = "modified_on"
         case createdOn = "created_on"
     }
-    
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
-        self.type = try container.decodeIfPresent(String.self, forKey: .type) ?? "A"
-        self.name = try container.decodeIfPresent(String.self, forKey: .name) ?? ""
-        self.content = try container.decodeIfPresent(String.self, forKey: .content)
-        self.proxiable = try container.decodeIfPresent(Bool.self, forKey: .proxiable)
-        self.proxied = try container.decodeIfPresent(Bool.self, forKey: .proxied)
-        self.ttl = try container.decodeIfPresent(Int.self, forKey: .ttl) ?? 1
-        self.locked = try container.decodeIfPresent(Bool.self, forKey: .locked)
-        self.zoneId = try container.decodeIfPresent(String.self, forKey: .zoneId)
-        self.zoneName = try container.decodeIfPresent(String.self, forKey: .zoneName)
-        self.modifiedOn = try container.decodeIfPresent(String.self, forKey: .modifiedOn)
-        self.createdOn = try container.decodeIfPresent(String.self, forKey: .createdOn)
-        self.priority = try container.decodeIfPresent(Int.self, forKey: .priority)
-        self.comment = try container.decodeIfPresent(String.self, forKey: .comment)
-        self.tags = try container.decodeIfPresent([String].self, forKey: .tags)
-        self.data = try container.decodeIfPresent(DNSRecordData.self, forKey: .data)
+        id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
+        type = try container.decodeIfPresent(String.self, forKey: .type) ?? "A"
+        name = try container.decodeIfPresent(String.self, forKey: .name) ?? ""
+        content = try container.decodeIfPresent(String.self, forKey: .content)
+        proxiable = try container.decodeIfPresent(Bool.self, forKey: .proxiable)
+        proxied = try container.decodeIfPresent(Bool.self, forKey: .proxied)
+        ttl = try container.decodeIfPresent(Int.self, forKey: .ttl) ?? 1
+        locked = try container.decodeIfPresent(Bool.self, forKey: .locked)
+        zoneId = try container.decodeIfPresent(String.self, forKey: .zoneId)
+        zoneName = try container.decodeIfPresent(String.self, forKey: .zoneName)
+        modifiedOn = try container.decodeIfPresent(String.self, forKey: .modifiedOn)
+        createdOn = try container.decodeIfPresent(String.self, forKey: .createdOn)
+        priority = try container.decodeIfPresent(Int.self, forKey: .priority)
+        comment = try container.decodeIfPresent(String.self, forKey: .comment)
+        tags = try container.decodeIfPresent([String].self, forKey: .tags)
+        data = try container.decodeIfPresent(DNSRecordData.self, forKey: .data)
     }
 }
 
@@ -92,12 +92,12 @@ struct DNSRecordData: Codable, Equatable, Sendable {
     var weight: Int?
     var port: Int?
     var target: String?
-    
+
     // CAA
     var flags: Int?
     var tag: String?
     var value: String?
-    
+
     // HTTPS / SVCB (RFC 9460)
     // Priority, target, and value / params
 }
@@ -112,7 +112,7 @@ struct DNSRecordPayload: Codable, Sendable {
     let comment: String?
     let tags: [String]?
     let data: DNSRecordData?
-    
+
     init(
         type: String,
         name: String,

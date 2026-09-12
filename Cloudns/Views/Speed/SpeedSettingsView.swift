@@ -1,25 +1,27 @@
 import SwiftUI
 
 // MARK: - SpeedSettingsView
+
 // Apple HIG Compliant Cloudflare Speed Optimization, Speed Brain, Brotli & WebP Polish (iOS 16.0+)
 
 struct SpeedSettingsView: View {
     let zoneId: String
-    
+
     @StateObject private var viewModel = SpeedSettingsViewModel()
-    
+
     var body: some View {
         List {
             // MARK: - Hero Header
+
             Section {
                 VStack(spacing: 12) {
                     HeroHeaderEmblemView(icon: "bolt.badge.clock.fill", primaryColor: .purple, secondaryColor: .indigo)
-                    .padding(.top, 4)
-                    
+                        .padding(.top, 4)
+
                     Text("Speed Optimization")
                         .font(.title2.weight(.bold))
                         .foregroundStyle(.primary)
-                    
+
                     Text("Supercharge site performance, CDN caching, and edge asset delivery.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
@@ -31,8 +33,9 @@ struct SpeedSettingsView: View {
             }
             .listRowBackground(Color.clear)
             .listRowInsets(EdgeInsets())
-            
+
             // MARK: - Error Banner
+
             if let errorMessage = viewModel.errorMessage {
                 Section {
                     HStack(spacing: 12) {
@@ -43,8 +46,9 @@ struct SpeedSettingsView: View {
                     }
                 }
             }
-            
+
             // MARK: - AI & Modern Acceleration
+
             Section(
                 header: Text("Smart Acceleration"),
                 footer: Text("Speed Brain uses predictive prefetching to load web pages before users click.")
@@ -81,7 +85,7 @@ struct SpeedSettingsView: View {
                     }
                 }
                 .disabled(!viewModel.hasFetchedData)
-                
+
                 // Cloudflare Fonts
                 Toggle(isOn: Binding(
                     get: { viewModel.fonts },
@@ -105,7 +109,7 @@ struct SpeedSettingsView: View {
                     }
                 }
                 .disabled(!viewModel.hasFetchedData)
-                
+
                 // Tiered Cache
                 Toggle(isOn: Binding(
                     get: { viewModel.tieredCache },
@@ -139,8 +143,9 @@ struct SpeedSettingsView: View {
                 }
                 .disabled(!viewModel.hasFetchedData)
             }
-            
+
             // MARK: - Compression & Scripts
+
             Section(
                 header: Text("Compression & Script Loading"),
                 footer: Text("Brotli offers higher compression over standard Gzip. Rocket Loader defers JavaScript execution.")
@@ -168,7 +173,7 @@ struct SpeedSettingsView: View {
                     }
                 }
                 .disabled(!viewModel.hasFetchedData)
-                
+
                 // Early Hints
                 Toggle(isOn: Binding(
                     get: { viewModel.earlyHints },
@@ -192,7 +197,7 @@ struct SpeedSettingsView: View {
                     }
                 }
                 .disabled(!viewModel.hasFetchedData)
-                
+
                 // Rocket Loader
                 Toggle(isOn: Binding(
                     get: { viewModel.rocketLoader },
@@ -217,8 +222,9 @@ struct SpeedSettingsView: View {
                 }
                 .disabled(!viewModel.hasFetchedData)
             }
-            
+
             // MARK: - Image Optimization
+
             Section(
                 header: Text("Image Optimization"),
                 footer: Text("Cloudflare Polish optimizes images on the fly, reducing payload for mobile visitors.")

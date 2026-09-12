@@ -1,25 +1,28 @@
 import SwiftUI
 
 // MARK: - EdgeCertificatesView
+
 // Apple HIG Compliant Cloudflare Edge Certificates & Universal SSL (iOS 16.0+)
 
 struct EdgeCertificatesView: View {
     let zoneId: String
-    
+
     @StateObject private var viewModel = EdgeCertificatesViewModel()
     @State private var searchText = ""
     @State private var certToDelete: EdgeCertificateModel?
     @State private var showingDeleteConfirm = false
-    
+
     private var displayedCertificates: [EdgeCertificateModel] {
-        if searchText.isEmpty { return viewModel.certificates }
+        if searchText.isEmpty {
+            return viewModel.certificates
+        }
         return viewModel.certificates.filter {
             $0.hosts.joined(separator: " ").localizedStandardContains(searchText) ||
-            $0.issuer.localizedStandardContains(searchText) ||
-            $0.type.localizedStandardContains(searchText)
+                $0.issuer.localizedStandardContains(searchText) ||
+                $0.type.localizedStandardContains(searchText)
         }
     }
-    
+
     var body: some View {
         List {
             Section(
@@ -37,7 +40,7 @@ struct EdgeCertificatesView: View {
                     }
                 ))
             }
-            
+
             if !displayedCertificates.isEmpty {
                 Section(header: Text("Active Certificates (\(displayedCertificates.count))")) {
                     ForEach(displayedCertificates) { cert in
@@ -48,16 +51,16 @@ struct EdgeCertificatesView: View {
                                 } label: {
                                     Label("Copy Hosts", systemImage: "doc.on.doc")
                                 }
-                                
+
                                 Button {
                                     copyToClipboard(cert.id, toast: "Certificate ID Copied")
                                 } label: {
                                     Label("Copy Certificate ID", systemImage: "link")
                                 }
-                                
+
                                 if cert.type.lowercased() != "universal" {
                                     Divider()
-                                    
+
                                     Button(role: .destructive) {
                                         certToDelete = cert
                                         showingDeleteConfirm = true
@@ -141,35 +144,35 @@ struct EdgeCertificatesView: View {
 
 struct EdgeCertificateCardView: View {
     let certificate: EdgeCertificateModel
-    
+
     var iconName: String {
         switch certificate.type.lowercased() {
-        case "universal": return "globe"
-        case "advanced": return "star.fill"
-        case "custom": return "person.badge.key"
-        default: return "seal.fill"
+        case "universal": "globe"
+        case "advanced": "star.fill"
+        case "custom": "person.badge.key"
+        default: "seal.fill"
         }
     }
-    
+
     var iconColor: Color {
         switch certificate.type.lowercased() {
-        case "universal": return .blue
-        case "advanced": return .purple
-        case "custom": return .orange
-        default: return .gray
+        case "universal": .blue
+        case "advanced": .purple
+        case "custom": .orange
+        default: .gray
         }
     }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 ListRowIcon(icon: iconName, color: iconColor)
-                
+
                 Text(certificate.type.capitalized)
                     .font(.body.weight(.medium))
-                
+
                 Spacer()
-                
+
                 let isActive = certificate.status.lowercased() == "active"
                 Text(certificate.status.capitalized)
                     .font(.caption2.weight(.medium))
@@ -179,14 +182,14 @@ struct EdgeCertificateCardView: View {
                     .foregroundStyle(isActive ? Color.green : Color.secondary)
                     .clipShape(Capsule())
             }
-            
+
             VStack(alignment: .leading, spacing: 6) {
                 HStack(alignment: .top) {
                     Text("Hosts")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .frame(width: 70, alignment: .leading)
-                    
+
                     VStack(alignment: .leading, spacing: 2) {
                         ForEach(certificate.hosts, id: \.self) { host in
                             Text(host)
@@ -194,7 +197,7 @@ struct EdgeCertificateCardView: View {
                         }
                     }
                 }
-                
+
                 HStack {
                     Text("Issuer")
                         .font(.caption)
@@ -203,7 +206,7 @@ struct EdgeCertificateCardView: View {
                     Text(certificate.issuer)
                         .font(.subheadline)
                 }
-                
+
                 HStack {
                     Text("Signature")
                         .font(.caption)
@@ -212,23 +215,23 @@ struct EdgeCertificateCardView: View {
                     Text(certificate.signature)
                         .font(.subheadline.monospacedDigit())
                 }
-                    
+
                 HStack {
                     Text(certificate.id)
                         .font(.caption2.monospaced())
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                         .truncationMode(.middle)
-                    
+
                     Spacer()
-                    
+
                     expiryDateView(for: certificate.expiresOn)
                 }
             }
         }
         .padding(.vertical, 2)
     }
-    
+
     @ViewBuilder
     private func expiryDateView(for dateStr: String) -> some View {
         if let date = DateFormatters.parseISO8601(dateStr) {

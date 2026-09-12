@@ -5,11 +5,11 @@ import WidgetKit
 
 public struct ZoneMediumWidgetView: View {
     let snapshot: ZoneWidgetSnapshot
-    
+
     public init(snapshot: ZoneWidgetSnapshot) {
         self.snapshot = snapshot
     }
-    
+
     public var body: some View {
         HStack(spacing: 14) {
             // Left Column: Domain Identity & Security Badges
@@ -18,21 +18,21 @@ public struct ZoneMediumWidgetView: View {
                     Image(systemName: "globe.americas.fill")
                         .font(.body.weight(.bold))
                         .foregroundStyle(.blue)
-                    
+
                     Text(snapshot.name)
                         .font(.headline.weight(.bold))
                         .foregroundStyle(.primary)
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
                 }
-                
+
                 Text(LocalizedStringKey(snapshot.plan))
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
-                
+
                 Spacer(minLength: 0)
-                
+
                 // Status Badges
                 HStack(spacing: 5) {
                     HStack(spacing: 3) {
@@ -43,7 +43,7 @@ public struct ZoneMediumWidgetView: View {
                             .font(.caption2.weight(.semibold))
                             .foregroundStyle(.secondary)
                     }
-                    
+
                     if snapshot.isProxied {
                         HStack(spacing: 2) {
                             Image(systemName: "cloud.fill")
@@ -60,10 +60,10 @@ public struct ZoneMediumWidgetView: View {
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            
+
             Divider()
                 .padding(.vertical, 2)
-            
+
             // Right Column: 2x2 Metric Grid (4 Metrics)
             VStack(spacing: 6) {
                 // Row 1: Requests & Bandwidth
@@ -74,7 +74,7 @@ public struct ZoneMediumWidgetView: View {
                         icon: "chart.line.uptrend.xyaxis",
                         color: .blue
                     )
-                    
+
                     metricTile(
                         title: "24h Bandwidth",
                         value: snapshot.formattedBytes,
@@ -82,7 +82,7 @@ public struct ZoneMediumWidgetView: View {
                         color: .indigo
                     )
                 }
-                
+
                 // Row 2: Cached & Threats
                 HStack(spacing: 6) {
                     metricTile(
@@ -91,7 +91,7 @@ public struct ZoneMediumWidgetView: View {
                         icon: "bolt.fill",
                         color: .orange
                     )
-                    
+
                     metricTile(
                         title: "Threats Blocked",
                         value: "\(snapshot.threats24h)",
@@ -105,21 +105,20 @@ public struct ZoneMediumWidgetView: View {
         .padding(12)
         .widgetURL(URL(string: "cloudns://zone/\(snapshot.id)"))
     }
-    
-    @ViewBuilder
+
     private func metricTile(title: LocalizedStringKey, value: String, icon: String, color: Color) -> some View {
         VStack(alignment: .leading, spacing: 1) {
             HStack(spacing: 3) {
                 Image(systemName: icon)
                     .font(.system(size: 8))
                     .foregroundStyle(color)
-                
+
                 Text(title)
                     .font(.system(size: 9, weight: .medium))
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
             }
-            
+
             Text(value)
                 .font(.system(size: 14, weight: .bold, design: .rounded))
                 .foregroundStyle(.primary)

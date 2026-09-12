@@ -1,12 +1,13 @@
 import SwiftUI
 
 // MARK: - CIDRCalculatorView
+
 // Apple HIG Compliant IP Subnet & CIDR Calculator
 
 struct CIDRCalculatorView: View {
     @StateObject private var viewModel = CIDRCalculatorViewModel()
     @FocusState private var isFieldFocused: Bool
-    
+
     private let presetCIDRs = [
         "192.168.1.0/24",
         "10.0.0.0/8",
@@ -16,7 +17,7 @@ struct CIDRCalculatorView: View {
         "1.1.1.0/24",
         "2606:4700::/32"
     ]
-    
+
     var body: some View {
         List {
             // 1. Input & Presets Section
@@ -25,7 +26,7 @@ struct CIDRCalculatorView: View {
                     Image(systemName: "number.square.fill")
                         .foregroundStyle(ThemeManager.shared.accentColor)
                         .accessibilityHidden(true)
-                    
+
                     TextField("192.168.1.0/24 or 2606:4700::/32", text: $viewModel.cidrInput)
                         .keyboardType(.numbersAndPunctuation)
                         .textInputAutocapitalization(.never)
@@ -35,7 +36,7 @@ struct CIDRCalculatorView: View {
                         .onChange(of: viewModel.cidrInput) { _ in
                             viewModel.calculateSubnet()
                         }
-                    
+
                     if !viewModel.cidrInput.isEmpty {
                         Button {
                             viewModel.cidrInput = ""
@@ -50,7 +51,7 @@ struct CIDRCalculatorView: View {
                         .accessibilityLabel("Clear Input")
                     }
                 }
-                
+
                 // Quick Presets
                 ScrollView(.horizontal) {
                     HStack(spacing: 8) {
@@ -78,7 +79,7 @@ struct CIDRCalculatorView: View {
             } footer: {
                 Text("Calculates usable IP host addresses, network broadcast bounds, netmasks & binary bitmasks.")
             }
-            
+
             if let result = viewModel.subnetResult {
                 // 2. Subnet Range Hero Section
                 Section("Subnet & Host Range") {
@@ -94,12 +95,12 @@ struct CIDRCalculatorView: View {
                             .padding(.vertical, 2)
                             .background(Capsule().fill(ThemeManager.shared.accentColor.opacity(0.12)))
                     }
-                    
+
                     calcRow(label: "Network Address", value: result.networkAddress)
                     calcRow(label: "Broadcast Address", value: result.broadcastAddress)
                     calcRow(label: "Usable Host Range", value: result.usableHostRange)
                 }
-                
+
                 // 3. Properties Section
                 Section("Masks & Network Properties") {
                     calcRow(label: "Subnet Netmask", value: result.netmask)
@@ -107,7 +108,7 @@ struct CIDRCalculatorView: View {
                     calcRow(label: "Prefix Length", value: "/\(result.prefixLength)")
                     calcRow(label: "IP Class / Type", value: result.ipClass)
                 }
-                
+
                 // 4. Binary Bitmask Section
                 Section("Binary Bitmask") {
                     HStack {
@@ -115,9 +116,9 @@ struct CIDRCalculatorView: View {
                             .font(.caption.monospaced())
                             .foregroundStyle(ThemeManager.shared.accentColor)
                             .textSelection(.enabled)
-                        
+
                         Spacer()
-                        
+
                         Button {
                             copyToClipboard(result.binaryMask, toast: "Binary Mask Copied")
                         } label: {
@@ -148,8 +149,7 @@ struct CIDRCalculatorView: View {
             viewModel.calculateSubnet()
         }
     }
-    
-    @ViewBuilder
+
     private func calcRow(label: LocalizedStringKey, value: String) -> some View {
         HStack {
             Text(label)
@@ -159,7 +159,7 @@ struct CIDRCalculatorView: View {
             Text(verbatim: value)
                 .font(.subheadline.monospacedDigit())
                 .foregroundStyle(.primary)
-            
+
             Button {
                 copyToClipboard(value, toast: "\(value) Copied")
             } label: {

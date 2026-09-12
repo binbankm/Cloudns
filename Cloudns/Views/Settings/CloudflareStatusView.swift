@@ -1,67 +1,69 @@
 import SwiftUI
 
 // MARK: - CloudflareStatusView
+
 // Apple HIG Compliant Cloudflare System Status & PoP Health (iOS 16.0+)
 
 struct CloudflareStatusView: View {
     @StateObject private var viewModel = CloudflareStatusViewModel()
     @State private var selectedTab: StatusFilterTab = .issues
     @State private var searchText: String = ""
-    
+
     enum StatusFilterTab: Int, CaseIterable, Identifiable {
         case issues = 0
         case services = 1
         case pops = 2
-        
-        var id: Int { rawValue }
-        
+
+        var id: Int {
+            rawValue
+        }
+
         var titleKey: LocalizedStringKey {
             switch self {
-            case .issues: return "Issues & Outages"
-            case .services: return "Core Services"
-            case .pops: return "Data Centers"
+            case .issues: "Issues & Outages"
+            case .services: "Core Services"
+            case .pops: "Data Centers"
             }
         }
     }
-    
+
     private var allComponents: [CFComponentItem] {
         viewModel.summary?.components ?? []
     }
-    
+
     private var issuesComponents: [CFComponentItem] {
         allComponents.filter { $0.status.lowercased() != "operational" }
     }
-    
+
     private var servicesComponents: [CFComponentItem] {
         allComponents.filter { isCoreService($0.name) }
     }
-    
+
     private var popsComponents: [CFComponentItem] {
         allComponents.filter { isDataCenter($0.name) }
     }
-    
+
     private var displayedComponents: [CFComponentItem] {
-        let baseList: [CFComponentItem]
-        switch selectedTab {
+        let baseList: [CFComponentItem] = switch selectedTab {
         case .issues:
-            baseList = issuesComponents
+            issuesComponents
         case .services:
-            baseList = servicesComponents
+            servicesComponents
         case .pops:
-            baseList = popsComponents
+            popsComponents
         }
-        
+
         let q = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         if q.isEmpty {
             return baseList
         }
-        
+
         return baseList.filter {
             $0.name.lowercased().contains(q) ||
-            (extractIATA($0.name)?.lowercased().contains(q) ?? false)
+                (extractIATA($0.name)?.lowercased().contains(q) ?? false)
         }
     }
-    
+
     var body: some View {
         VStack(spacing: 0) {
             // Segmented Picker Header
@@ -77,7 +79,7 @@ struct CloudflareStatusView: View {
             .onChange(of: selectedTab) { _ in
                 HapticManager.selection()
             }
-            
+
             contentView
         }
         .searchable(
@@ -108,19 +110,19 @@ struct CloudflareStatusView: View {
                 // Default to services tab if 0 active issues
                 if let summary = viewModel.summary, let comps = summary.components {
                     let issueCount = comps.filter { $0.status.lowercased() != "operational" }.count
-                    if issueCount == 0 && (summary.incidents?.isEmpty ?? true) {
+                    if issueCount == 0, summary.incidents?.isEmpty ?? true {
                         selectedTab = .services
                     }
                 }
             }
         }
     }
-    
-    @ViewBuilder
+
     private var contentView: some View {
         List {
             if let summary = viewModel.summary {
                 // MARK: - Overall Banner
+
                 if searchText.isEmpty {
                     Section {
                         overallBanner(summary: summary)
@@ -128,8 +130,9 @@ struct CloudflareStatusView: View {
                     .listRowInsets(EdgeInsets())
                     .listRowBackground(Color.clear)
                 }
-                
+
                 // MARK: - Active Incidents (if any)
+
                 if let incidents = summary.incidents, !incidents.isEmpty, searchText.isEmpty {
                     Section(header: Text("Official Incidents (\(incidents.count))")) {
                         ForEach(incidents) { inc in
@@ -137,8 +140,9 @@ struct CloudflareStatusView: View {
                         }
                     }
                 }
-                
+
                 // MARK: - Displayed Component List
+
                 if !displayedComponents.isEmpty {
                     Section(header: Text(sectionHeaderTitle(tab: selectedTab, count: displayedComponents.count))) {
                         ForEach(displayedComponents) { comp in
@@ -165,37 +169,37 @@ struct CloudflareStatusView: View {
             }
         )
     }
-    
+
     // MARK: - Component Row View
-    @ViewBuilder
+
     private func componentRow(_ comp: CFComponentItem) -> some View {
         HStack(spacing: 12) {
             Circle()
                 .fill(statusColor(comp.status))
                 .frame(width: 8, height: 8)
                 .shadow(color: statusColor(comp.status).opacity(comp.status.lowercased() == "operational" ? 0 : 0.4), radius: 2)
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(comp.name)
                     .font(.body)
                     .foregroundStyle(.primary)
-                
+
                 if let iata = extractIATA(comp.name) {
                     Text(iata)
                         .font(.caption2.monospaced())
                         .foregroundStyle(.secondary)
                 }
             }
-            
+
             Spacer()
-            
+
             statusBadge(comp.status)
         }
         .padding(.vertical, 2)
     }
-    
+
     // MARK: - Incident Row View
-    @ViewBuilder
+
     private func incidentRow(_ inc: CFIncidentItem) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
@@ -211,7 +215,7 @@ struct CloudflareStatusView: View {
                     .foregroundStyle(.orange)
                     .clipShape(Capsule())
             }
-            
+
             if let updated = inc.updatedAt, let date = DateFormatters.parseISO8601(updated) {
                 HStack(spacing: 4) {
                     Image(systemName: "clock")
@@ -224,28 +228,29 @@ struct CloudflareStatusView: View {
         }
         .padding(.vertical, 4)
     }
-    
+
     // MARK: - Overall Banner Card
+
     private func overallBanner(summary: CFStatusSummary) -> some View {
         let isOperational = summary.status?.indicator == "none"
         let bgColor = isOperational ? Color.green : Color.orange
-        
+
         return HStack(spacing: 12) {
             Image(systemName: isOperational ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
                 .font(.title)
                 .foregroundStyle(.white)
                 .accessibilityHidden(true)
-            
+
             VStack(alignment: .leading, spacing: 4) {
                 Text(summary.status?.description ?? String(localized: "All Systems Operational"))
                     .font(.body.weight(.semibold))
                     .foregroundStyle(.white)
-                
+
                 Text(isOperational ? LocalizedStringKey("Cloudflare Global Network & Edge Services Normal") : LocalizedStringKey("Some services or edge data centers are degraded"))
                     .font(.caption)
                     .foregroundStyle(.white.opacity(0.85))
             }
-            
+
             Spacer()
         }
         .padding(16)
@@ -255,44 +260,45 @@ struct CloudflareStatusView: View {
         .padding(.horizontal, 16)
         .padding(.top, 4)
     }
-    
+
     // MARK: - Helpers
+
     private func isDataCenter(_ name: String) -> Bool {
         name.contains(" - (") || (name.contains(" (") && name.hasSuffix(")"))
     }
-    
+
     private func isCoreService(_ name: String) -> Bool {
         !isDataCenter(name)
     }
-    
+
     private func extractIATA(_ name: String) -> String? {
         if let match = name.range(of: #"\([A-Z]{3,4}\)"#, options: .regularExpression) {
             return String(name[match])
         }
         return nil
     }
-    
+
     private func sectionHeaderTitle(tab: StatusFilterTab, count: Int) -> LocalizedStringKey {
         switch tab {
         case .issues:
-            return "Active Issues & Maintenance (\(count))"
+            "Active Issues & Maintenance (\(count))"
         case .services:
-            return "Core Services & APIs (\(count))"
+            "Core Services & APIs (\(count))"
         case .pops:
-            return "Global Edge PoP Locations (\(count))"
+            "Global Edge PoP Locations (\(count))"
         }
     }
-    
+
     private func statusColor(_ status: String) -> Color {
         switch status.lowercased() {
-        case "operational": return .green
-        case "under_maintenance": return .blue
-        case "degraded_performance", "partial_outage": return .orange
-        case "major_outage": return .red
-        default: return .green
+        case "operational": .green
+        case "under_maintenance": .blue
+        case "degraded_performance", "partial_outage": .orange
+        case "major_outage": .red
+        default: .green
         }
     }
-    
+
     @ViewBuilder
     private func statusBadge(_ status: String) -> some View {
         let text = status.replacingOccurrences(of: "_", with: " ").capitalized

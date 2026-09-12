@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - ZonesListView
+
 // Apple HIG Compliant Domain Management View (iOS 16.0+)
 
 struct ZonesListView: View {
@@ -10,17 +11,17 @@ struct ZonesListView: View {
     @State private var zoneToDelete: Zone?
     @State private var showingDeleteAlert = false
     @State private var showAddZoneSheet = false
-    
+
     private var displayedZones: [Zone] {
         viewModel.filteredZones(query: searchText)
     }
-    
+
     let embeddedInNavigation: Bool
-    
+
     init(embeddedInNavigation: Bool = false) {
         self.embeddedInNavigation = embeddedInNavigation
     }
-    
+
     var body: some View {
         if embeddedInNavigation {
             contentView
@@ -32,7 +33,7 @@ struct ZonesListView: View {
             }
         }
     }
-    
+
     private var contentView: some View {
         List {
             if !displayedZones.isEmpty {
@@ -105,7 +106,7 @@ struct ZonesListView: View {
             }
         }
         .onAppear {
-            if !viewModel.zones.isEmpty && viewModel.sparklines.isEmpty {
+            if !viewModel.zones.isEmpty, viewModel.sparklines.isEmpty {
                 viewModel.fetchBatchSparklines(for: viewModel.zones)
             }
         }
@@ -131,9 +132,9 @@ struct ZonesListView: View {
             Text("Are you sure you want to delete \(zone.name) from your Cloudflare account? This action cannot be undone.")
         }
     }
-    
+
     // MARK: - Subviews
-    
+
     private var zonesSection: some View {
         Section {
             ForEach(displayedZones) { zone in
@@ -148,9 +149,9 @@ struct ZonesListView: View {
                     } label: {
                         Label("Copy Domain", systemImage: "doc.on.doc")
                     }
-                    
+
                     Divider()
-                    
+
                     Button(role: .destructive) {
                         zoneToDelete = zone
                         showingDeleteAlert = true
@@ -169,7 +170,7 @@ struct ZonesListView: View {
                 }
             }
 
-            if viewModel.canLoadMore && searchText.isEmpty && viewModel.hasFetchedData {
+            if viewModel.canLoadMore, searchText.isEmpty, viewModel.hasFetchedData {
                 HStack {
                     Spacer()
                     ProgressView()
@@ -195,22 +196,22 @@ struct ZonesListView: View {
 struct ZoneRowView: View {
     let zone: Zone
     let sparkline: ZoneSparklineCache?
-    
+
     init(zone: Zone, sparkline: ZoneSparklineCache? = nil) {
         self.zone = zone
         self.sparkline = sparkline
     }
-    
+
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
             AccountAvatarView(identifier: zone.name, size: 36, showShadow: false)
-            
+
             VStack(alignment: .leading, spacing: 3) {
                 Text(verbatim: zone.name)
                     .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
                     .lineLimit(1)
-                
+
                 if zone.paused || (zone.developmentMode ?? 0) > 0 {
                     HStack(spacing: 5) {
                         if zone.paused {
@@ -222,7 +223,7 @@ struct ZoneRowView: View {
                                 .foregroundStyle(.red)
                                 .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                         }
-                        
+
                         if (zone.developmentMode ?? 0) > 0 {
                             Text("Dev Mode")
                                 .font(.caption2.weight(.medium))
@@ -235,9 +236,9 @@ struct ZoneRowView: View {
                     }
                 }
             }
-            
+
             Spacer(minLength: 8)
-            
+
             ZoneRowSparklineView(zoneId: zone.id, cached: sparkline)
         }
         .padding(.vertical, 2)
@@ -251,7 +252,7 @@ public struct ZoneTrafficSparklineView: View {
     let lineColor: Color
     let lineWidth: CGFloat
     let showGradientFill: Bool
-    
+
     public init(
         data: [Double],
         lineColor: Color = .blue,
@@ -263,16 +264,16 @@ public struct ZoneTrafficSparklineView: View {
         self.lineWidth = lineWidth
         self.showGradientFill = showGradientFill
     }
-    
+
     public var body: some View {
         GeometryReader { proxy in
             let width = max(1, proxy.size.width)
             let height = max(1, proxy.size.height)
             let validValues = data.map { max(0, $0) }
             let points = normalizedPoints(for: validValues, in: CGSize(width: width, height: height))
-            
+
             ZStack {
-                if showGradientFill && points.count > 1 {
+                if showGradientFill, points.count > 1 {
                     path(for: points, closedToBottom: true, height: height, width: width)
                         .fill(
                             LinearGradient(
@@ -282,7 +283,7 @@ public struct ZoneTrafficSparklineView: View {
                             )
                         )
                 }
-                
+
                 if points.count > 1 {
                     path(for: points, closedToBottom: false, height: height, width: width)
                         .stroke(
@@ -294,7 +295,7 @@ public struct ZoneTrafficSparklineView: View {
                             style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round)
                         )
                         .shadow(color: lineColor.opacity(0.35), radius: 2.5, x: 0, y: 1)
-                    
+
                     if let last = points.last {
                         Circle()
                             .fill(Color.white)
@@ -313,21 +314,21 @@ public struct ZoneTrafficSparklineView: View {
             .clipped()
         }
     }
-    
+
     private func normalizedPoints(for values: [Double], in size: CGSize) -> [CGPoint] {
         guard values.count > 1 else { return [] }
-        
+
         let maxVal = values.max() ?? 1.0
         let minVal = values.min() ?? 0.0
         let range = max(maxVal - minVal, 1.0)
-        
+
         let horizontalPadding: CGFloat = 2.0
         let usableWidth = max(1, size.width - horizontalPadding * 2)
         let stepX = usableWidth / CGFloat(values.count - 1)
-        
+
         let usableHeight = size.height * 0.70
         let offsetY = size.height * 0.15
-        
+
         return values.enumerated().map { index, val in
             let normY = (val - minVal) / range
             let y = size.height - (CGFloat(normY) * usableHeight + offsetY)
@@ -335,30 +336,30 @@ public struct ZoneTrafficSparklineView: View {
             return CGPoint(x: x, y: y)
         }
     }
-    
+
     private func path(for points: [CGPoint], closedToBottom: Bool, height: CGFloat, width: CGFloat) -> Path {
         var path = Path()
         guard points.count > 1 else { return path }
-        
+
         path.move(to: points[0])
-        
-        for i in 1..<points.count {
+
+        for i in 1 ..< points.count {
             let p0 = points[i - 1]
             let p1 = points[i]
             let midPoint = CGPoint(x: (p0.x + p1.x) / 2, y: (p0.y + p1.y) / 2)
             let controlPoint1 = CGPoint(x: (midPoint.x + p0.x) / 2, y: p0.y)
             let controlPoint2 = CGPoint(x: (midPoint.x + p1.x) / 2, y: p1.y)
-            
+
             path.addCurve(to: midPoint, control1: controlPoint1, control2: CGPoint(x: midPoint.x, y: p0.y))
             path.addCurve(to: p1, control1: CGPoint(x: midPoint.x, y: p1.y), control2: controlPoint2)
         }
-        
+
         if closedToBottom {
             path.addLine(to: CGPoint(x: points.last?.x ?? width, y: height))
             path.addLine(to: CGPoint(x: points[0].x, y: height))
             path.closeSubpath()
         }
-        
+
         return path
     }
 }
@@ -368,16 +369,16 @@ public struct ZoneTrafficSparklineView: View {
 public struct ZoneRowSparklineView: View {
     let zoneId: String
     let cached: ZoneSparklineCache?
-    
+
     public init(zoneId: String, cached: ZoneSparklineCache? = nil) {
         self.zoneId = zoneId
         self.cached = cached
     }
-    
+
     public var body: some View {
         let points = cached?.points ?? []
         let total = cached?.totalRequests ?? 0
-        
+
         HStack(spacing: 5) {
             ZoneTrafficSparklineView(
                 data: points,
@@ -385,7 +386,7 @@ public struct ZoneRowSparklineView: View {
                 lineWidth: 1.5
             )
             .frame(width: 44, height: 22)
-            
+
             if total > 0 {
                 Text(formatMetric(total))
                     .font(.caption2.weight(.bold))
@@ -397,24 +398,24 @@ public struct ZoneRowSparklineView: View {
         }
         .accessibilityHidden(true)
     }
-    
+
     private func sparklineColor(total: Int) -> Color {
-        if total > 10_000 {
-            return .orange
+        if total > 10000 {
+            .orange
         } else if total > 100 {
-            return .blue
+            .blue
         } else {
-            return .teal
+            .teal
         }
     }
-    
+
     private func formatMetric(_ value: Int) -> String {
         if value >= 1_000_000 {
-            return "\((Double(value) / 1_000_000.0).formatted(.number.precision(.fractionLength(1))))M"
-        } else if value >= 1_000 {
-            return "\((Double(value) / 1_000.0).formatted(.number.precision(.fractionLength(1))))K"
+            "\((Double(value) / 1_000_000.0).formatted(.number.precision(.fractionLength(1))))M"
+        } else if value >= 1000 {
+            "\((Double(value) / 1000.0).formatted(.number.precision(.fractionLength(1))))K"
         } else {
-            return value.formatted(.number)
+            value.formatted(.number)
         }
     }
 }
@@ -424,7 +425,7 @@ public struct ZoneRowSparklineView: View {
 public struct ZoneSparklineCache: Codable, Sendable {
     public let points: [Double]
     public let totalRequests: Int
-    
+
     public init(points: [Double], totalRequests: Int) {
         self.points = points
         self.totalRequests = totalRequests

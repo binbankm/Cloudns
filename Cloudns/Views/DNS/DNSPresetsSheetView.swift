@@ -26,7 +26,7 @@ struct DNSPresetGroup: Identifiable {
 // MARK: - Preset Library Definitions
 
 enum DNSPresetLibrary {
-    static func getPresets(zoneName: String) -> [DNSPresetGroup] {
+    static func getPresets(zoneName _: String) -> [DNSPresetGroup] {
         [
             DNSPresetGroup(
                 id: "tencent_exmail",
@@ -144,6 +144,7 @@ enum DNSPresetLibrary {
 }
 
 // MARK: - DNSPresetsSheetView
+
 // Apple HIG Compliant 1-Click DNS Presets (iOS 16.0+)
 
 struct DNSPresetsSheetView: View {
@@ -151,24 +152,24 @@ struct DNSPresetsSheetView: View {
     let zoneId: String
     @ObservedObject var viewModel: DNSRecordsViewModel
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var selectedGroup: DNSPresetGroup?
     @State private var isApplying = false
-    
+
     @ObservedObject private var themeManager = ThemeManager.shared
-    
+
     private var accentColor: Color {
         themeManager.accentColor
     }
-    
+
     private var presets: [DNSPresetGroup] {
         DNSPresetLibrary.getPresets(zoneName: zoneName)
     }
-    
+
     private var categories: [String] {
-        Array(Set(presets.map { $0.category })).sorted()
+        Array(Set(presets.map(\.category))).sorted()
     }
-    
+
     var body: some View {
         NavigationStack {
             List {
@@ -187,7 +188,7 @@ struct DNSPresetsSheetView: View {
                     }
                     .padding(.vertical, 4)
                 }
-                
+
                 ForEach(categories, id: \.self) { category in
                     Section(header: Text(category)) {
                         ForEach(presets.filter { $0.category == category }) { preset in
@@ -197,7 +198,7 @@ struct DNSPresetsSheetView: View {
                             } label: {
                                 HStack(spacing: 12) {
                                     ListRowIcon(icon: preset.icon, color: preset.iconColor)
-                                    
+
                                     VStack(alignment: .leading, spacing: 2) {
                                         Text(preset.title)
                                             .font(.body.weight(.medium))
@@ -207,9 +208,9 @@ struct DNSPresetsSheetView: View {
                                             .foregroundStyle(.secondary)
                                             .lineLimit(1)
                                     }
-                                    
+
                                     Spacer()
-                                    
+
                                     Text("\(preset.items.count) records")
                                         .font(.caption2.weight(.medium))
                                         .foregroundStyle(.secondary)
@@ -217,7 +218,7 @@ struct DNSPresetsSheetView: View {
                                         .padding(.vertical, 2)
                                         .background(Color(uiColor: .tertiarySystemFill))
                                         .clipShape(Capsule())
-                                    
+
                                     Image(systemName: "chevron.right")
                                         .font(.caption2.weight(.semibold))
                                         .foregroundStyle(Color(.tertiaryLabel))
@@ -249,8 +250,7 @@ struct DNSPresetsSheetView: View {
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
     }
-    
-    @ViewBuilder
+
     private func presetDetailSheet(for group: DNSPresetGroup) -> some View {
         NavigationStack {
             List {
@@ -267,7 +267,7 @@ struct DNSPresetsSheetView: View {
                     }
                     .padding(.vertical, 4)
                 }
-                
+
                 Section(header: Text("Records to Create (\(group.items.count))")) {
                     ForEach(group.items) { item in
                         VStack(alignment: .leading, spacing: 4) {
@@ -279,20 +279,20 @@ struct DNSPresetsSheetView: View {
                                     .background(Color.blue.opacity(0.12))
                                     .foregroundStyle(.blue)
                                     .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
-                                
+
                                 Text(item.nameSuffix == "@" ? zoneName : "\(item.nameSuffix).\(zoneName)")
                                     .font(.subheadline.monospaced().weight(.medium))
                                     .lineLimit(1)
-                                
+
                                 Spacer()
-                                
+
                                 if let prio = item.priority {
                                     Text("Pri \(prio)")
                                         .font(.caption2.monospacedDigit().weight(.medium))
                                         .foregroundStyle(.secondary)
                                 }
                             }
-                            
+
                             Text(verbatim: item.content)
                                 .font(.caption.monospaced())
                                 .foregroundStyle(.secondary)
@@ -301,7 +301,7 @@ struct DNSPresetsSheetView: View {
                         .padding(.vertical, 2)
                     }
                 }
-                
+
                 Section {
                     Button {
                         Task {
@@ -344,11 +344,11 @@ struct DNSPresetsSheetView: View {
             }
         }
     }
-    
+
     private func applyPreset(group: DNSPresetGroup) async {
         isApplying = true
         HapticManager.impact(.medium)
-        
+
         var successCount = 0
         for item in group.items {
             let recordName = item.nameSuffix == "@" ? zoneName : "\(item.nameSuffix).\(zoneName)"
@@ -362,7 +362,7 @@ struct DNSPresetsSheetView: View {
                 comment: item.comment,
                 data: nil
             )
-            
+
             do {
                 try await viewModel.addRecord(payload: payload)
                 successCount += 1
@@ -370,10 +370,10 @@ struct DNSPresetsSheetView: View {
                 // Continue with remaining records
             }
         }
-        
+
         isApplying = false
         selectedGroup = nil
-        
+
         if successCount > 0 {
             ToastManager.shared.showSuccess("DNS Presets Applied (\(successCount))", icon: "wand.and.stars")
             dismiss()

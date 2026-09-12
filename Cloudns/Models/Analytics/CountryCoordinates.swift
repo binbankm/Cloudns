@@ -1,7 +1,7 @@
-import Foundation
 import CoreLocation
+import Foundation
 
-struct CountryCoordinates {
+enum CountryCoordinates {
     static let map: [String: CLLocationCoordinate2D] = [
         "US": CLLocationCoordinate2D(latitude: 37.09, longitude: -95.71),
         "CN": CLLocationCoordinate2D(latitude: 35.86, longitude: 104.19),
@@ -60,15 +60,15 @@ struct CountryCoordinates {
         "PK": CLLocationCoordinate2D(latitude: 30.37, longitude: 69.34),
         "BD": CLLocationCoordinate2D(latitude: 23.68, longitude: 90.35)
     ]
-    
+
     static func flag(for countryCode: String) -> String {
         let code = countryCode.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
         guard code.count == 2, CountryCoordinates.map[code] != nil else { return "🌐" }
-        
-        let base: UInt32 = 127397
+
+        let base: UInt32 = 127_397
         var flagStr = ""
         for scalar in code.unicodeScalars {
-            guard scalar.value >= 65 && scalar.value <= 90 else { return "🌐" }
+            guard scalar.value >= 65, scalar.value <= 90 else { return "🌐" }
             if let flagScalar = UnicodeScalar(base + scalar.value) {
                 flagStr.unicodeScalars.append(flagScalar)
             }

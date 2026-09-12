@@ -1,23 +1,24 @@
 import SwiftUI
 
 // MARK: - WorkerTriggersView
+
 // Apple HIG Compliant Cloudflare Worker Scheduled Cron Triggers
 
 struct WorkerTriggersView: View {
     let accountId: String
     let scriptName: String
-    
+
     @StateObject private var viewModel: WorkerTriggersViewModel
     @State private var showingAddCronSheet = false
     @State private var cronToDelete: WorkerSchedule?
     @State private var showingDeleteAlert = false
-    
+
     init(accountId: String, scriptName: String) {
         self.accountId = accountId
         self.scriptName = scriptName
         _viewModel = StateObject(wrappedValue: WorkerTriggersViewModel(accountId: accountId, scriptName: scriptName))
     }
-    
+
     var body: some View {
         contentView
             .navigationTitle("Cron Triggers")
@@ -61,8 +62,7 @@ struct WorkerTriggersView: View {
                 Text("Are you sure you want to delete trigger '\(cron.cron)'?")
             }
     }
-    
-    @ViewBuilder
+
     private var contentView: some View {
         List {
             if !viewModel.schedules.isEmpty {
@@ -78,9 +78,9 @@ struct WorkerTriggersView: View {
                                 } label: {
                                     Label("Copy Cron Expression", systemImage: "doc.on.doc")
                                 }
-                                
+
                                 Divider()
-                                
+
                                 Button(role: .destructive) {
                                     cronToDelete = schedule
                                     showingDeleteAlert = true
@@ -117,24 +117,23 @@ struct WorkerTriggersView: View {
             retryAction: { Task { await viewModel.fetchSchedules() } }
         )
     }
-    
-    @ViewBuilder
+
     private func cronRow(_ schedule: WorkerSchedule) -> some View {
         HStack(spacing: 12) {
             ListRowIcon(icon: "clock.arrow.2.circlepath", color: .purple)
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(schedule.cron)
                     .font(.body.monospaced())
                     .foregroundStyle(.primary)
-                
+
                 if let modified = schedule.modifiedOn ?? schedule.createdOn, let date = DateFormatters.parseISO8601(modified) {
                     Text("Configured: \(date.displayFormatted(date: .abbreviated, time: .omitted))")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
             }
-            
+
             Spacer()
         }
         .padding(.vertical, 2)
@@ -146,11 +145,11 @@ struct WorkerTriggersView: View {
 struct AddCronTriggerSheetView: View {
     @ObservedObject var viewModel: WorkerTriggersViewModel
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var cronExpression = "*/15 * * * *"
     @State private var isSaving = false
     @State private var errorMessage: String?
-    
+
     private let presets = [
         ("Every minute", "* * * * *"),
         ("Every 5 minutes", "*/5 * * * *"),
@@ -159,7 +158,7 @@ struct AddCronTriggerSheetView: View {
         ("Daily at midnight UTC", "0 0 * * *"),
         ("Weekly on Sunday", "0 0 * * 0")
     ]
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -170,7 +169,7 @@ struct AddCronTriggerSheetView: View {
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                 }
-                
+
                 Section(header: Text("Common Presets")) {
                     ForEach(presets, id: \.1) { name, expr in
                         Button {
@@ -189,7 +188,7 @@ struct AddCronTriggerSheetView: View {
                         }
                     }
                 }
-                
+
                 if let err = errorMessage {
                     Section {
                         HStack(spacing: 8) {

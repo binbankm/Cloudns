@@ -1,6 +1,7 @@
 import SwiftUI
 
 // MARK: - WorkersListView (Pure List - No Tags)
+
 // Apple HIG Compliant Cloudflare Workers Overview
 
 struct WorkersListView: View {
@@ -9,12 +10,12 @@ struct WorkersListView: View {
     @State private var showingCreateWorkerSheet = false
     @State private var workerToDelete: WorkerScript?
     @State private var showingDeleteWorkerAlert = false
-    
+
     init(accountId: String) {
         self.accountId = accountId
         _viewModel = StateObject(wrappedValue: WorkersViewModel(accountId: accountId))
     }
-    
+
     var body: some View {
         List {
             if !viewModel.filteredWorkers.isEmpty {
@@ -31,9 +32,9 @@ struct WorkersListView: View {
                             } label: {
                                 Label("Copy Name", systemImage: "doc.on.doc")
                             }
-                            
+
                             Divider()
-                            
+
                             Button(role: .destructive) {
                                 HapticManager.impact(.medium)
                                 workerToDelete = worker
@@ -120,25 +121,25 @@ struct WorkersListView: View {
 
 struct WorkerRowView: View {
     let worker: WorkerScript
-    
+
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
             ListRowIcon(icon: "bolt.fill", color: .orange)
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(worker.id)
                     .font(.body.weight(.medium))
                     .foregroundStyle(.primary)
-                
+
                 if let modified = worker.modifiedOn, let date = DateFormatters.parseISO8601(modified) {
                     Text("Updated \(date.displayFormatted(date: .abbreviated, time: .omitted))")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
             }
-            
+
             Spacer()
-            
+
             Text("Active")
                 .font(.caption2.weight(.medium))
                 .foregroundStyle(.green)
@@ -155,11 +156,11 @@ struct WorkerRowView: View {
 struct WorkerCreateSheetView: View {
     @ObservedObject var viewModel: WorkersViewModel
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var name = ""
     @State private var isCreating = false
     @State private var errorMessage: String?
-    
+
     private let templateCode = """
     export default {
       async fetch(request, env, ctx) {
@@ -167,7 +168,7 @@ struct WorkerCreateSheetView: View {
       }
     };
     """
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -177,7 +178,7 @@ struct WorkerCreateSheetView: View {
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                 }
-                
+
                 if let err = errorMessage {
                     Section {
                         Text(verbatim: err)

@@ -1,18 +1,19 @@
 import SwiftUI
 
 // MARK: - WorkersAIView
+
 // Apple HIG Compliant Cloudflare Workers AI Catalog & Playground
 
 struct WorkersAIView: View {
     let accountId: String
     @StateObject private var viewModel: WorkersAIViewModel
     @State private var selectedModelForPlayground: AIModel?
-    
+
     init(accountId: String) {
         self.accountId = accountId
         _viewModel = StateObject(wrappedValue: WorkersAIViewModel(accountId: accountId))
     }
-    
+
     var body: some View {
         List {
             if !viewModel.filteredModels.isEmpty {
@@ -33,7 +34,7 @@ struct WorkersAIView: View {
                                     } label: {
                                         Label("Copy Model Path", systemImage: "doc.on.doc")
                                     }
-                                    
+
                                     Button {
                                         selectedModelForPlayground = model
                                     } label: {
@@ -81,20 +82,19 @@ struct WorkersAIView: View {
             }
         }
     }
-    
-    @ViewBuilder
+
     private func categoryHeader(_ rawName: String, count: Int) -> some View {
         HStack(spacing: 8) {
             Image(systemName: iconForTask(rawName))
                 .font(.caption2.weight(.bold))
                 .foregroundStyle(.purple)
-            
+
             Text(localizedTaskName(rawName))
                 .font(.footnote.weight(.semibold))
                 .foregroundStyle(.secondary)
-            
+
             Spacer()
-            
+
             Text("\(count)")
                 .font(.caption2.monospacedDigit().weight(.semibold))
                 .padding(.horizontal, 6)
@@ -104,19 +104,18 @@ struct WorkersAIView: View {
                 .foregroundStyle(.secondary)
         }
     }
-    
-    @ViewBuilder
+
     private func modelRow(_ model: AIModel) -> some View {
         HStack(alignment: .center, spacing: 12) {
             ListRowIcon(icon: iconForTask(model.taskName), color: .purple)
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 6) {
                     Text(model.shortName)
                         .font(.body.weight(.semibold))
                         .foregroundStyle(.primary)
                         .lineLimit(1)
-                    
+
                     if let vendor = vendorFromModel(model) {
                         Text(vendor)
                             .font(.caption2.weight(.semibold))
@@ -127,7 +126,7 @@ struct WorkersAIView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                     }
                 }
-                
+
                 if let desc = model.description, !desc.isEmpty {
                     Text(desc)
                         .font(.caption2)
@@ -135,16 +134,16 @@ struct WorkersAIView: View {
                         .lineLimit(2)
                 }
             }
-            
+
             Spacer(minLength: 8)
-            
+
             Image(systemName: "chevron.right")
                 .font(.caption2.weight(.semibold))
                 .foregroundStyle(.tertiary)
         }
         .padding(.vertical, 2)
     }
-    
+
     private func vendorFromModel(_ model: AIModel) -> String? {
         let parts = model.modelPath.split(separator: "/")
         if parts.count >= 2 {
@@ -155,7 +154,7 @@ struct WorkersAIView: View {
         }
         return nil
     }
-    
+
     private func localizedTaskName(_ raw: String) -> LocalizedStringKey {
         let lower = raw.lowercased()
         if lower.contains("speech") || lower.contains("audio") {
@@ -173,7 +172,7 @@ struct WorkersAIView: View {
         }
         return LocalizedStringKey(raw.capitalized)
     }
-    
+
     private func iconForTask(_ task: String) -> String {
         let lower = task.lowercased()
         if lower.contains("speech") || lower.contains("audio") {
@@ -197,7 +196,7 @@ struct WorkersAIPlaygroundSheetView: View {
     @ObservedObject var viewModel: WorkersAIViewModel
     let model: AIModel
     @Environment(\.dismiss) private var dismiss
-    
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
@@ -212,10 +211,10 @@ struct WorkersAIPlaygroundSheetView: View {
                                     size: 56
                                 )
                                 .padding(.top, 24)
-                                
+
                                 Text(model.shortName)
                                     .font(.headline)
-                                
+
                                 if let desc = model.description {
                                     Text(desc)
                                         .font(.subheadline)
@@ -252,9 +251,9 @@ struct WorkersAIPlaygroundSheetView: View {
                     .padding(.vertical, 16)
                 }
                 .scrollDismissesKeyboard(.interactively)
-                
+
                 Divider()
-                
+
                 HStack(spacing: 10) {
                     TextField("Ask \(model.shortName)…", text: $viewModel.promptInput)
                         .textFieldStyle(.roundedBorder)
@@ -262,7 +261,7 @@ struct WorkersAIPlaygroundSheetView: View {
                         .onSubmit {
                             Task { await viewModel.sendMessage(model: model.modelPath) }
                         }
-                    
+
                     Button {
                         Task { await viewModel.sendMessage(model: model.modelPath) }
                     } label: {

@@ -1,30 +1,31 @@
 import SwiftUI
 
 // MARK: - WorkerTailView
+
 // Apple HIG Compliant Cloudflare Worker WebSocket Live Tail Log Streamer
 
 struct WorkerTailView: View {
     let accountId: String
     let scriptName: String
-    
+
     @StateObject private var viewModel: WorkerTailViewModel
     @State private var selectedEvent: TailTraceItem?
-    
+
     init(accountId: String, scriptName: String) {
         self.accountId = accountId
         self.scriptName = scriptName
         _viewModel = StateObject(wrappedValue: WorkerTailViewModel(accountId: accountId, scriptName: scriptName))
     }
-    
+
     var body: some View {
         VStack(spacing: 0) {
             filterBar
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
                 .background(Color(uiColor: .secondarySystemGroupedBackground))
-            
+
             Divider()
-            
+
             if viewModel.events.isEmpty {
                 emptyState
             } else {
@@ -80,7 +81,7 @@ struct WorkerTailView: View {
                     }
                     .accessibilityLabel("Clear Logs")
                     .disabled(viewModel.events.isEmpty)
-                    
+
                     Button {
                         HapticManager.impact(.light)
                         if viewModel.isStreaming {
@@ -108,7 +109,7 @@ struct WorkerTailView: View {
                 .presentationDragIndicator(.visible)
         }
     }
-    
+
     private var filterBar: some View {
         HStack(spacing: 12) {
             HStack(spacing: 6) {
@@ -119,9 +120,9 @@ struct WorkerTailView: View {
                     .font(.caption.weight(.medium))
                     .foregroundStyle(viewModel.isStreaming ? Color.green : .secondary)
             }
-            
+
             Spacer()
-            
+
             Picker("Filter", selection: $viewModel.selectedFilter) {
                 Text("All (\(viewModel.events.count))").tag(0)
                 Text("Logs").tag(1)
@@ -134,7 +135,7 @@ struct WorkerTailView: View {
             }
         }
     }
-    
+
     @ViewBuilder
     private var emptyState: some View {
         if viewModel.isStreaming {
@@ -165,16 +166,16 @@ struct WorkerTailView: View {
 
 struct TailEventRowView: View {
     let item: TailTraceItem
-    
+
     private var outcomeColor: Color {
         switch item.outcome?.lowercased() {
-        case "ok": return .green
-        case "exception": return .red
-        case "canceled": return .orange
-        default: return .secondary
+        case "ok": .green
+        case "exception": .red
+        case "canceled": .orange
+        default: .secondary
         }
     }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
@@ -195,16 +196,16 @@ struct TailEventRowView: View {
                         .foregroundStyle(.purple)
                         .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                 }
-                
+
                 if let url = item.event?.request?.url {
                     Text(url)
                         .font(.caption.monospaced())
                         .foregroundStyle(.primary)
                         .lineLimit(1)
                 }
-                
+
                 Spacer()
-                
+
                 if let outcome = item.outcome {
                     Text(outcome.uppercased())
                         .font(.caption2.weight(.medium))
@@ -214,7 +215,7 @@ struct TailEventRowView: View {
                         .background(Capsule().fill(outcomeColor.opacity(0.12)))
                 }
             }
-            
+
             if let logs = item.logs, !logs.isEmpty {
                 VStack(alignment: .leading, spacing: 2) {
                     ForEach(logs.prefix(2)) { log in
@@ -226,7 +227,7 @@ struct TailEventRowView: View {
                     }
                 }
             }
-            
+
             if let exceptions = item.exceptions, !exceptions.isEmpty {
                 ForEach(exceptions) { ex in
                     Text(ex.message ?? String(localized: "Unhandled Exception"))
@@ -245,7 +246,7 @@ struct TailEventRowView: View {
 struct TailEventDetailSheetView: View {
     let event: TailTraceItem
     @Environment(\.dismiss) private var dismiss
-    
+
     var body: some View {
         NavigationStack {
             List {
@@ -263,14 +264,14 @@ struct TailEventDetailSheetView: View {
                         LabeledContent("Cron Schedule", value: cron)
                     }
                 }
-                
+
                 if let logs = event.logs, !logs.isEmpty {
                     Section(header: Text("Console Logs (\(logs.count))")) {
                         ForEach(logs) { log in
                             let levelText = log.level?.uppercased() ?? "LOG"
                             let isErr = log.level == "error"
                             let logText = (log.message ?? []).map(\.displayText).joined(separator: " ")
-                            
+
                             VStack(alignment: .leading, spacing: 2) {
                                 HStack {
                                     Text(levelText)
@@ -285,7 +286,7 @@ struct TailEventDetailSheetView: View {
                         }
                     }
                 }
-                
+
                 if let exceptions = event.exceptions, !exceptions.isEmpty {
                     Section(header: Text("Exceptions (\(exceptions.count))")) {
                         ForEach(exceptions) { ex in

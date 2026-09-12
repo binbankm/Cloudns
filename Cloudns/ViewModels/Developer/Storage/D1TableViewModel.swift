@@ -1,6 +1,6 @@
+import Combine
 import Foundation
 import SwiftUI
-import Combine
 
 // MARK: - D1TableViewModel
 
@@ -10,14 +10,14 @@ final class D1TableViewModel: BaseLoadableViewModel {
     let databaseId: String
     let tableName: String
     private let d1Service: D1ServiceProtocol
-    
+
     @Published var columns: [D1ColumnInfo] = []
     @Published var rows: [[String: String]] = []
     @Published var rowItems: [D1TableRow] = []
     @Published var totalRowCount: Int = 0
     @Published var currentPage: Int = 1
     @Published var pageSize: Int = 50
-    
+
     init(
         accountId: String,
         databaseId: String,
@@ -30,16 +30,16 @@ final class D1TableViewModel: BaseLoadableViewModel {
         self.d1Service = d1Service
         super.init()
     }
-    
+
     private func quoteIdentifier(_ id: String) -> String {
         let escaped = id.replacingOccurrences(of: "\"", with: "\"\"")
         return "\"\(escaped)\""
     }
-    
+
     var totalPages: Int {
         max(1, Int(ceil(Double(totalRowCount) / Double(pageSize))))
     }
-    
+
     func loadTable() async {
         await executeLoadingTask {
             let quotedTable = self.quoteIdentifier(self.tableName)
@@ -49,7 +49,7 @@ final class D1TableViewModel: BaseLoadableViewModel {
                 databaseId: self.databaseId,
                 sql: "PRAGMA table_info(\(quotedTable));"
             )
-            
+
             var fetchedCols: [D1ColumnInfo] = []
             for row in pragmaResult.rows {
                 let name = row["name"] ?? ""
@@ -68,7 +68,7 @@ final class D1TableViewModel: BaseLoadableViewModel {
                 }
             }
             self.columns = fetchedCols
-            
+
             // 2. Fetch row count
             let countResult = try await self.d1Service.executeD1Query(
                 accountId: self.accountId,
@@ -78,12 +78,12 @@ final class D1TableViewModel: BaseLoadableViewModel {
             if let firstCount = countResult.rows.first?["count"], let cnt = Int(firstCount) {
                 self.totalRowCount = cnt
             }
-            
+
             // 3. Fetch rows for current page
             await self.fetchPageRows()
         }
     }
-    
+
     func fetchPageRows() async {
         let offset = (currentPage - 1) * pageSize
         let quotedTable = quoteIdentifier(tableName)
@@ -94,8 +94,8 @@ final class D1TableViewModel: BaseLoadableViewModel {
                 databaseId: databaseId,
                 sql: sql
             )
-            self.rows = result.rows
-            self.rowItems = result.rows.enumerated().map { D1TableRow(index: $0.offset, values: $0.element) }
+            rows = result.rows
+            rowItems = result.rows.enumerated().map { D1TableRow(index: $0.offset, values: $0.element) }
         } catch {
             // Fallback for WITHOUT ROWID tables
             let fallbackSql = "SELECT * FROM \(quotedTable) LIMIT \(pageSize) OFFSET \(offset);"
@@ -104,14 +104,14 @@ final class D1TableViewModel: BaseLoadableViewModel {
                 databaseId: databaseId,
                 sql: fallbackSql
             ) {
-                self.rows = fallbackResult.rows
-                self.rowItems = fallbackResult.rows.enumerated().map { D1TableRow(index: $0.offset, values: $0.element) }
+                rows = fallbackResult.rows
+                rowItems = fallbackResult.rows.enumerated().map { D1TableRow(index: $0.offset, values: $0.element) }
             } else {
-                self.errorMessage = APIError.formatCloudflareError(error.localizedDescription)
+                errorMessage = APIError.formatCloudflareError(error.localizedDescription)
             }
         }
     }
-    
+
     func nextPage() async {
         guard currentPage < totalPages else { return }
         currentPage += 1
@@ -119,7 +119,7 @@ final class D1TableViewModel: BaseLoadableViewModel {
         await fetchPageRows()
         isLoading = false
     }
-    
+
     func prevPage() async {
         guard currentPage > 1 else { return }
         currentPage -= 1
@@ -127,7 +127,7 @@ final class D1TableViewModel: BaseLoadableViewModel {
         await fetchPageRows()
         isLoading = false
     }
-    
+
     func deleteRow(rowid: String) async -> Bool {
         guard !rowid.isEmpty, rowid.allSatisfy({ $0.isNumber || $0 == "-" }) else {
             return false
@@ -146,12 +146,12 @@ final class D1TableViewModel: BaseLoadableViewModel {
             return false
         }
     }
-    
+
     func insertRow(values: [String: String]) async -> Bool {
         // Filter out blank values to let SQLite handle AUTOINCREMENT and DEFAULT values properly
         let activePairs = values.filter { !$0.value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
         let quotedTable = quoteIdentifier(tableName)
-        
+
         let sql: String
         if activePairs.isEmpty {
             sql = "INSERT INTO \(quotedTable) DEFAULT VALUES;"
@@ -163,7 +163,7 @@ final class D1TableViewModel: BaseLoadableViewModel {
             }.joined(separator: ", ")
             sql = "INSERT INTO \(quotedTable) (\(cols)) VALUES (\(valPlaceholders));"
         }
-        
+
         do {
             _ = try await d1Service.executeD1Query(
                 accountId: accountId,
@@ -176,18 +176,18 @@ final class D1TableViewModel: BaseLoadableViewModel {
             return false
         }
     }
-    
+
     func updateRow(rowid: String, values: [String: String]) async -> Bool {
         guard !rowid.isEmpty, rowid.allSatisfy({ $0.isNumber || $0 == "-" }) else {
             return false
         }
-        let setClauses = values.map { (k, v) -> String in
+        let setClauses = values.map { k, v -> String in
             let escaped = v.replacingOccurrences(of: "'", with: "''")
             return "\"\(k)\" = '\(escaped)'"
         }.joined(separator: ", ")
-        
+
         guard !setClauses.isEmpty else { return true }
-        
+
         let sql = "UPDATE \"\(tableName)\" SET \(setClauses) WHERE rowid = \(rowid);"
         do {
             _ = try await d1Service.executeD1Query(

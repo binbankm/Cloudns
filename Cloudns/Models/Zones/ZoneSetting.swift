@@ -8,6 +8,7 @@ struct SecurityHeader: Codable, Equatable, Sendable {
         var nosniff: Bool
         var preload: Bool?
     }
+
     var strict_transport_security: StrictTransportSecurity
 }
 
@@ -19,7 +20,7 @@ enum SettingValue: Codable, Equatable {
     case securityHeader(SecurityHeader)
     case null
     case unknown
-    
+
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         if container.decodeNil() {
@@ -38,64 +39,68 @@ enum SettingValue: Codable, Equatable {
             self = .unknown
         }
     }
-    
+
     func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         switch self {
-        case .string(let val): try container.encode(val)
-        case .int(let val): try container.encode(val)
-        case .bool(let val): try container.encode(val)
-        case .object(let val): try container.encode(val)
-        case .securityHeader(let val): try container.encode(val)
+        case let .string(val): try container.encode(val)
+        case let .int(val): try container.encode(val)
+        case let .bool(val): try container.encode(val)
+        case let .object(val): try container.encode(val)
+        case let .securityHeader(val): try container.encode(val)
         case .null: try container.encodeNil()
         case .unknown: break
         }
     }
-    
+
     var stringValue: String? {
         switch self {
-        case .string(let val): return val
-        case .bool(let val): return val ? "on" : "off"
-        case .int(let val): return String(val)
-        default: return nil
+        case let .string(val): val
+        case let .bool(val): val ? "on" : "off"
+        case let .int(val): String(val)
+        default: nil
         }
     }
-    
+
     var boolValue: Bool {
         switch self {
-        case .bool(let val): return val
-        case .string(let val): return val.lowercased() == "on" || val.lowercased() == "true"
-        case .int(let val): return val == 1
-        default: return false
+        case let .bool(val): val
+        case let .string(val): val.lowercased() == "on" || val.lowercased() == "true"
+        case let .int(val): val == 1
+        default: false
         }
     }
-    
+
     var intValue: Int? {
         switch self {
-        case .int(let val): return val
-        case .string(let val): return Int(val)
-        default: return nil
+        case let .int(val): val
+        case let .string(val): Int(val)
+        default: nil
         }
     }
-    
+
     var objectValue: [String: String]? {
-        if case .object(let val) = self { return val }
+        if case let .object(val) = self {
+            return val
+        }
         return nil
     }
-    
+
     var securityHeaderValue: SecurityHeader? {
-        if case .securityHeader(let val) = self { return val }
+        if case let .securityHeader(val) = self {
+            return val
+        }
         return nil
     }
-    
+
     var rawAnyValue: Any {
         switch self {
-        case .string(let val): return val
-        case .int(let val): return val
-        case .bool(let val): return val
-        case .object(let val): return val
-        case .securityHeader(let val):
-            return [
+        case let .string(val): val
+        case let .int(val): val
+        case let .bool(val): val
+        case let .object(val): val
+        case let .securityHeader(val):
+            [
                 "strict_transport_security": [
                     "enabled": val.strict_transport_security.enabled,
                     "max_age": val.strict_transport_security.max_age,
@@ -104,25 +109,28 @@ enum SettingValue: Codable, Equatable {
                     "preload": val.strict_transport_security.preload ?? false
                 ]
             ]
-        case .null, .unknown: return ""
+        case .null, .unknown: ""
         }
     }
 }
 
 struct ZoneSetting: Codable, Identifiable, Sendable {
-    var id: String { rawId ?? UUID().uuidString }
+    var id: String {
+        rawId ?? UUID().uuidString
+    }
+
     let rawId: String?
     let value: SettingValue
     let editable: Bool?
     let modified_on: String?
-    
+
     init(id: String? = nil, value: SettingValue, editable: Bool? = nil, modified_on: String? = nil) {
-        self.rawId = id
+        rawId = id
         self.value = value
         self.editable = editable
         self.modified_on = modified_on
     }
-    
+
     enum CodingKeys: String, CodingKey {
         case rawId = "id"
         case value
@@ -152,7 +160,7 @@ public struct BotManagementConfig: Codable, Sendable {
     public let sbfm_likely_automated: String?
     public let sbfm_verified_bots: String?
     public let sbfm_static_resource_protection: Bool?
-    
+
     public init(
         fight_mode: Bool? = nil,
         optimize_wordpress: Bool? = nil,
