@@ -275,6 +275,7 @@ struct CachingView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .scrollDismissesKeyboard(.interactively)
         .navigationTitle("Caching")
         .navigationBarTitleDisplayMode(.inline)
         .listState(

@@ -133,10 +133,10 @@ struct D1RowEditorView: View {
                         Button(isNewRow ? LocalizedStringKey("Insert") : LocalizedStringKey("Save")) {
                             saveRow()
                         }
-                        .fontWeight(.semibold)
                     }
                 }
             }
+            .interactiveDismissDisabled(isSaving)
         }
     }
 

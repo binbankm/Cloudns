@@ -337,7 +337,7 @@ struct DNSRecordFormView: View {
                     .font(.body.weight(.semibold))
                 }
             }
-            .interactiveDismissDisabled(hasUnsavedChanges && !isSaving)
+            .interactiveDismissDisabled(hasUnsavedChanges || isSaving)
             .confirmationDialog(
                 "Discard Changes?",
                 isPresented: $showingDiscardConfirmation,

@@ -7,6 +7,7 @@ import Charts
 struct DashboardZoneTrafficChartView: View {
     @ObservedObject var viewModel: DashboardViewModel
     @ObservedObject private var themeManager = ThemeManager.shared
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var selectedPoint: FleetHourlyMetric?
     
     private var accentColor: Color {
@@ -167,7 +168,7 @@ struct DashboardZoneTrafficChartView: View {
                     .foregroundStyle(themeColor)
                 }
             }
-            .animation(.easeInOut(duration: 0.28), value: viewModel.selectedChartMetric)
+            .animation(reduceMotion ? .none : .easeInOut(duration: 0.28), value: viewModel.selectedChartMetric)
             .chartXAxis {
                 AxisMarks(values: .stride(by: .hour, count: 6)) { _ in
                     AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [2, 2]))

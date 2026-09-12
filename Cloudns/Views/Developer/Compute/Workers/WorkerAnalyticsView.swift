@@ -9,6 +9,7 @@ public struct WorkerAnalyticsView: View {
     public let scriptName: String
     
     @StateObject private var viewModel: WorkerAnalyticsViewModel
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     
     // Interactive Scrubbing States
     @State private var selectedPoint: AggregatedWorkerDataPoint?
@@ -97,7 +98,7 @@ public struct WorkerAnalyticsView: View {
                     .padding(.horizontal, 16)
                     .padding(.bottom, 24)
                     .opacity(viewModel.isLoading ? 0.6 : 1.0)
-                    .animation(.easeInOut(duration: 0.2), value: viewModel.isLoading)
+                    .animation(reduceMotion ? .none : .easeInOut(duration: 0.2), value: viewModel.isLoading)
                 }
                 .refreshable {
                     await viewModel.fetchAnalytics(isRefresh: true)

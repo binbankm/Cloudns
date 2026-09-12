@@ -169,6 +169,7 @@ struct PagesDeploymentDetailView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .scrollDismissesKeyboard(.interactively)
         .navigationTitle("Deployment Details")
         .navigationBarTitleDisplayMode(.inline)
         .presentationDragIndicator(.visible)

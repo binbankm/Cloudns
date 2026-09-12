@@ -125,6 +125,7 @@ struct AddCacheRuleView: View {
                     }
                 }
             )
+            .presentationDragIndicator(.visible)
         }
     }
     

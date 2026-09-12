@@ -10,6 +10,7 @@ struct ZoneAnalyticsView: View {
     let zoneName: String
     
     @StateObject private var viewModel = ZoneAnalyticsViewModel()
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var timeRange: Int = 1
     
     // Interactive Scrubbing States
@@ -111,7 +112,7 @@ struct ZoneAnalyticsView: View {
                     .padding(.horizontal, 16)
                     .padding(.bottom, 24)
                     .opacity(viewModel.isLoading ? 0.6 : 1.0)
-                    .animation(.easeInOut(duration: 0.2), value: viewModel.isLoading)
+                    .animation(reduceMotion ? .none : .easeInOut(duration: 0.2), value: viewModel.isLoading)
                 }
                 .refreshable {
                     await viewModel.fetchAnalytics(zoneTag: zoneId, days: timeRange, isRefresh: true)

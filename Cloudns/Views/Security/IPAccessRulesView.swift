@@ -257,7 +257,7 @@ struct AddIPAccessRuleView: View {
                     .disabled(value.isEmpty || viewModel.isCreating)
                 }
             }
-            .interactiveDismissDisabled(hasChanges && !viewModel.isCreating)
+            .interactiveDismissDisabled(hasChanges || viewModel.isCreating)
             .confirmationDialog("Discard Rule?", isPresented: $showingDiscardAlert, titleVisibility: .visible) {
                 Button("Discard", role: .destructive) { isPresented = false }
                 Button("Keep Editing", role: .cancel) { }

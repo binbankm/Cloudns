@@ -174,7 +174,7 @@ struct AddZoneView: View {
                             .font(.body)
                         }
                     }
-                    .interactiveDismissDisabled(hasChanges && !isSubmitting)
+                    .interactiveDismissDisabled(hasChanges || isSubmitting)
                     .confirmationDialog("Discard Domain?", isPresented: $showingDiscardAlert, titleVisibility: .visible) {
                         Button("Discard", role: .destructive) {
                             isPresented = false

@@ -251,6 +251,7 @@ struct WorkersAIPlaygroundSheetView: View {
                     }
                     .padding(.vertical, 16)
                 }
+                .scrollDismissesKeyboard(.interactively)
                 
                 Divider()
                 

@@ -149,15 +149,6 @@ struct TransformRulesView: View {
             onRetry: { Task { await viewModel.fetchTransformRules() } }
         )
     }
-    
-    private func phaseTitle(for phase: String) -> String {
-        switch phase {
-        case "http_request_transform": return "URL Rewrite"
-        case "http_request_late_transform": return "Request Header"
-        case "http_response_headers_transform": return "Response Header"
-        default: return "Transform"
-        }
-    }
 
     private var phaseSectionHeader: LocalizedStringKey {
         switch viewModel.selectedPhase {
