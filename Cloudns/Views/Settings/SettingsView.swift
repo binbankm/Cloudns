@@ -74,11 +74,6 @@ struct SettingsView: View {
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
-                } header: {
-                    Color.clear
-                        .frame(height: 10)
-                        .listRowInsets(EdgeInsets())
-                        .accessibilityHidden(true)
                 }
 
                 // MARK: - Cloudflare Operations & Status

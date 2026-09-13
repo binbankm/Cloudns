@@ -158,8 +158,9 @@ struct DNSExportSheetView: View {
             .navigationTitle("Export Zone File")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button("Done") {
+                        HapticManager.selection()
                         dismiss()
                     }
                     .font(.body.weight(.semibold))

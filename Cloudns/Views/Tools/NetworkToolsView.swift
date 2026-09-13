@@ -5,7 +5,6 @@ import SwiftUI
 // Apple HIG Compliant Diagnostic & Network Tools Hub with Instant Search
 
 struct NetworkToolsView: View {
-    @AppStorage(AppStorageKey.appLanguage) private var appLanguage = "system"
     @State private var searchText = ""
 
     // MARK: - Diagnostic Tool Models
@@ -200,7 +199,6 @@ struct NetworkToolsView: View {
             prompt: "Search Diagnostics & Tools"
         )
         .navigationTitle("Tools")
-        .id(appLanguage)
         .listState(
             isEmpty: !searchText.isEmpty && filteredTools.isEmpty,
             empty: EmptyStateConfig(

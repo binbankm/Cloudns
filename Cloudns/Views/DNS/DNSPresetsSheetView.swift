@@ -235,8 +235,9 @@ struct DNSPresetsSheetView: View {
             .navigationBarTitleDisplayMode(.inline)
             .presentationDragIndicator(.visible)
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Close") {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") {
+                        HapticManager.selection()
                         dismiss()
                     }
                     .font(.body.weight(.semibold))

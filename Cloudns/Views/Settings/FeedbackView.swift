@@ -5,7 +5,7 @@ import SwiftUI
 // Apple HIG Compliant Diagnostic Reporter & Feedback Hub
 
 struct FeedbackView: View {
-    @StateObject private var accountManager = AccountManager.shared
+    @ObservedObject private var accountManager = AccountManager.shared
     @State private var feedbackText = ""
     @Environment(\.dismiss) private var dismiss
 

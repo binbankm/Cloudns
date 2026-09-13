@@ -97,12 +97,13 @@ struct DashboardView: View {
         VStack(alignment: .leading, spacing: 12) {
             // Top Row: Greeting & Identity
             VStack(alignment: .leading, spacing: 3) {
+                let greeting = greetingConfig
                 HStack(spacing: 4) {
-                    Image(systemName: greetingIcon)
+                    Image(systemName: greeting.icon)
                         .font(.caption2.weight(.semibold))
-                        .foregroundStyle(greetingIconColor)
+                        .foregroundStyle(greeting.color)
 
-                    greetingText
+                    Text(greeting.text)
                         .font(.caption.weight(.medium))
                         .foregroundStyle(.secondary)
                 }
@@ -184,34 +185,15 @@ struct DashboardView: View {
         )
     }
 
-    @ViewBuilder
-    private var greetingText: some View {
-        switch viewModel.timeGreeting {
-        case "Good Morning": Text("Good Morning")
-        case "Good Afternoon": Text("Good Afternoon")
-        default: Text("Good Evening")
-        }
-    }
-
-    private var greetingIcon: String {
+    private var greetingConfig: (text: LocalizedStringKey, icon: String, color: Color) {
         let hour = Calendar.current.component(.hour, from: Date())
         switch hour {
         case 5 ..< 12:
-            return "sun.max.fill"
+            return ("Good Morning", "sun.max.fill", .orange)
         case 12 ..< 18:
-            return "sun.haze.fill"
+            return ("Good Afternoon", "sun.haze.fill", .orange)
         default:
-            return "moon.stars.fill"
-        }
-    }
-
-    private var greetingIconColor: Color {
-        let hour = Calendar.current.component(.hour, from: Date())
-        switch hour {
-        case 5 ..< 18:
-            return .orange
-        default:
-            return .indigo
+            return ("Good Evening", "moon.stars.fill", .indigo)
         }
     }
 

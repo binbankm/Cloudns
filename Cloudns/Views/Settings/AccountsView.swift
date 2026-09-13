@@ -38,7 +38,7 @@ struct AccountsView: View {
                             Button {
                                 switchAccount(to: email)
                             } label: {
-                                accountRow(email: email, isActive: false)
+                                accountRow(email: email)
                             }
                             .buttonStyle(.plain)
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
@@ -191,7 +191,7 @@ struct AccountsView: View {
 
     // MARK: - Account Row
 
-    private func accountRow(email: String, isActive _: Bool) -> some View {
+    private func accountRow(email: String) -> some View {
         HStack(spacing: 12) {
             AccountAvatarView(identifier: email, size: 34)
 

@@ -182,11 +182,6 @@ struct ZonesListView: View {
                     Task { await viewModel.loadMoreZones() }
                 }
             }
-        } header: {
-            Color.clear
-                .frame(height: 10)
-                .listRowInsets(EdgeInsets())
-                .accessibilityHidden(true)
         }
     }
 }

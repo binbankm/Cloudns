@@ -48,11 +48,6 @@ struct CloudflareStatusView: View {
 
             contentView
         }
-        .searchable(
-            text: $viewModel.searchQuery,
-            placement: .navigationBarDrawer(displayMode: .always),
-            prompt: "Search Services or PoPs"
-        )
         .scrollDismissesKeyboard(.interactively)
         .background(Color(uiColor: .systemGroupedBackground))
         .navigationTitle("System Status")
@@ -133,6 +128,11 @@ struct CloudflareStatusView: View {
             onRetry: {
                 Task { await viewModel.fetchStatus() }
             }
+        )
+        .searchable(
+            text: $viewModel.searchQuery,
+            placement: .navigationBarDrawer(displayMode: .always),
+            prompt: "Search Services or PoPs"
         )
     }
 

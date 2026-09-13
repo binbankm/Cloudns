@@ -69,47 +69,12 @@ struct AuditLogsView: View {
         }
     }
 
-    @ViewBuilder
-    static func displayActionBadge(_ key: String) -> some View {
-        switch key {
-        case "Resume": Text("Resume")
-        case "Pause": Text("Pause")
-        case "Create": Text("Create")
-        case "Delete": Text("Delete")
-        case "Deploy": Text("Deploy")
-        case "Order": Text("Order")
-        case "Update": Text("Update")
-        case "Purge Cache": Text("Purge Cache")
-        case "Rollback": Text("Rollback")
-        case "Enable": Text("Enable")
-        case "Disable": Text("Disable")
-        case "Login": Text("Login")
-        case "Invite": Text("Invite")
-        case "Revoke": Text("Revoke")
-        default: Text(key)
-        }
+    static func displayActionBadge(_ key: String) -> Text {
+        Text(LocalizedStringKey(key))
     }
 
-    @ViewBuilder
-    static func friendlyResourceBadge(_ key: String) -> some View {
-        switch key {
-        case "DNS Record": Text("DNS Record")
-        case "IP Access List": Text("IP Access List")
-        case "Worker Script": Text("Worker Script")
-        case "Pages Project": Text("Pages Project")
-        case "R2 Bucket": Text("R2 Bucket")
-        case "D1 Database": Text("D1 Database")
-        case "KV Namespace": Text("KV Namespace")
-        case "SSL/TLS": Text("SSL/TLS")
-        case "WAF Rule": Text("WAF Rule")
-        case "Cloudflare Tunnel": Text("Cloudflare Tunnel")
-        case "Turnstile Widget": Text("Turnstile Widget")
-        case "Zero Trust": Text("Zero Trust")
-        case "Zone Config": Text("Zone Config")
-        case "Site Service": Text("Site Service")
-        case "Account Service": Text("Account Service")
-        default: Text(key)
-        }
+    static func friendlyResourceBadge(_ key: String) -> Text {
+        Text(LocalizedStringKey(key))
     }
 }
 
