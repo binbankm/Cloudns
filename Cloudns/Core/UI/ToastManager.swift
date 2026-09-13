@@ -90,14 +90,14 @@ public final class ToastManager: ObservableObject {
     /// Presents error toast HUD with dynamic string message
     public func showError(_ message: String, icon: String = "exclamationmark.triangle.fill") {
         HapticManager.notification(.error)
-        let item = ToastItem(verbatimMessage: message, icon: icon, iconColor: .red, duration: 2.5)
+        let item = ToastItem(message: LocalizedStringKey(message), icon: icon, iconColor: .red, duration: 2.5)
         present(item)
     }
 
     /// Presents success toast HUD with dynamic string message
     public func showSuccess(_ message: String, icon: String = "checkmark.circle.fill") {
         HapticManager.notification(.success)
-        let item = ToastItem(verbatimMessage: message, icon: icon, iconColor: .green, duration: 2.0)
+        let item = ToastItem(message: LocalizedStringKey(message), icon: icon, iconColor: .green, duration: 2.0)
         present(item)
     }
 
@@ -151,7 +151,7 @@ public struct ToastOverlay: View {
                             .foregroundStyle(.primary)
                             .lineLimit(1)
                     case let .verbatim(text):
-                        Text(verbatim: text)
+                        Text(LocalizedStringKey(text))
                             .font(.subheadline.weight(.medium))
                             .foregroundStyle(.primary)
                             .lineLimit(1)

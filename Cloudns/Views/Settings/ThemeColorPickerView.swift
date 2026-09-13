@@ -4,7 +4,6 @@ import SwiftUI
 
 struct ThemeColorPickerView: View {
     @ObservedObject private var themeManager = ThemeManager.shared
-    @State private var customColor: Color = .orange
 
     private let columns = [
         GridItem(.adaptive(minimum: 72, maximum: 100), spacing: 16)
@@ -14,21 +13,24 @@ struct ThemeColorPickerView: View {
         AppThemeColor.allCases.filter { $0 != .custom }
     }
 
+    private var customColorBinding: Binding<Color> {
+        Binding(
+            get: { themeManager.customColor },
+            set: { newColor in
+                HapticManager.selection()
+                withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+                    themeManager.setCustomColor(newColor)
+                }
+            }
+        )
+    }
+
     var body: some View {
         Form {
             themeGridSection
         }
         .navigationTitle("Theme Color")
         .navigationBarTitleDisplayMode(.inline)
-        .onAppear {
-            customColor = themeManager.customColor
-        }
-        .onChange(of: customColor) { newColor in
-            HapticManager.selection()
-            withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
-                themeManager.setCustomColor(newColor)
-            }
-        }
     }
 
     // MARK: - 1. Theme Grid Section
@@ -91,7 +93,7 @@ struct ThemeColorPickerView: View {
             withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                 themeManager.setThemeColor(theme)
             }
-            ToastManager.shared.showSuccess("Theme Color Updated", icon: "paintpalette.fill")
+            ToastManager.shared.showSuccess(LocalizedStringKey("Theme Color Updated"), icon: "paintpalette.fill")
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(theme.displayName)
@@ -150,7 +152,7 @@ struct ThemeColorPickerView: View {
                         .shadow(color: .black.opacity(0.12), radius: 4, x: 0, y: 2)
                 }
 
-                ColorPicker("Custom Color", selection: $customColor, supportsOpacity: false)
+                ColorPicker("Custom Color", selection: customColorBinding, supportsOpacity: false)
                     .labelsHidden()
                     .opacity(0.02)
                     .frame(width: 48, height: 48)
@@ -163,6 +165,15 @@ struct ThemeColorPickerView: View {
                 .foregroundStyle(isCustom ? .primary : .secondary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
+                .onTapGesture {
+                    if themeManager.currentColor != .custom {
+                        HapticManager.selection()
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                            themeManager.setThemeColor(.custom)
+                        }
+                        ToastManager.shared.showSuccess(LocalizedStringKey("Theme Color Updated"), icon: "paintpalette.fill")
+                    }
+                }
         }
         .padding(.vertical, 4)
         .frame(minWidth: 44, minHeight: 44)
