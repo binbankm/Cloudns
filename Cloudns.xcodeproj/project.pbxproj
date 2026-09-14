@@ -81,24 +81,6 @@
 			path = Cloudns;
 			sourceTree = "<group>";
 		};
-		9B4D3046302B13D000DDAA76 /* CloudnsTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = CloudnsTests;
-			sourceTree = "<group>";
-		};
-		9B4D3050302B13D000DDAA76 /* CloudnsUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = CloudnsUITests;
-			sourceTree = "<group>";
-		};
-		9BAA00010000000000000008 /* CloudnsWidgets */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				9BAA00010000000000000020 /* Exceptions for "CloudnsWidgets" folder in "CloudnsWidgets" target */,
-			);
-			path = CloudnsWidgets;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -137,9 +119,6 @@
 			isa = PBXGroup;
 			children = (
 				9B4D3033302B13CD00DDAA76 /* Cloudns */,
-				9BAA00010000000000000008 /* CloudnsWidgets */,
-				9B4D3046302B13D000DDAA76 /* CloudnsTests */,
-				9B4D3050302B13D000DDAA76 /* CloudnsUITests */,
 				9B4D3032302B13CD00DDAA76 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -166,12 +145,10 @@
 				9B4D302E302B13CD00DDAA76 /* Frameworks */,
 				9B4D302F302B13CD00DDAA76 /* Resources */,
 				9B08A3A53032F69A00932C09 /* swiftlint */,
-				9BAA00010000000000000013 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				9BAA00010000000000000012 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				9B4D3033302B13CD00DDAA76 /* Cloudns */,
@@ -284,16 +261,6 @@
 				en,
 				Base,
 				"zh-Hans",
-				"zh-Hant",
-				ja,
-				ko,
-				de,
-				fr,
-				es,
-				"pt-BR",
-				ru,
-				it,
-				ar,
 			);
 			mainGroup = 9B4D3028302B13CD00DDAA76;
 			minimizedProjectReferenceProxies = 1;
@@ -303,9 +270,6 @@
 			projectRoot = "";
 			targets = (
 				9B4D3030302B13CD00DDAA76 /* Cloudns */,
-				9BAA00010000000000000001 /* CloudnsWidgets */,
-				9B4D3042302B13D000DDAA76 /* CloudnsTests */,
-				9B4D304C302B13D000DDAA76 /* CloudnsUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -543,7 +507,6 @@
 		9B4D3058302B13D000DDAA76 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "AppIcon-Cyber AppIcon-Dark AppIcon-Gold AppIcon-Purple";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
@@ -582,7 +545,6 @@
 		9B4D3059302B13D000DDAA76 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "AppIcon-Cyber AppIcon-Dark AppIcon-Gold AppIcon-Purple";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;

@@ -1,6 +1,18 @@
 import Foundation
 import Security
 
+// MARK: - AppStorageKey Constants
+
+public enum AppStorageKey: Sendable {
+    public nonisolated static let isLoggedIn = "isLoggedIn"
+    public nonisolated static let activeAccountEmail = "activeAccountEmail"
+    public nonisolated static let activeAccountId = "activeAccountId"
+    public nonisolated static let keychainService = "com.cloudflare.api"
+    public nonisolated static let appLanguage = "appLanguage"
+}
+
+// MARK: - KeychainHelper
+
 protocol KeychainHelperProtocol: Sendable {
     @discardableResult
     func save(_ data: Data, service: String, account: String) -> OSStatus
@@ -30,10 +42,8 @@ final class KeychainHelper: KeychainHelperProtocol, Sendable {
             kSecAttrAccessible: kSecAttrAccessibleWhenUnlockedThisDeviceOnly
         ] as CFDictionary
 
-        // Add data to keychain
         let status = SecItemAdd(query, nil)
 
-        // Item already exists, thus update it
         if status == errSecDuplicateItem {
             let updateQuery = [
                 kSecAttrService: service,
@@ -113,7 +123,6 @@ final class KeychainHelper: KeychainHelperProtocol, Sendable {
         return SecItemDelete(query)
     }
 
-    /// Convenience for Strings
     @discardableResult
     func saveString(_ string: String, service: String, account: String) -> OSStatus {
         let data = Data(string.utf8)
