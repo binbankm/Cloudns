@@ -19,9 +19,24 @@ final class AuthenticatedRequestFactory: Sendable {
         contentType: String = "application/json"
     ) throws -> URLRequest {
         let email = UserDefaults.standard.string(forKey: AppStorageKey.activeAccountEmail) ?? ""
-        guard !email.isEmpty, let apiKey = KeychainHelper.standard.readString(service: serviceName, account: email) else {
+        let accountId = UserDefaults.standard.string(forKey: AppStorageKey.activeAccountId) ?? ""
+
+        guard !email.isEmpty else {
             throw APIError.unauthorized
         }
+
+        // Try reading apiKey using accountId, then fallback to email
+        let apiKey: String? = {
+            if !accountId.isEmpty, let key = KeychainHelper.standard.readString(service: serviceName, account: accountId) {
+                return key
+            }
+            return KeychainHelper.standard.readString(service: serviceName, account: email)
+        }()
+
+        guard let apiKey, !apiKey.isEmpty else {
+            throw APIError.unauthorized
+        }
+
         return try createExplicitAuthenticatedRequest(
             email: email,
             apiKey: apiKey,
