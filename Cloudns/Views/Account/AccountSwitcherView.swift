@@ -4,19 +4,16 @@ import SwiftUI
 
 struct AccountSwitcherView: View {
     @Environment(\.dismiss) private var dismiss
-    @StateObject private var viewModel: AccountSwitcherViewModel
-
-    init(viewModel: AccountSwitcherViewModel = AccountSwitcherViewModel()) {
-        _viewModel = StateObject(wrappedValue: viewModel)
-    }
+    @StateObject private var viewModel = AccountSwitcherViewModel()
+    @State private var accountToDelete: CloudflareAccount?
+    @State private var showDeleteConfirmation: Bool = false
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                // Header
+                // Header with Done button
                 GentleSheetHeader(
-                    title: "Accounts",
-                    subtitle: "Select active credentials",
+                    title: "Switch Account",
                     trailingButtonTitle: "Done",
                     onTrailingAction: {
                         dismiss()
@@ -47,24 +44,15 @@ struct AccountSwitcherView: View {
                             // Add Another Account Button
                             Button {
                                 viewModel.showAddAccountSheet = true
-                                GentleHaptics.selection()
                             } label: {
-                                HStack(spacing: GentleSpacing.sm) {
+                                HStack(spacing: GentleSpacing.xs) {
                                     Image(systemName: "plus.circle.fill")
                                         .font(GentleTypography.bodyMedium)
                                     Text("Add Account")
-                                        .font(GentleTypography.buttonLabel)
                                 }
                                 .foregroundStyle(GentleColor.accent)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 50)
-                                .background(GentleColor.cardSurface)
-                                .clipShape(RoundedRectangle(cornerRadius: GentleCornerRadius.xl, style: .continuous))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: GentleCornerRadius.xl, style: .continuous)
-                                        .stroke(GentleColor.accent.opacity(0.3), lineWidth: 1)
-                                )
                             }
+                            .gentleSecondaryButton(cornerRadius: GentleCornerRadius.xl, height: 50)
                             .padding(.top, GentleSpacing.xs)
                         }
                         .padding(GentleSpacing.lg)
@@ -77,6 +65,25 @@ struct AccountSwitcherView: View {
         .presentationDragIndicator(.hidden)
         .sheet(isPresented: $viewModel.showAddAccountSheet) {
             LoginView()
+        }
+        .confirmationDialog(
+            "Remove Account",
+            isPresented: $showDeleteConfirmation,
+            presenting: accountToDelete
+        ) { account in
+            Button("Remove \(account.name)", role: .destructive) {
+                viewModel.deleteAccount(id: account.id)
+                if viewModel.accounts.isEmpty {
+                    dismiss()
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: { account in
+            if viewModel.accounts.count <= 1 {
+                Text("Remove \(account.name)? You will be returned to the login screen.")
+            } else {
+                Text("Remove \(account.name)? Credentials will be deleted from this device.")
+            }
         }
     }
 
@@ -98,7 +105,7 @@ struct AccountSwitcherView: View {
                 )
 
                 // Account Name & Email
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: GentleSpacing.micro) {
                     Text(account.name)
                         .font(GentleTypography.subheadlineBold)
                         .foregroundStyle(GentleColor.textPrimary)
@@ -121,27 +128,17 @@ struct AccountSwitcherView: View {
                         .foregroundStyle(GentleColor.textSecondary.opacity(0.4))
                 }
             }
-            .padding(GentleSpacing.md)
-            .background(GentleColor.cardSurface)
-            .clipShape(RoundedRectangle(cornerRadius: GentleCornerRadius.lg, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: GentleCornerRadius.lg, style: .continuous)
-                    .stroke(
-                        isActive ? GentleColor.accent.opacity(0.5) : Color.clear,
-                        lineWidth: 1.5
-                    )
-            )
-            .shadow(
-                color: Color.black.opacity(0.035),
-                radius: 8,
-                x: 0,
-                y: 2
+            .gentleCardStyle(
+                variant: isActive ? .highlighted : .elevated,
+                cornerRadius: GentleCornerRadius.lg,
+                padding: GentleSpacing.md
             )
         }
         .buttonStyle(.plain)
         .contextMenu {
             Button(role: .destructive) {
-                viewModel.deleteAccount(id: account.id)
+                accountToDelete = account
+                showDeleteConfirmation = true
             } label: {
                 Label("Remove Account", systemImage: "trash")
             }

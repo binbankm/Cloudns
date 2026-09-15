@@ -25,16 +25,15 @@ public struct GentleShimmerModifier: ViewModifier {
                         )
                         .frame(width: geo.size.width * 2)
                         .offset(x: -geo.size.width + (phase * geo.size.width * 2))
+                        .animation(
+                            .linear(duration: 1.6).repeatForever(autoreverses: false),
+                            value: phase
+                        )
                     }
                 )
                 .mask(content)
                 .onAppear {
-                    withAnimation(
-                        .linear(duration: 1.6)
-                            .repeatForever(autoreverses: false)
-                    ) {
-                        phase = 1
-                    }
+                    phase = 1
                 }
         }
     }

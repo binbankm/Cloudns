@@ -71,6 +71,6 @@ public struct CloudflareUser: Codable, Identifiable, Equatable, Sendable {
     /// Checks whether a string represents a 32-character hexadecimal identifier
     private static func isRawHexHash(_ string: String) -> Bool {
         guard string.count == 32 else { return false }
-        return string.allSatisfy { $0.isHexDigit }
+        return string.allSatisfy(\.isHexDigit)
     }
 }

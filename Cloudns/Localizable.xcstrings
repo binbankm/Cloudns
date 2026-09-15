@@ -4,6 +4,74 @@
     "" : {
 
     },
+    "%lld Nameservers" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Nameservers"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 个名称服务器"
+          }
+        }
+      }
+    },
+    "%lld of %lld domains active" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld of %2$lld domains active"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%2$lld 个域名中有 %1$lld 个生效中"
+          }
+        }
+      }
+    },
+    "%lld Paused" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Paused"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 个已暂停"
+          }
+        }
+      }
+    },
+    "%lld Pending Review" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Pending Review"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 个待配置审核"
+          }
+        }
+      }
+    },
     "%lld percent" : {
 
     },
@@ -11,6 +79,9 @@
 
     },
     "%lld%%" : {
+
+    },
+    "•" : {
 
     },
     "1,248,392 reqs" : {
@@ -79,6 +150,40 @@
     "Account: %@" : {
 
     },
+    "Action Needed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Action Needed"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "需要关注"
+          }
+        }
+      }
+    },
+    "Active" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Active"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "生效中"
+          }
+        }
+      }
+    },
     "Active & cryptographically verified" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -119,6 +224,23 @@
     "Add Account" : {
 
     },
+    "Add Domain" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add Domain"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加域名"
+          }
+        }
+      }
+    },
     "Add New Domain" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -132,6 +254,108 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "添加新域名"
+          }
+        }
+      }
+    },
+    "Adding Domain..." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adding Domain..."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在添加域名..."
+          }
+        }
+      }
+    },
+    "Adding..." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adding..."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加中..."
+          }
+        }
+      }
+    },
+    "All" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全部"
+          }
+        }
+      }
+    },
+    "All Systems Normal" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All Systems Normal"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全部正常运行"
+          }
+        }
+      }
+    },
+    "Apex Domain" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apex Domain"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "根域名"
+          }
+        }
+      }
+    },
+    "Apex domain without protocol or path (e.g. example.com)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apex domain without protocol or path (e.g. example.com)"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "根域名（无需协议或路径，如 example.com）"
           }
         }
       }
@@ -153,9 +377,6 @@
         }
       }
     },
-    "Authentication and hardware-isolated multi-account storage are fully operational. Tap the account capsule in the navigation bar to seamlessly switch accounts or add new credentials." : {
-
-    },
     "Authentication failed. Please check that your email and 37-character Global API Key are valid." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -169,6 +390,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "鉴权未通过 · 请检查您的登录邮箱与 37 位 Global API Key 是否匹配有效。"
+          }
+        }
+      }
+    },
+    "Authentication failed. Please verify your Global API Key." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Authentication failed. Please verify your Global API Key."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "鉴权未通过 · 请检查 Global API Key 是否正确"
+          }
+        }
+      }
+    },
+    "Automatically query and import existing DNS records." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatically query and import existing DNS records."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自动查询并导入现有 DNS 解析记录。"
           }
         }
       }
@@ -264,6 +519,23 @@
         }
       }
     },
+    "Cloudflare account ID not found" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cloudflare account ID not found"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未找到 Cloudflare 账户 ID"
+          }
+        }
+      }
+    },
     "Cloudflare Proxy Status" : {
 
     },
@@ -327,6 +599,23 @@
     "Data formatting error: %@" : {
 
     },
+    "Delete %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "删除 %@"
+          }
+        }
+      }
+    },
     "Delete DNS Record" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -340,6 +629,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "删除 DNS 解析记录"
+          }
+        }
+      }
+    },
+    "Delete Domain" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete Domain"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "删除域名"
           }
         }
       }
@@ -429,6 +735,23 @@
         }
       }
     },
+    "DNS Ready" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DNS Ready"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DNS 已就绪"
+          }
+        }
+      }
+    },
     "DNS record has been successfully purged." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -480,6 +803,9 @@
         }
       }
     },
+    "Domain Name" : {
+
+    },
     "Domain not found or not active under this account" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -493,6 +819,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "当前账号下未找到该域名或域名未处于激活状态"
+          }
+        }
+      }
+    },
+    "Domains" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Domains"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "域名"
           }
         }
       }
@@ -536,6 +879,23 @@
     },
     "Email" : {
 
+    },
+    "Enter a valid apex domain (e.g. example.com)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter a valid apex domain (e.g. example.com)"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请输入有效的根域名（如 example.com）"
+          }
+        }
+      }
     },
     "Gentle Design System" : {
 
@@ -603,9 +963,6 @@
     "Highlighted Card (Amber Glow)" : {
 
     },
-    "Infrastructure Ready" : {
-
-    },
     "Inline Callouts & Tips" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -669,9 +1026,6 @@
     "Invalid response from Cloudflare server." : {
 
     },
-    "Keychain Protected" : {
-
-    },
     "Keychain Security Isolation" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -691,6 +1045,23 @@
     },
     "Loading" : {
 
+    },
+    "Loading domains from Cloudflare..." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading domains from Cloudflare..."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在从 Cloudflare 获取域名..."
+          }
+        }
+      }
     },
     "Medium" : {
       "extractionState" : "manual",
@@ -714,6 +1085,23 @@
     },
     "Native Cloudflare Client" : {
 
+    },
+    "Network connection interrupted. Please check your connection and retry." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Network connection interrupted. Please check your connection and retry."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "网络连接似乎暂时中断了 · 请检查后轻触重试"
+          }
+        }
+      }
     },
     "Network connection seems interrupted · Please check and tap to retry" : {
       "extractionState" : "manual",
@@ -755,6 +1143,40 @@
         }
       }
     },
+    "No domains found in this account." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No domains found in this account."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "当前账户下未找到任何域名。"
+          }
+        }
+      }
+    },
+    "No domains match your search or filter criteria." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No domains match your search or filter criteria."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "没有符合搜索或筛选条件的域名。"
+          }
+        }
+      }
+    },
     "No Domains Yet" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -768,6 +1190,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "暂无域名"
+          }
+        }
+      }
+    },
+    "No Matching Domains" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Matching Domains"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未找到匹配域名"
           }
         }
       }
@@ -812,8 +1251,73 @@
     "Paste" : {
 
     },
-    "Phase 2 Complete" : {
-
+    "Pause Cloudflare on Site" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pause Cloudflare on Site"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在此站点暂停 Cloudflare"
+          }
+        }
+      }
+    },
+    "Paused" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paused"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已暂停"
+          }
+        }
+      }
+    },
+    "Pending" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pending"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "待配置"
+          }
+        }
+      }
+    },
+    "Permanently delete %@? DNS routing will stop immediately." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permanently delete %@? DNS routing will stop immediately."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "永久删除 %@？DNS 解析与路由将立即终止。"
+          }
+        }
+      }
     },
     "Please check for app updates to support the latest Cloudflare API schema." : {
 
@@ -915,8 +1419,124 @@
         }
       }
     },
+    "Remove %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "移除 %@"
+          }
+        }
+      }
+    },
+    "Remove %@? Credentials will be deleted from this device." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove %@? Credentials will be deleted from this device."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "移除 %@？凭据将从本机安全删除。"
+          }
+        }
+      }
+    },
+    "Remove %@? You will be returned to the login screen." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove %@? You will be returned to the login screen."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "移除 %@？将返回登录界面。"
+          }
+        }
+      }
+    },
     "Remove Account" : {
-
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove Account"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "移除此账户"
+          }
+        }
+      }
+    },
+    "Resume Cloudflare" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resume Cloudflare"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "恢复 Cloudflare 代理"
+          }
+        }
+      }
+    },
+    "Scan DNS Records" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scan DNS Records"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "扫描 DNS 记录"
+          }
+        }
+      }
+    },
+    "Scan Existing DNS" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scan Existing DNS"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "扫描现有 DNS"
+          }
+        }
+      }
     },
     "Search" : {
       "extractionState" : "manual",
@@ -937,6 +1557,23 @@
     },
     "Search Bar" : {
 
+    },
+    "Search domains" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search domains"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "搜索域名"
+          }
+        }
+      }
     },
     "Search domains or records" : {
       "extractionState" : "manual",
@@ -1072,8 +1709,22 @@
     "State Views & Shimmer" : {
 
     },
-    "Stored exclusively in your local device Keychain. Never relayed through third-party servers." : {
-
+    "Switch Account" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Switch Account"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "切换账户"
+          }
+        }
+      }
     },
     "Tap to Retry" : {
       "extractionState" : "manual",
@@ -1166,6 +1817,23 @@
     },
     "Ultra-Gentle & Cozy HIG Foundation" : {
 
+    },
+    "Unable to load domains. Please pull down to retry." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to load domains. Please pull down to retry."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法获取域名 · 请下拉重试"
+          }
+        }
+      }
     },
     "Verifying..." : {
 

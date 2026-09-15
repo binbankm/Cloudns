@@ -24,9 +24,11 @@ public struct GentleSegmentedControl<T: Hashable & CustomStringConvertible>: Vie
                     GentleHaptics.selection()
                 } label: {
                     Text(LocalizedStringKey(item.description))
-                        .font(isSelected ? GentleTypography.bodyMedium : GentleTypography.body)
+                        .font(isSelected ? GentleTypography.subheadlineBold : GentleTypography.subheadline)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
                         .foregroundStyle(isSelected ? GentleColor.accent : GentleColor.textSecondary)
-                        .padding(.horizontal, GentleSpacing.sm)
+                        .padding(.horizontal, GentleSpacing.xs)
                         .padding(.vertical, 7)
                         .frame(maxWidth: .infinity)
                         .background {

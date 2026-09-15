@@ -9,19 +9,22 @@ public struct GentleRingView: View {
     public var diameter: CGFloat
     public var tintColor: Color
     public var secondaryTintColor: Color
+    public var label: String?
 
     public init(
         progress: Double,
         lineWidth: CGFloat = 12,
         diameter: CGFloat = 110,
         tintColor: Color = GentleColor.accent,
-        secondaryTintColor: Color = GentleColor.accentSecondary
+        secondaryTintColor: Color = GentleColor.accentSecondary,
+        label: String? = "Health"
     ) {
         self.progress = min(max(progress, 0.0), 1.0)
         self.lineWidth = lineWidth
         self.diameter = diameter
         self.tintColor = tintColor
         self.secondaryTintColor = secondaryTintColor
+        self.label = label
     }
 
     public var body: some View {
@@ -50,14 +53,17 @@ public struct GentleRingView: View {
                 .animation(GentleAnimation.spring, value: progress)
 
             // Center metric slot
-            VStack(spacing: 2) {
+            VStack(spacing: 1) {
                 Text("\(Int(progress * 100))%")
-                    .font(GentleTypography.metricMedium)
+                    .font(diameter <= 80 ? .system(size: 16, weight: .bold, design: .rounded) : GentleTypography.metricMedium)
                     .foregroundStyle(GentleColor.textPrimary)
+                    .monospacedDigit()
 
-                Text(LocalizedStringKey("Operational"))
-                    .font(GentleTypography.captionSmall)
-                    .foregroundStyle(GentleColor.textSecondary)
+                if let label, !label.isEmpty {
+                    Text(label)
+                        .font(GentleTypography.captionSmall)
+                        .foregroundStyle(GentleColor.textSecondary)
+                }
             }
         }
         .frame(width: diameter + lineWidth, height: diameter + lineWidth)

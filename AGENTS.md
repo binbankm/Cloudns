@@ -112,6 +112,10 @@
 4. **数字、货币与时间本地化**：
    - 涉及时间戳解析统一调用 `DateFormatters`，根据用户系统当前 Locale 自动呈现本地化相对时间（如“2 小时前” / “2 hours ago”）。
    - 请求量、带宽等数据必须通过 `MetricFormatters` 与 `ByteCountFormatters` 格式化，严禁生硬拼凑 `xxx bytes`。
+5. **严禁硬编码中文字符串字面量 (Zero Hardcoded Chinese in Swift)**：
+   - ❌ 严禁在任何 `.swift` 源码（包括 View、ViewModel、Service、Error 处理）中直接硬编码中文字符串字面量（例如 `let errorMsg = "请输入有效域名"` 或 `Text("添加域名")`）。
+   -  Swift 源码中所有面向用户的文案必须 100% 使用英文作为语义 Key（例如 `String(localized: "Please enter a valid apex domain (e.g. example.com)")` 或 `Text("Add Domain")`）。
+   - 中文文案**只能且必须**录入至 `Localizable.xcstrings` 的 `zh-Hans` 分支中进行双语映射。
 
 ---
 
@@ -168,6 +172,42 @@
   * 点击切换账号、点选标签：`.selection`
   * 刷新完成、保存成功：`.light` 或 `.soft`
   * 删除或破坏性操作：`.warning`
+
+### 5. 零裸写与组件化封装铁律 (Component & Token Enforcements)
+本工程已建设完备的温和设计系统，**严禁在具体业务页面中为了省事而随手拼凑手写原生修饰符**：
+* **卡片容器 (Card Surface)**：
+  * ❌ 严禁裸写 `.background(Color...).clipShape(RoundedRectangle...).overlay(stroke...).shadow(...)`
+  *  必须统一使用 `.gentleCardStyle(variant:cornerRadius:padding:)` 或 `GentleCard`
+* **操作按钮体系 (Buttons)**：
+  * ❌ 严禁手搓带圆角和背景的 Button label
+  *  主操作按钮必须使用 `.buttonStyle(GentlePrimaryButtonStyle())`
+  *  次级/线框/外链按钮必须使用 `.gentleSecondaryButton(cornerRadius:height:)`
+  *  危险/破坏性按钮必须使用 `.gentleDestructiveButton(...)`
+* **提示与警示条 (Callouts & Banners)**：
+  * ❌ 严禁手搓 `HStack + Image + Text` 制造内嵌提示条
+  *  页面内内联提示必须使用 `GentleCallout(title:message:type:iconName:)`
+  *  全局浮动横幅与断网提示必须调用 `GentleBannerManager.shared.show(...)` / `showOffline()`
+* **标签胶囊 (Badges)**：
+  * 统一使用 `GentleBadge(text, iconName: ..., type: ...)`，杜绝手拼胶囊。
+* **账户头像 (Avatars)**：
+  * 统一使用 `GentleAvatar(name: ..., email: ..., size: ..., isActive: ...)`。
+* **输入框 (Text Fields)**：
+  * 统一使用 `GentleTextField(...)`，集成自动聚焦与清空反馈。
+* **零硬编码数值 (Zero Magic Numbers)**：
+  * 间距必须严格调用 `GentleSpacing`（micro, xxs, xs, sm, md, lg, xl, xxl, huge）。
+  * 圆角必须严格调用 `GentleCornerRadius`（micro, xs, sm, md, lg, xl, card, cardLarge, pill）。
+  * 字阶必须严格调用 `GentleTypography`（hero, titleLarge, titleSection, cardTitle, body, subheadline, footnote, caption, captionSmall, metricHero, codeValue 等）。
+  * 阴影必须严格调用 `.gentleCardShadow()` / `.gentleSubtleShadow()` / `GentleShadow`，严禁裸写 `Color.black.opacity`。
+  * 颜色必须严格调用 `GentleColor.*`，严禁在业务视图中直接使用原生 `Color.black` 或未命名的十六进制。
+
+### 6. 键盘交互与收回规范 (Keyboard Interaction & Dismissal)
+凡含有输入框（`TextField`、`SecureField`、`SearchBar`）的页面或抽屉表单，必须 100% 遵循键盘收起闭环规范，杜绝键盘遮挡操作或无法收起的糟糕体验：
+* **交互式滑动收起**：所有表单或列表必须支持滚动时平滑交互式收起键盘。
+* **空白背景轻触收起**：页面根滚动容器必须统一挂载 `.gentleKeyboardDismissable()`，轻触空白区域自动收起键盘，且不得拦截子组件按钮或输入框原有手势。
+* **主动提交收起**：点击提交按钮（如“连接账户”、“添加域名”）或按下回车时，必须调用 `hideKeyboard()` 主动收起软键盘。
+* **严禁私有拼凑**：
+  * ❌ 严禁在具体的 View 内部自行手写 `private func hideKeyboard()` 私有辅助函数或随手写 `contentShape.onTapGesture`。
+  *  必须统一调用 `DesignSystem` 提供的标准 `hideKeyboard()` 与 `.gentleKeyboardDismissable()` 扩展。
 
 ---
 
@@ -291,14 +331,23 @@ Cloudns/
 
 ---
 
-## 九、 内存安全与生命周期管理 (Memory & Performance)
+## 九、 内存安全、并发容错与生命周期管理 (Concurrency, Memory & Lifecycle)
 
 1. **强引用循环杜绝 (Zero Retain Cycles)**：
    - 在所有的闭包、通知监听或异步回调中，涉及 `self` 访问必须显式声明 `[weak self]`，严防页面关闭后 ViewModel 无法释放导致的内存泄漏。
-2. **自动任务生命周期绑定 (Task Cancellation)**：
+2. **自动任务生命周期绑定与 Cancellation 容错 (Task Cancellation Resilience)**：
    - View 触发的异步加载统一使用 SwiftUI 原生 `.task { await viewModel.fetchData() }`。
-   - 当用户退出页面时，系统会自动发出 Cancellation 信号，底层 `URLSession` 立即终止网络请求，省电省流量。
-3. **UI 120Hz 满帧渲染原则**：
+   - 当用户退出页面或快速切换时，系统会自动发出 Cancellation 信号，底层 `URLSession` 立即终止网络请求。
+   - **取消静默处理铁律**：**严禁将 `CancellationError` / `URLError.cancelled` 包装为 `.error` 页面状态展示给用户**。任务取消是正常交互中断，捕获到时应当静默恢复或忽略，绝不可弹出错误横幅或错误全屏卡片。
+3. **下拉刷新降级容错机制 (Pull-to-Refresh Graceful Degradation)**：
+   - 用户触发 `.refreshable` 下拉刷新时，若当前已有数据（即处于 `.loaded` 状态）：
+     - **禁止粗暴将页面重置为全屏加载状态或直接跳变到全屏错误态**。
+     - 若刷新遭遇临时断网或错误，必须保留现有屏幕上的数据，仅收起刷新圈，并通过 `GentleBannerManager.shared.show(..., type: .warning)` 弹出温和轻量的浮动通知，保障用户浏览的连续性与安全感。
+4. **导航栏与局部动画事务隔离 (Animation Transaction Isolation)**：
+   - 骨架屏（Skeleton）、循环微光（Shimmer）或列表重排等高频动效，**严禁污染全局事务导致 NavigationBar / Toolbar 内的按钮或头像发生跳动、缩放或位置偏移**。
+   - 导航栏或固定悬浮组件的交互状态，若受数据刷新影响，必须通过 `.transaction { $0.animation = nil }` 或局部动画限定作用域，确保顶部导航栏始终稳如泰山。
+5. **并发加速与 UI 120Hz 满帧渲染原则**：
+   - 多个无依赖关系的数据获取（如域名列表 + 账号基础配额），必须使用 `async let` 并行拉取，杜绝无意义的串行等待。
    - 所有耗时的数据解析、JSON 序列化必须在后台并发线程进行，只有最终赋值给 `@Published` 属性的操作在 `@MainActor` 主线程完成，杜绝任何滑动掉帧。
 
 ---
@@ -319,22 +368,22 @@ Cloudns/
 后续开发必须严格按以下 6 个阶段顺序推进，步步为营，确保每个阶段通过编译与验证：
 
 ```
-Phase 1: 温和设计系统与多账号底层基建（当前第一步）
+Phase 1: 温和设计系统与多账号底层基建（已完成）
    │ 
-   ├── GentleColors / GentleCard / GentleBadge / GentleHaptics
+   ├── GentleColors / GentleCard / GentleBadge / GentleHaptics / GentleTypography / GentleSpacing / GentleCornerRadius
    └── AccountManager (纯 Global API Key + Keychain 硬件隔离)
    ▼
-Phase 2: 鉴权流程与多账号管理
+Phase 2: 鉴权流程与多账号管理（已完成）
    │
    ├── LoginView / LoginViewModel（邮箱 + 37位 Key 格式与网络有效性验证）
    └── AccountSwitcherView（顶部半屏抽屉，一键打勾无感切换）
    ▼
-Phase 3: 域名管理与温和仪表盘 (Zones)
+Phase 3: 域名管理与温和仪表盘 (Zones)（已完成基建与 100% Token 化）
    │
    ├── 对齐 Cloudflare GET /client/v4/zones 官方 API
    └── ZonesListView（暖杏光环运行健康度总览 + 域名卡片列表）
    ▼
-Phase 4: DNS 解析记录核心引擎 (DNS CRUD)
+Phase 4: DNS 解析记录核心引擎 (DNS CRUD)（下一阶段）
    │
    ├── 对齐 Cloudflare DNS Records 官方 API
    ├── DNSRecordsView（彩色类型胶囊、一键秒切蜜桃橙云朵代理）
@@ -352,11 +401,28 @@ Phase 6: 高级特性逐步扩展 (Post-MVP)
 
 ## 十二、 质量红线与代码审查清单 (Code Review Redlines)
 
-在完成任何模块的代码提交前，必须逐项通过以下质量审查：
+在完成任何模块的代码编写与提交前，AI 与开发者**必须逐项审查以下硬性红线**，凡有违反一律视为未达标：
 
 - [ ] **0 警告 0 报错**：`xcodebuild` 编译无任何 error 和 warning。
 - [ ] **SwiftLint 零违规**：必须通过 `swiftlint` 扫描，0 violations。
-- [ ] **线程安全保证**：ViewModel 均有 `@MainActor`，异步数据获取不卡主线程。
-- [ ] **零硬编码**：颜色全部调用 `GentleColor`，圆角全部使用 `DesignSystem` 规范。
-- [ ] **文案与国际化**：中英文排版规范，文案温和有温度，禁止裸露原生技术报错。
+- [ ] **100% 零裸写组件**：
+  - 卡片必须使用 `.gentleCardStyle()` / `GentleCard`，严禁裸写背景圆角描边阴影。
+  - 按钮必须使用 `.buttonStyle(GentlePrimaryButtonStyle())` 或 `.gentleSecondaryButton()`。
+  - 提示信息必须使用 `GentleCallout` 或 `GentleBannerManager`。
+  - 标签与头像必须使用 `GentleBadge` 与 `GentleAvatar`。
+- [ ] **100% 零魔法数字 (Zero Magic Numbers)**：
+  - 间距必须使用 `GentleSpacing.*`（严禁硬编码数值如 16, 12, 20）。
+  - 圆角必须使用 `GentleCornerRadius.*`（严禁硬编码数值如 12, 22）。
+  - 字体必须使用 `GentleTypography.*`（严禁裸写 `.font(.system(...))`）。
+  - 颜色必须使用 `GentleColor.*`（严禁原生系统色或十六进制写死）。
+  - 阴影必须使用 `GentleShadow.*`（严禁裸写 `.shadow(...)`）。
+- [ ] **线程安全与并发容错**：
+  - ViewModel 必须标注 `@MainActor`，异步数据处理不卡主线程。
+  - `CancellationError` / `URLError.cancelled` 必须静默捕获，严禁跳出全屏错误或错误提示。
+  - 下拉刷新失败必须降级保活已有数据，通过轻量横幅提示，禁止白屏。
+- [ ] **动画与事务隔离**：
+  - 骨架屏与内容动效严禁引起 NavigationBar / Toolbar 图标与文字微跳或抖动。
+- [ ] **键盘交互与收起闭环**：凡含有输入框的页面必须挂载 `.gentleKeyboardDismissable()`，支持交互式滑动收起与空白背景轻触收起，严禁在页面私写收回逻辑。
+- [ ] **文案与国际化**：中英文排版规范（中英文数字间留半角空格），文案温和克制有温度，禁止裸露冷硬原生技术报错。
+- [ ] **零硬编码中文 (Zero Hardcoded Chinese in Swift)**：Swift 源码（View/ViewModel/Service/Error）中严禁直接出现中文字符串字面量，必须 100% 采用英文作为 Key，中文统一由 `Localizable.xcstrings` 双语映射。
 - [ ] **纯 Global API Key**：严禁出现任何 API Token 相关的代码或参数。

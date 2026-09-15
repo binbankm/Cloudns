@@ -84,7 +84,7 @@ final class LoginViewModel: ObservableObject {
                 resolvedName = officialName
             } else if let zoneAccountName = zones.first?.account?.name, !zoneAccountName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 resolvedName = zoneAccountName
-            } else if let user, user.displayName != cleanEmail && !user.displayName.isEmpty {
+            } else if let user, user.displayName != cleanEmail, !user.displayName.isEmpty {
                 resolvedName = user.displayName
             } else {
                 let prefix = cleanEmail.components(separatedBy: "@").first ?? cleanEmail

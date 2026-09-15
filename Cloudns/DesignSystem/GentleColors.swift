@@ -118,6 +118,11 @@ public enum GentleColor {
         Color(red: 232 / 255, green: 122 / 255, blue: 30 / 255)
     }
 
+    /// Pure crisp white text or icons on warm accent surfaces (#FFFFFF)
+    public static var textOnAccent: Color {
+        Color.white
+    }
+
     /// Secondary accent: Pastel Apricot Glow (#F2A054)
     public static var accentSecondary: Color {
         Color(red: 242 / 255, green: 160 / 255, blue: 84 / 255)

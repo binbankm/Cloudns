@@ -29,13 +29,13 @@ struct LoginView: View {
                                 .frame(width: 80, height: 80)
 
                             Image(systemName: "cloud.sun.fill")
-                                .font(.system(size: 40, weight: .medium))
+                                .font(GentleTypography.largeTitle)
                                 .foregroundStyle(GentleColor.accent)
                         }
                         .padding(.top, GentleSpacing.xl)
 
                         Text("Cloudns")
-                            .font(.system(size: 32, weight: .bold, design: .rounded))
+                            .font(GentleTypography.hero)
                             .foregroundStyle(GentleColor.textPrimary)
 
                         Text("Native Cloudflare Client")
@@ -81,7 +81,7 @@ struct LoginView: View {
                                         GentleHaptics.soft()
                                     }
                                 } label: {
-                                    HStack(spacing: 4) {
+                                    HStack(spacing: GentleSpacing.xxs) {
                                         Image(systemName: "doc.on.clipboard")
                                             .font(GentleTypography.caption)
                                         Text("Paste")
@@ -139,22 +139,13 @@ struct LoginView: View {
                             .focused($focusedField, equals: .accountName)
                         }
 
-                        // Error message banner
+                        // Error message callout
                         if let error = viewModel.errorMessage {
-                            HStack(spacing: GentleSpacing.sm) {
-                                Image(systemName: "exclamationmark.circle.fill")
-                                    .foregroundStyle(GentleColor.statusDanger)
-                                    .font(GentleTypography.subheadline)
-
-                                Text(error)
-                                    .font(GentleTypography.footnote)
-                                    .foregroundStyle(GentleColor.statusDanger)
-                                    .lineSpacing(2)
-                            }
-                            .padding(GentleSpacing.md)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(GentleColor.statusDanger.opacity(0.08))
-                            .clipShape(RoundedRectangle(cornerRadius: GentleCornerRadius.md, style: .continuous))
+                            GentleCallout(
+                                message: error,
+                                type: .danger,
+                                iconName: "exclamationmark.circle.fill"
+                            )
                             .transition(.opacity.combined(with: .move(edge: .top)))
                         }
 
@@ -168,7 +159,7 @@ struct LoginView: View {
                             if viewModel.state.isLoading {
                                 HStack(spacing: GentleSpacing.sm) {
                                     ProgressView()
-                                        .tint(Color.white)
+                                        .tint(GentleColor.textOnAccent)
                                     Text("Verifying...")
                                 }
                             } else {
@@ -190,7 +181,7 @@ struct LoginView: View {
                         viewModel.showGuideSheet = true
                         GentleHaptics.selection()
                     } label: {
-                        HStack(spacing: 6) {
+                        HStack(spacing: GentleSpacing.xs) {
                             Image(systemName: "questionmark.circle")
                             Text("Where is my Global API Key?")
                         }
@@ -201,12 +192,8 @@ struct LoginView: View {
                 }
                 .padding(.horizontal, GentleSpacing.lg)
             }
-            .scrollDismissesKeyboard(.interactively)
+            .gentleKeyboardDismissable()
             .gentleCanvas()
-            .contentShape(Rectangle())
-            .onTapGesture {
-                hideKeyboard()
-            }
             .sheet(isPresented: $viewModel.showGuideSheet) {
                 ApiKeyGuideSheet()
             }
@@ -221,18 +208,6 @@ struct LoginView: View {
                 }
             }
         }
-    }
-
-    // MARK: - Private Helpers
-
-    private func hideKeyboard() {
-        focusedField = nil
-        UIApplication.shared.sendAction(
-            #selector(UIResponder.resignFirstResponder),
-            to: nil,
-            from: nil,
-            for: nil
-        )
     }
 }
 

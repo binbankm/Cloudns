@@ -22,26 +22,12 @@ struct ApiKeyGuideSheet: View {
                 ScrollView {
                     VStack(spacing: GentleSpacing.lg) {
                         // Security Guarantee Callout
-                        HStack(alignment: .top, spacing: GentleSpacing.md) {
-                            Image(systemName: "lock.shield.fill")
-                                .font(GentleTypography.cardTitle)
-                                .foregroundStyle(GentleColor.statusActive)
-                                .padding(.top, 2)
-
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("Keychain Protected")
-                                    .font(GentleTypography.subheadlineBold)
-                                    .foregroundStyle(GentleColor.textPrimary)
-
-                                Text("Stored exclusively in your local device Keychain. Never relayed through third-party servers.")
-                                    .font(GentleTypography.caption)
-                                    .foregroundStyle(GentleColor.textSecondary)
-                                    .lineSpacing(2)
-                            }
-                        }
-                        .padding(GentleSpacing.md)
-                        .background(GentleColor.statusActive.opacity(0.08))
-                        .clipShape(RoundedRectangle(cornerRadius: GentleCornerRadius.lg, style: .continuous))
+                        GentleCallout(
+                            title: "Keychain Protected",
+                            message: "Stored exclusively in your local device Keychain. Never relayed through third-party servers.",
+                            type: .success,
+                            iconName: "lock.shield.fill"
+                        )
 
                         // Step-by-Step Guide Cards
                         VStack(spacing: GentleSpacing.md) {
@@ -73,14 +59,10 @@ struct ApiKeyGuideSheet: View {
                                 Image(systemName: "arrow.up.right.square")
                                     .font(GentleTypography.bodyMedium)
                                 Text("Open Cloudflare Dashboard")
-                                    .font(GentleTypography.bodyMedium)
                             }
                             .foregroundStyle(GentleColor.accent)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 48)
-                            .background(GentleColor.accent.opacity(0.1))
-                            .clipShape(RoundedRectangle(cornerRadius: GentleCornerRadius.lg, style: .continuous))
                         }
+                        .gentleSecondaryButton(cornerRadius: GentleCornerRadius.lg, height: 48)
                         .padding(.top, GentleSpacing.xs)
                     }
                     .padding(GentleSpacing.lg)
@@ -97,15 +79,15 @@ struct ApiKeyGuideSheet: View {
             ZStack {
                 Circle()
                     .fill(GentleColor.accent.opacity(0.12))
-                    .frame(width: 32, height: 32)
+                    .frame(width: GentleSpacing.xxl, height: GentleSpacing.xxl)
 
                 Text(stepNumber)
                     .font(GentleTypography.subheadlineBold)
                     .foregroundStyle(GentleColor.accent)
             }
 
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 6) {
+            VStack(alignment: .leading, spacing: GentleSpacing.xxs) {
+                HStack(spacing: GentleSpacing.xs) {
                     Image(systemName: icon)
                         .font(GentleTypography.caption)
                         .foregroundStyle(GentleColor.textSecondary)
@@ -118,7 +100,7 @@ struct ApiKeyGuideSheet: View {
                 Text(description)
                     .font(GentleTypography.footnote)
                     .foregroundStyle(GentleColor.textSecondary)
-                    .lineSpacing(2)
+                    .lineSpacing(GentleSpacing.micro)
             }
 
             Spacer()

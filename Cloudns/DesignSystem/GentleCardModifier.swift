@@ -174,8 +174,15 @@ public extension View {
         gentleCard(variant: variant, cornerRadius: cornerRadius, padding: padding)
     }
 
-    /// Sets the ultra-gentle oat-milk canvas background
+    /// Sets the ultra-gentle oat-milk canvas background with interactive tap dismissal
     func gentleCanvas() -> some View {
-        background(GentleColor.background.ignoresSafeArea())
+        background(
+            GentleColor.background
+                .ignoresSafeArea()
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    hideKeyboard()
+                }
+        )
     }
 }
