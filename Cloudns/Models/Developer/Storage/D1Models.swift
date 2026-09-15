@@ -160,3 +160,33 @@ public struct D1RowContext: Identifiable, Equatable, Sendable {
         D1RowContext(isEditing: true, row: row)
     }
 }
+
+// MARK: - D1 Backup Model
+
+public struct D1Backup: Identifiable, Codable, Equatable, Sendable {
+    public let id: String
+    public let state: String?
+    public let fileSize: Int?
+    public let numTables: Int?
+    public let createdAt: String?
+
+    enum CodingKeys: String, CodingKey {
+        case id, state
+        case fileSize = "file_size"
+        case numTables = "num_tables"
+        case createdAt = "created_at"
+    }
+
+    public init(id: String, state: String? = nil, fileSize: Int? = nil, numTables: Int? = nil, createdAt: String? = nil) {
+        self.id = id
+        self.state = state
+        self.fileSize = fileSize
+        self.numTables = numTables
+        self.createdAt = createdAt
+    }
+
+    public var formattedSize: String {
+        guard let size = fileSize else { return "0 B" }
+        return ByteCountFormatter.string(fromByteCount: Int64(size), countStyle: .file)
+    }
+}

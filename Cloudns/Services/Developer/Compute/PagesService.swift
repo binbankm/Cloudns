@@ -3,7 +3,9 @@ import Foundation
 protocol PagesServiceProtocol: Sendable {
     func getPagesProjects(accountId: String) async throws -> [PagesProject]
     func listPagesProjects(accountId: String) async throws -> [PagesProject]
+    func getPagesProject(accountId: String, projectName: String) async throws -> PagesProject
     func createPagesProject(accountId: String, name: String, productionBranch: String) async throws -> PagesProject
+    func createPagesDeployment(accountId: String, projectName: String, branch: String?) async throws -> PagesDeployment
     func deletePagesProject(accountId: String, projectName: String) async throws
     func updatePagesProject(accountId: String, projectName: String, buildCommand: String?, destinationDir: String?, rootDir: String?, productionBranch: String?, buildConfig: PagesBuildConfig?, envConfig: PagesEnvConfig?) async throws
     func getPagesDeployments(accountId: String, projectName: String) async throws -> [PagesDeployment]
@@ -36,6 +38,16 @@ final class PagesService: PagesServiceProtocol {
         return projects ?? []
     }
 
+    /// Fetches single Pages project details (GET /accounts/{account_id}/pages/projects/{project_name})
+    func getPagesProject(accountId: String, projectName: String) async throws -> PagesProject {
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/pages/projects/\(projectName)")
+        let (project, _): (PagesProject?, ResultInfo?) = try await client.performRequest(request)
+        guard let project else {
+            throw APIError.cloudflareError("Pages project not found.")
+        }
+        return project
+    }
+
     func createPagesProject(accountId: String, name: String, productionBranch: String = "main") async throws -> PagesProject {
         let payload: [String: Any] = ["name": name, "production_branch": productionBranch]
         let data = try JSONSerialization.data(withJSONObject: payload)
@@ -45,10 +57,28 @@ final class PagesService: PagesServiceProtocol {
         return p
     }
 
+    /// Triggers a new deployment for a Pages project (POST /accounts/{account_id}/pages/projects/{project_name}/deployments)
+    func createPagesDeployment(accountId: String, projectName: String, branch: String? = nil) async throws -> PagesDeployment {
+        var payload: [String: Any] = [:]
+        if let branch, !branch.isEmpty {
+            payload["branch"] = branch
+        }
+        let data = try JSONSerialization.data(withJSONObject: payload)
+        let request = try factory.createAuthenticatedRequest(
+            path: "accounts/\(accountId)/pages/projects/\(projectName)/deployments",
+            method: "POST",
+            body: data
+        )
+        let (deployment, _): (PagesDeployment?, ResultInfo?) = try await client.performRequest(request)
+        guard let deployment else {
+            throw APIError.cloudflareError("Failed to trigger Pages deployment.")
+        }
+        return deployment
+    }
+
     func deletePagesProject(accountId: String, projectName: String) async throws {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/pages/projects/\(projectName)", method: "DELETE")
-        struct DeleteRes: Codable { let id: String? }
-        let (_, _): (DeleteRes?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 
     func updatePagesProject(
@@ -92,8 +122,7 @@ final class PagesService: PagesServiceProtocol {
         }
         let data = try JSONSerialization.data(withJSONObject: payload)
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/pages/projects/\(projectName)", method: "PATCH", body: data)
-        struct Res: Codable { let id: String? }
-        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 
     func getPagesDeployments(accountId: String, projectName: String) async throws -> [PagesDeployment] {
@@ -112,32 +141,27 @@ final class PagesService: PagesServiceProtocol {
         let payload: [String: Any] = ["name": domain]
         let data = try JSONSerialization.data(withJSONObject: payload)
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/pages/projects/\(projectName)/domains", method: "POST", body: data)
-        struct Res: Codable { let id: String? }
-        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 
     func deletePagesDomain(accountId: String, projectName: String, domain: String) async throws {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/pages/projects/\(projectName)/domains/\(domain)", method: "DELETE")
-        struct Res: Codable { let id: String? }
-        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 
     func rollbackPagesDeployment(accountId: String, projectName: String, deploymentId: String) async throws {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/pages/projects/\(projectName)/deployments/\(deploymentId)/rollback", method: "POST")
-        struct Res: Codable { let id: String? }
-        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 
     func retryPagesDeployment(accountId: String, projectName: String, deploymentId: String) async throws {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/pages/projects/\(projectName)/deployments/\(deploymentId)/retry", method: "POST")
-        struct Res: Codable { let id: String? }
-        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 
     func deletePagesDeployment(accountId: String, projectName: String, deploymentId: String) async throws {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/pages/projects/\(projectName)/deployments/\(deploymentId)", method: "DELETE")
-        struct Res: Codable { let id: String? }
-        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 
     func getPagesDeploymentLogs(accountId: String, projectName: String, deploymentId: String) async throws -> [PagesDeploymentLog] {
@@ -164,8 +188,7 @@ final class PagesService: PagesServiceProtocol {
         ]
         let data = try JSONSerialization.data(withJSONObject: payload)
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/pages/projects/\(projectName)", method: "PATCH", body: data)
-        struct Res: Codable { let id: String? }
-        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 
     func updatePagesResourceBindings(
@@ -220,7 +243,6 @@ final class PagesService: PagesServiceProtocol {
         ]
         let data = try JSONSerialization.data(withJSONObject: payload)
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/pages/projects/\(projectName)", method: "PATCH", body: data)
-        struct Res: Codable { let id: String? }
-        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 }

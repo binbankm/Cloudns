@@ -146,6 +146,22 @@ public struct WorkerCustomRoute: Codable, Identifiable, Equatable, Sendable {
     public let id: String
     public let pattern: String
     public let script: String?
+
+    public init(id: String, pattern: String, script: String? = nil) {
+        self.id = id
+        self.pattern = pattern
+        self.script = script
+    }
+}
+
+public typealias WorkerRoute = WorkerCustomRoute
+
+public struct WorkerAccountSubdomain: Codable, Equatable, Sendable {
+    public let name: String?
+
+    public init(name: String? = nil) {
+        self.name = name
+    }
 }
 
 public struct WorkerCustomDomain: Codable, Identifiable, Equatable, Sendable {

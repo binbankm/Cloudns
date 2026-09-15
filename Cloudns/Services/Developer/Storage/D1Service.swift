@@ -5,6 +5,9 @@ protocol D1ServiceProtocol: Sendable {
     func listD1Databases(accountId: String) async throws -> [D1Database]
     func createD1Database(accountId: String, name: String, primaryLocationHint: String?) async throws -> D1Database
     func deleteD1Database(accountId: String, databaseId: String) async throws
+    func getD1Database(accountId: String, databaseId: String) async throws -> D1Database
+    func getD1Backups(accountId: String, databaseId: String) async throws -> [D1Backup]
+    func createD1Backup(accountId: String, databaseId: String) async throws -> D1Backup
     func executeD1Query(accountId: String, databaseId: String, sql: String) async throws -> D1QueryResult
     func listD1Tables(accountId: String, databaseId: String) async throws -> [String]
 }
@@ -41,8 +44,37 @@ final class D1Service: D1ServiceProtocol {
 
     func deleteD1Database(accountId: String, databaseId: String) async throws {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/d1/database/\(databaseId)", method: "DELETE")
-        struct DeleteRes: Codable { let id: String? }
-        let (_, _): (DeleteRes?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
+    }
+
+    /// Fetches single D1 database details (GET /accounts/{account_id}/d1/database/{database_id})
+    func getD1Database(accountId: String, databaseId: String) async throws -> D1Database {
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/d1/database/\(databaseId)")
+        let (db, _): (D1Database?, ResultInfo?) = try await client.performRequest(request)
+        guard let database = db else {
+            throw APIError.cloudflareError("D1 database not found.")
+        }
+        return database
+    }
+
+    /// Fetches D1 database backups (GET /accounts/{account_id}/d1/database/{database_id}/backup)
+    func getD1Backups(accountId: String, databaseId: String) async throws -> [D1Backup] {
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/d1/database/\(databaseId)/backup")
+        let (backups, _): ([D1Backup]?, ResultInfo?) = try await client.performRequest(request)
+        return backups ?? []
+    }
+
+    /// Creates a manual backup of a D1 database (POST /accounts/{account_id}/d1/database/{database_id}/backup)
+    func createD1Backup(accountId: String, databaseId: String) async throws -> D1Backup {
+        let request = try factory.createAuthenticatedRequest(
+            path: "accounts/\(accountId)/d1/database/\(databaseId)/backup",
+            method: "POST"
+        )
+        let (backup, _): (D1Backup?, ResultInfo?) = try await client.performRequest(request)
+        guard let backup else {
+            throw APIError.cloudflareError("Failed to create D1 backup.")
+        }
+        return backup
     }
 
     func executeD1Query(accountId: String, databaseId: String, sql: String) async throws -> D1QueryResult {

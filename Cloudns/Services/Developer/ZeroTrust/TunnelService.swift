@@ -7,6 +7,7 @@ protocol TunnelServiceProtocol: Sendable {
     func getTunnelConfigurations(accountId: String, tunnelId: String) async throws -> [TunnelIngressRule]
     func updateTunnelConfigurations(accountId: String, tunnelId: String, ingressRules: [TunnelIngressRule]) async throws
     func getTunnelToken(accountId: String, tunnelId: String) async throws -> String?
+    func getTunnelConnections(accountId: String, tunnelId: String) async throws -> [TunnelConnection]
 }
 
 final class TunnelService: TunnelServiceProtocol {
@@ -34,8 +35,7 @@ final class TunnelService: TunnelServiceProtocol {
 
     func deleteTunnel(accountId: String, tunnelId: String) async throws {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/cfd_tunnel/\(tunnelId)", method: "DELETE")
-        struct DeleteRes: Codable { let id: String? }
-        let (_, _): (DeleteRes?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 
     func getTunnelConfigurations(accountId: String, tunnelId: String) async throws -> [TunnelIngressRule] {
@@ -61,13 +61,19 @@ final class TunnelService: TunnelServiceProtocol {
         let body = ConfigBody(config: ConfigBody.InnerConfig(ingress: ingressRules))
         let data = try JSONEncoder().encode(body)
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/cfd_tunnel/\(tunnelId)/configurations", method: "PUT", body: data)
-        struct Res: Codable { let id: String? }
-        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 
     func getTunnelToken(accountId: String, tunnelId: String) async throws -> String? {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/cfd_tunnel/\(tunnelId)/token")
         let (token, _): (String?, ResultInfo?) = try await client.performRequest(request)
         return token
+    }
+
+    /// Fetches active connector connections for a Cloudflare Tunnel (GET /accounts/{account_id}/cfd_tunnel/{tunnel_id}/connections)
+    func getTunnelConnections(accountId: String, tunnelId: String) async throws -> [TunnelConnection] {
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/cfd_tunnel/\(tunnelId)/connections")
+        let (connections, _): ([TunnelConnection]?, ResultInfo?) = try await client.performRequest(request)
+        return connections ?? []
     }
 }

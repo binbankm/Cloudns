@@ -245,3 +245,25 @@ public struct R2CORSRule: Codable, Identifiable, Equatable, Sendable {
         try container.encode(allowed, forKey: .allowed)
     }
 }
+
+// MARK: - R2 Bucket Usage Model
+
+public struct R2BucketUsage: Codable, Equatable, Sendable {
+    public let objectCount: Int?
+    public let payloadSize: Double?
+
+    enum CodingKeys: String, CodingKey {
+        case objectCount = "object_count"
+        case payloadSize = "payload_size"
+    }
+
+    public init(objectCount: Int? = nil, payloadSize: Double? = nil) {
+        self.objectCount = objectCount
+        self.payloadSize = payloadSize
+    }
+
+    public var formattedPayloadSize: String {
+        guard let size = payloadSize else { return "0 B" }
+        return ByteCountFormatter.string(fromByteCount: Int64(size), countStyle: .file)
+    }
+}

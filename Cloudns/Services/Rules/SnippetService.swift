@@ -34,8 +34,7 @@ final class SnippetService: SnippetServiceProtocol {
 
     func deleteSnippet(zoneId: String, snippetName: String) async throws {
         let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/snippets/\(snippetName)", method: "DELETE")
-        struct Res: Codable { let id: String? }
-        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 
     func deleteSnippetRule(zoneId: String, rulesetId: String, ruleId: String) async throws {

@@ -51,8 +51,7 @@ final class LoadBalancerService: LoadBalancerServiceProtocol {
 
     func deleteLoadBalancer(zoneId: String, lbId: String) async throws {
         let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/load_balancers/\(lbId)", method: "DELETE")
-        struct DeleteResult: Codable { let id: String? }
-        let (_, _): (DeleteResult?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 
     func createLBPool(accountId: String, pool: LBPoolUpdate) async throws -> LBPool {
@@ -66,8 +65,7 @@ final class LoadBalancerService: LoadBalancerServiceProtocol {
 
     func deleteLBPool(accountId: String, poolId: String) async throws {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/load_balancers/pools/\(poolId)", method: "DELETE")
-        struct Res: Codable { let id: String? }
-        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 
     func createLBMonitor(accountId: String, monitor: LBMonitorUpdate) async throws -> LBMonitor {
@@ -81,7 +79,6 @@ final class LoadBalancerService: LoadBalancerServiceProtocol {
 
     func deleteLBMonitor(accountId: String, monitorId: String) async throws {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/load_balancers/monitors/\(monitorId)", method: "DELETE")
-        struct Res: Codable { let id: String? }
-        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 }

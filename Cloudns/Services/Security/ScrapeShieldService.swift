@@ -44,15 +44,10 @@ final class ScrapeShieldService: ScrapeShieldServiceProtocol {
     }
 
     func updateScrapeShieldSetting(zoneId: String, settingId: String, value: String) async throws {
-        let payload = ["value": value]
-        let data = try JSONSerialization.data(withJSONObject: payload)
-        let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/settings/\(settingId)", method: "PATCH", body: data)
-        let (_, _): (ZoneSetting?, ResultInfo?) = try await client.performRequest(request)
+        _ = try await ZoneService.shared.updateZoneSetting(zoneId: zoneId, settingName: settingId, value: value)
     }
 
     private func getSetting(zoneId: String, settingName: String) async throws -> ZoneSetting? {
-        let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/settings/\(settingName)")
-        let (setting, _): (ZoneSetting?, ResultInfo?) = try await client.performRequest(request)
-        return setting
+        try await ZoneService.shared.getZoneSetting(zoneId: zoneId, settingName: settingName)
     }
 }

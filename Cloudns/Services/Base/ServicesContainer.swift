@@ -12,10 +12,15 @@ final class ServicesContainer: @unchecked Sendable {
 
     var zones: ZoneServiceProtocol = ZoneService.shared
     var dns: DNSServiceProtocol = DNSService.shared
+    var dnssec: DNSSECServiceProtocol = DNSSECService.shared
+    var dnsAnalytics: DNSAnalyticsServiceProtocol = DNSAnalyticsService.shared
 
     // MARK: - 3. Security & SSL
 
-    var ssl: CertificateServiceProtocol = CertificateService.shared
+    var sslSettings: SSLSettingsServiceProtocol = SSLSettingsService.shared
+    var edgeCertificates: EdgeCertificateServiceProtocol = EdgeCertificateService.shared
+    var customCertificates: CustomCertificateServiceProtocol = CustomCertificateService.shared
+    var originCertificates: OriginCertificateServiceProtocol = OriginCertificateService.shared
     var securitySettings: SecuritySettingsServiceProtocol = SecuritySettingsService.shared
     var waf: WAFRulesServiceProtocol = WAFRulesService.shared
     var ipAccess: IPAccessRulesServiceProtocol = IPAccessRulesService.shared

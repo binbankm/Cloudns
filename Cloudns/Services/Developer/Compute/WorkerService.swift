@@ -24,6 +24,11 @@ protocol WorkerServiceProtocol: Sendable {
     func testWorkerDispatch(urlString: String, httpMethod: String, headers: [String: String], body: String?) async throws -> HTTPInspectionResult
     func getWorkerDeployments(accountId: String, scriptName: String) async throws -> [WorkerDeployment]
     func rollbackWorkerDeployment(accountId: String, scriptName: String, deploymentId: String) async throws
+    func getWorkerRoutes(zoneId: String) async throws -> [WorkerZoneRoute]
+    func createWorkerRoute(zoneId: String, pattern: String, script: String?) async throws -> WorkerZoneRoute
+    func deleteWorkerRoute(zoneId: String, routeId: String) async throws
+    func getAccountWorkersSubdomain(accountId: String) async throws -> WorkerAccountSubdomain?
+    func setAccountWorkersSubdomain(accountId: String, subdomain: String) async throws -> WorkerAccountSubdomain
 }
 
 /// Concrete domain service for Cloudflare Workers scripts, triggers, and secrets
@@ -51,8 +56,7 @@ final class WorkerService: WorkerServiceProtocol {
 
     func deleteWorker(accountId: String, scriptName: String) async throws {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/workers/scripts/\(scriptName)", method: "DELETE")
-        struct DeleteRes: Codable { let id: String? }
-        let (_, _): (DeleteRes?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 
     func getWorkerContent(accountId: String, scriptName: String) async throws -> WorkerScriptContentResult {
@@ -96,8 +100,7 @@ final class WorkerService: WorkerServiceProtocol {
                 body: body,
                 contentType: "multipart/form-data; boundary=\(boundary)"
             )
-            struct UploadRes: Codable { let id: String? }
-            let (_, _): (UploadRes?, ResultInfo?) = try await client.performRequest(request)
+            let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
         } else {
             let request = try factory.createAuthenticatedRequest(
                 path: "accounts/\(accountId)/workers/scripts/\(scriptName)",
@@ -105,8 +108,7 @@ final class WorkerService: WorkerServiceProtocol {
                 body: code.data(using: .utf8),
                 contentType: "application/javascript"
             )
-            struct UploadRes: Codable { let id: String? }
-            let (_, _): (UploadRes?, ResultInfo?) = try await client.performRequest(request)
+            let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
         }
     }
 
@@ -120,8 +122,7 @@ final class WorkerService: WorkerServiceProtocol {
         let encoder = JSONEncoder()
         let data = try encoder.encode(bindings)
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/workers/scripts/\(scriptName)/bindings", method: "PUT", body: data)
-        struct Res: Codable { let id: String? }
-        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 
     func getWorkerSubdomain(accountId: String, scriptName: String) async throws -> WorkerSubdomain? {
@@ -134,8 +135,7 @@ final class WorkerService: WorkerServiceProtocol {
         let payload: [String: Any] = ["enabled": enabled]
         let data = try JSONSerialization.data(withJSONObject: payload)
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/workers/scripts/\(scriptName)/subdomain", method: "POST", body: data)
-        struct Res: Codable { let id: String? }
-        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 
     func getWorkerSchedules(accountId: String, scriptName: String) async throws -> [WorkerSchedule] {
@@ -148,8 +148,7 @@ final class WorkerService: WorkerServiceProtocol {
         let schedules = crons.map { WorkerScheduleInput(cron: $0) }
         let data = try JSONEncoder().encode(schedules)
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/workers/scripts/\(scriptName)/schedules", method: "PUT", body: data)
-        struct Res: Codable { let id: String? }
-        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 
     func getWorkerSecrets(accountId: String, scriptName: String) async throws -> [WorkerSecret] {
@@ -162,14 +161,12 @@ final class WorkerService: WorkerServiceProtocol {
         let payload: [String: Any] = ["name": name, "text": text, "type": "secret_text"]
         let data = try JSONSerialization.data(withJSONObject: payload)
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/workers/scripts/\(scriptName)/secrets", method: "PUT", body: data)
-        struct Res: Codable { let id: String? }
-        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 
     func deleteWorkerSecret(accountId: String, scriptName: String, name: String) async throws {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/workers/scripts/\(scriptName)/secrets/\(name)", method: "DELETE")
-        struct Res: Codable { let id: String? }
-        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 
     func getWorkerCustomDomains(accountId: String, scriptName: String) async throws -> [WorkerCustomDomain] {
@@ -182,14 +179,12 @@ final class WorkerService: WorkerServiceProtocol {
         let payload: [String: Any] = ["hostname": hostname, "zone_id": zoneId, "service": scriptName, "environment": "production"]
         let data = try JSONSerialization.data(withJSONObject: payload)
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/workers/domains/records", method: "PUT", body: data)
-        struct Res: Codable { let id: String? }
-        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 
     func detachWorkerDomain(accountId: String, domainId: String) async throws {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/workers/domains/records/\(domainId)", method: "DELETE")
-        struct Res: Codable { let id: String? }
-        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 
     func createWorkerTailSession(accountId: String, scriptName: String) async throws -> WorkerTailSession {
@@ -201,8 +196,7 @@ final class WorkerService: WorkerServiceProtocol {
 
     func deleteWorkerTailSession(accountId: String, scriptName: String, tailId: String) async throws {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/workers/scripts/\(scriptName)/tails/\(tailId)", method: "DELETE")
-        struct Res: Codable { let id: String? }
-        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 
     func testWorkerDispatch(urlString: String, httpMethod: String, headers: [String: String], body: String?) async throws -> HTTPInspectionResult {
@@ -298,7 +292,66 @@ final class WorkerService: WorkerServiceProtocol {
 
     func rollbackWorkerDeployment(accountId: String, scriptName: String, deploymentId: String) async throws {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/workers/scripts/\(scriptName)/deployments/\(deploymentId)/rollback", method: "POST")
-        struct Res: Codable { let id: String? }
-        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
+    }
+
+    /// Fetches all routes bound to workers in a zone (GET /zones/{zone_id}/workers/routes)
+    func getWorkerRoutes(zoneId: String) async throws -> [WorkerZoneRoute] {
+        let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/workers/routes")
+        let (routes, _): ([WorkerZoneRoute]?, ResultInfo?) = try await client.performRequest(request)
+        return routes ?? []
+    }
+
+    /// Creates a worker route in a zone (POST /zones/{zone_id}/workers/routes)
+    func createWorkerRoute(zoneId: String, pattern: String, script: String?) async throws -> WorkerZoneRoute {
+        struct RoutePayload: Encodable, Sendable {
+            let pattern: String
+            let script: String?
+        }
+        let body = try JSONEncoder().encode(RoutePayload(pattern: pattern, script: script))
+        let request = try factory.createAuthenticatedRequest(
+            path: "zones/\(zoneId)/workers/routes",
+            method: "POST",
+            body: body
+        )
+        let (route, _): (WorkerZoneRoute?, ResultInfo?) = try await client.performRequest(request)
+        guard let route else {
+            throw APIError.cloudflareError("Failed to create worker route.")
+        }
+        return route
+    }
+
+    /// Deletes a worker route in a zone (DELETE /zones/{zone_id}/workers/routes/{route_id})
+    func deleteWorkerRoute(zoneId: String, routeId: String) async throws {
+        let request = try factory.createAuthenticatedRequest(
+            path: "zones/\(zoneId)/workers/routes/\(routeId)",
+            method: "DELETE"
+        )
+        _ = try await client.performDataRequest(request)
+    }
+
+    /// Fetches workers.dev subdomain for an account (GET /accounts/{account_id}/workers/subdomain)
+    func getAccountWorkersSubdomain(accountId: String) async throws -> WorkerAccountSubdomain? {
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/workers/subdomain")
+        let (subdomain, _): (WorkerAccountSubdomain?, ResultInfo?) = try await client.performRequest(request)
+        return subdomain
+    }
+
+    /// Sets or registers workers.dev subdomain for an account (PUT /accounts/{account_id}/workers/subdomain)
+    func setAccountWorkersSubdomain(accountId: String, subdomain: String) async throws -> WorkerAccountSubdomain {
+        struct SubdomainPayload: Encodable, Sendable {
+            let subdomain: String
+        }
+        let body = try JSONEncoder().encode(SubdomainPayload(subdomain: subdomain))
+        let request = try factory.createAuthenticatedRequest(
+            path: "accounts/\(accountId)/workers/subdomain",
+            method: "PUT",
+            body: body
+        )
+        let (result, _): (WorkerAccountSubdomain?, ResultInfo?) = try await client.performRequest(request)
+        guard let result else {
+            throw APIError.cloudflareError("Failed to set workers subdomain.")
+        }
+        return result
     }
 }

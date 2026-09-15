@@ -14,8 +14,6 @@ protocol DNSServiceProtocol: Sendable {
     func exportDNSRecords(zoneId: String) async throws -> URL
     func importDNSRecords(zoneId: String, fileURL: URL) async throws
     func scanDNSRecords(zoneId: String) async throws -> Bool
-    func getDNSSEC(zoneId: String) async throws -> DNSSEC
-    func updateDNSSEC(zoneId: String, status: String) async throws -> DNSSEC
 }
 
 extension DNSServiceProtocol {
@@ -138,8 +136,7 @@ final class DNSService: DNSServiceProtocol {
     /// Deletes DNS record
     func deleteDNSRecord(zoneId: String, recordId: String) async throws -> String {
         let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/dns_records/\(recordId)", method: "DELETE")
-        struct DeleteResult: Codable { let id: String }
-        let (res, _): (DeleteResult?, ResultInfo?) = try await client.performRequest(request)
+        let (res, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
         return res?.id ?? recordId
     }
 
@@ -148,8 +145,7 @@ final class DNSService: DNSServiceProtocol {
         let payload: [String: Any] = ["deletes": deletes.map { ["id": $0] }]
         let data = try JSONSerialization.data(withJSONObject: payload)
         let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/dns_records/batch", method: "POST", body: data)
-        struct BatchRes: Codable { let id: String? }
-        let (_, _): (BatchRes?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 
     /// Exports DNS records in BIND zone file format
@@ -190,27 +186,5 @@ final class DNSService: DNSServiceProtocol {
         }
         let (res, _): (ScanResponse?, ResultInfo?) = try await client.performRequest(request)
         return res != nil
-    }
-
-    /// Fetches DNSSEC details
-    func getDNSSEC(zoneId: String) async throws -> DNSSEC {
-        let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/dnssec")
-        let (dnssec, _): (DNSSEC?, ResultInfo?) = try await client.performRequest(request)
-        guard let dnssec else {
-            throw APIError.cloudflareError("DNSSEC details not found.")
-        }
-        return dnssec
-    }
-
-    /// Updates DNSSEC status (active / disabled)
-    func updateDNSSEC(zoneId: String, status: String) async throws -> DNSSEC {
-        let payload = ["status": status]
-        let data = try JSONSerialization.data(withJSONObject: payload)
-        let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/dnssec", method: "PATCH", body: data)
-        let (dnssec, _): (DNSSEC?, ResultInfo?) = try await client.performRequest(request)
-        guard let dnssec else {
-            throw APIError.cloudflareError("Failed to update DNSSEC status.")
-        }
-        return dnssec
     }
 }

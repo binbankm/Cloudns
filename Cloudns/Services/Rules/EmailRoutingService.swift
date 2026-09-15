@@ -65,8 +65,7 @@ final class EmailRoutingService: EmailRoutingServiceProtocol {
 
     func deleteDestinationAddress(accountId: String, addressId: String) async throws {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/email/routing/addresses/\(addressId)", method: "DELETE")
-        struct DeleteResult: Codable { let id: String? }
-        let (_, _): (DeleteResult?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 
     func getCatchAllRule(zoneId: String) async throws -> EmailRoutingRule? {
@@ -106,7 +105,6 @@ final class EmailRoutingService: EmailRoutingServiceProtocol {
 
     func deleteEmailRoutingRule(zoneId: String, ruleId: String) async throws {
         let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/email/routing/rules/\(ruleId)", method: "DELETE")
-        struct DeleteResult: Codable { let id: String? }
-        let (_, _): (DeleteResult?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 }

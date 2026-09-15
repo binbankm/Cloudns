@@ -4,12 +4,15 @@ protocol KVServiceProtocol: Sendable {
     func getKVNamespaces(accountId: String) async throws -> [KVNamespace]
     func listKVNamespaces(accountId: String) async throws -> [KVNamespace]
     func createKVNamespace(accountId: String, title: String) async throws -> KVNamespace
+    func updateKVNamespace(accountId: String, namespaceId: String, title: String) async throws
     func deleteKVNamespace(accountId: String, namespaceId: String) async throws
     func getKVKeys(accountId: String, namespaceId: String) async throws -> [KVKey]
     func listKVKeys(accountId: String, namespaceId: String, prefix: String?, limit: Int) async throws -> [KVKey]
     func getKVValue(accountId: String, namespaceId: String, key: String) async throws -> String
     func saveKVValue(accountId: String, namespaceId: String, key: String, value: String, expirationTTL: Int?) async throws
     func deleteKVKey(accountId: String, namespaceId: String, key: String) async throws
+    func writeKVBulk(accountId: String, namespaceId: String, entries: [KVBulkEntry]) async throws
+    func deleteKVBulk(accountId: String, namespaceId: String, keys: [String]) async throws
 }
 
 final class KVService: KVServiceProtocol {
@@ -17,12 +20,6 @@ final class KVService: KVServiceProtocol {
 
     private let client = HTTPNetworkClient.shared
     private let factory = AuthenticatedRequestFactory.shared
-
-    private static let safeKVCharSet: CharacterSet = {
-        var set = CharacterSet.urlPathAllowed
-        set.remove(charactersIn: "/?#[]@!$&'()*+,;=")
-        return set
-    }()
 
     private init() {}
 
@@ -45,10 +42,21 @@ final class KVService: KVServiceProtocol {
         return item
     }
 
+    /// Renames a KV namespace (PUT /accounts/{account_id}/storage/kv/namespaces/{namespace_id})
+    func updateKVNamespace(accountId: String, namespaceId: String, title: String) async throws {
+        let payload = ["title": title]
+        let data = try JSONSerialization.data(withJSONObject: payload)
+        let request = try factory.createAuthenticatedRequest(
+            path: "accounts/\(accountId)/storage/kv/namespaces/\(namespaceId)",
+            method: "PUT",
+            body: data
+        )
+        _ = try await client.performDataRequest(request)
+    }
+
     func deleteKVNamespace(accountId: String, namespaceId: String) async throws {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/storage/kv/namespaces/\(namespaceId)", method: "DELETE")
-        struct DeleteRes: Codable { let id: String? }
-        let (_, _): (DeleteRes?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 
     func getKVKeys(accountId: String, namespaceId: String) async throws -> [KVKey] {
@@ -66,14 +74,14 @@ final class KVService: KVServiceProtocol {
     }
 
     func getKVValue(accountId: String, namespaceId: String, key: String) async throws -> String {
-        let encodedKey = key.addingPercentEncoding(withAllowedCharacters: Self.safeKVCharSet) ?? key
+        let encodedKey = key.addingPercentEncoding(withAllowedCharacters: .cloudflareURLPathAllowed) ?? key
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/storage/kv/namespaces/\(namespaceId)/values/\(encodedKey)")
         let data = try await client.performDataRequest(request)
         return String(data: data, encoding: .utf8) ?? ""
     }
 
     func saveKVValue(accountId: String, namespaceId: String, key: String, value: String, expirationTTL: Int? = nil) async throws {
-        let encodedKey = key.addingPercentEncoding(withAllowedCharacters: Self.safeKVCharSet) ?? key
+        let encodedKey = key.addingPercentEncoding(withAllowedCharacters: .cloudflareURLPathAllowed) ?? key
         var queryItems: [URLQueryItem]?
         if let ttl = expirationTTL {
             queryItems = [URLQueryItem(name: "expiration_ttl", value: "\(ttl)")]
@@ -85,14 +93,34 @@ final class KVService: KVServiceProtocol {
             body: value.data(using: .utf8),
             contentType: "text/plain"
         )
-        struct Res: Codable { let id: String? }
-        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 
     func deleteKVKey(accountId: String, namespaceId: String, key: String) async throws {
-        let encodedKey = key.addingPercentEncoding(withAllowedCharacters: Self.safeKVCharSet) ?? key
+        let encodedKey = key.addingPercentEncoding(withAllowedCharacters: .cloudflareURLPathAllowed) ?? key
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/storage/kv/namespaces/\(namespaceId)/values/\(encodedKey)", method: "DELETE")
-        struct Res: Codable { let id: String? }
-        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
+    }
+
+    /// Writes multiple key-value pairs to KV in a single batch (PUT /accounts/{account_id}/storage/kv/namespaces/{namespace_id}/bulk)
+    func writeKVBulk(accountId: String, namespaceId: String, entries: [KVBulkEntry]) async throws {
+        let data = try JSONEncoder().encode(entries)
+        let request = try factory.createAuthenticatedRequest(
+            path: "accounts/\(accountId)/storage/kv/namespaces/\(namespaceId)/bulk",
+            method: "PUT",
+            body: data
+        )
+        _ = try await client.performDataRequest(request)
+    }
+
+    /// Deletes multiple key-value pairs from KV in a single batch (DELETE /accounts/{account_id}/storage/kv/namespaces/{namespace_id}/bulk)
+    func deleteKVBulk(accountId: String, namespaceId: String, keys: [String]) async throws {
+        let data = try JSONEncoder().encode(keys)
+        let request = try factory.createAuthenticatedRequest(
+            path: "accounts/\(accountId)/storage/kv/namespaces/\(namespaceId)/bulk",
+            method: "DELETE",
+            body: data
+        )
+        _ = try await client.performDataRequest(request)
     }
 }

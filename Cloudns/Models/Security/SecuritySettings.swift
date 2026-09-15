@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - General Security Settings (Codable, Sendable, Equatable)
 
-public struct SecurityGeneralSettings: Codable, Equatable, Sendable {
+public struct SecuritySettings: Codable, Equatable, Sendable {
     public var securityLevel: String
     public var challengeTTL: Int
     public var browserCheck: Bool

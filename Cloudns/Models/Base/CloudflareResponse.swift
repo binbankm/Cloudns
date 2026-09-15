@@ -74,3 +74,21 @@ public struct CloudflareError: Codable, Equatable, Sendable {
 }
 
 extension CloudflareResponse: Equatable where T: Equatable {}
+
+/// Standard identifier response returned by Cloudflare mutation and deletion endpoints
+public struct CloudflareIDResponse: Codable, Equatable, Sendable {
+    public let id: String?
+
+    public init(id: String? = nil) {
+        self.id = id
+    }
+}
+
+extension CharacterSet {
+    /// Standard character set allowed in Cloudflare URL paths (excluding reserved URL delimiters)
+    public static let cloudflareURLPathAllowed: CharacterSet = {
+        var set = CharacterSet.urlPathAllowed
+        set.remove(charactersIn: "/?#[]@!$&'()*+,;=")
+        return set
+    }()
+}

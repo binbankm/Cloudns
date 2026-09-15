@@ -45,3 +45,24 @@ public struct KVKey: Codable, Identifiable, Equatable, Sendable {
         self.metadata = metadata
     }
 }
+
+// MARK: - KV Bulk Entry Model
+
+public struct KVBulkEntry: Codable, Equatable, Sendable {
+    public let key: String
+    public let value: String
+    public let expirationTTL: Int?
+    public let metadata: JSONValue?
+
+    enum CodingKeys: String, CodingKey {
+        case key, value, metadata
+        case expirationTTL = "expiration_ttl"
+    }
+
+    public init(key: String, value: String, expirationTTL: Int? = nil, metadata: JSONValue? = nil) {
+        self.key = key
+        self.value = value
+        self.expirationTTL = expirationTTL
+        self.metadata = metadata
+    }
+}

@@ -35,7 +35,6 @@ final class AlertingService: AlertingServiceProtocol {
 
     func deleteAlertingPolicy(accountId: String, policyId: String) async throws {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/alerting/v3/policies/\(policyId)", method: "DELETE")
-        struct Res: Codable { let id: String? }
-        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 }

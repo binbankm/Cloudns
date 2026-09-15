@@ -71,7 +71,17 @@ public struct CFQueueConsumer: Codable, Equatable, Identifiable, Sendable {
         case scriptName = "script_name"
         case settings
     }
+
+    public init(service: String? = nil, environment: String? = nil, scriptName: String? = nil, settings: CFQueueConsumerSettings? = nil) {
+        self.service = service
+        self.environment = environment
+        self.scriptName = scriptName
+        self.settings = settings
+    }
 }
+
+public typealias QueueConsumer = CFQueueConsumer
+public typealias QueueConsumerSettings = CFQueueConsumerSettings
 
 public struct CFQueueConsumerSettings: Codable, Equatable, Sendable {
     public let batchSize: Int?
@@ -86,6 +96,14 @@ public struct CFQueueConsumerSettings: Codable, Equatable, Sendable {
         case maxRetries = "max_retries"
         case maxWaitTimeMs = "max_wait_time_ms"
         case retryDelay = "retry_delay"
+    }
+
+    public init(batchSize: Int? = 10, maxBatchTimeout: Int? = 5, maxRetries: Int? = 3, maxWaitTimeMs: Int? = nil, retryDelay: Int? = nil) {
+        self.batchSize = batchSize
+        self.maxBatchTimeout = maxBatchTimeout
+        self.maxRetries = maxRetries
+        self.maxWaitTimeMs = maxWaitTimeMs
+        self.retryDelay = retryDelay
     }
 }
 

@@ -17,6 +17,7 @@ protocol R2ServiceProtocol: Sendable {
     func getR2CORS(accountId: String, bucketName: String) async throws -> [R2CORSRule]
     func putR2CORS(accountId: String, bucketName: String, rules: [R2CORSRule]) async throws
     func deleteR2CORS(accountId: String, bucketName: String) async throws
+    func getR2BucketUsage(accountId: String, bucketName: String) async throws -> R2BucketUsage?
 }
 
 final class R2Service: R2ServiceProtocol {
@@ -24,12 +25,6 @@ final class R2Service: R2ServiceProtocol {
 
     private let client = HTTPNetworkClient.shared
     private let factory = AuthenticatedRequestFactory.shared
-
-    private static let safeKeyCharSet: CharacterSet = {
-        var set = CharacterSet.urlPathAllowed
-        set.remove(charactersIn: "/?#[]@!$&'()*+,;=")
-        return set
-    }()
 
     private init() {}
 
@@ -85,8 +80,7 @@ final class R2Service: R2ServiceProtocol {
 
     func deleteR2Bucket(accountId: String, bucketName: String) async throws {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/r2/buckets/\(bucketName)", method: "DELETE")
-        struct DeleteRes: Codable { let id: String? }
-        let (_, _): (DeleteRes?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 
     func getR2Objects(accountId: String, bucketName: String) async throws -> [R2Object] {
@@ -145,14 +139,13 @@ final class R2Service: R2ServiceProtocol {
     }
 
     func putR2Object(accountId: String, bucketName: String, objectKey: String, data: Data, contentType: String = "application/octet-stream") async throws {
-        let encodedKey = objectKey.addingPercentEncoding(withAllowedCharacters: Self.safeKeyCharSet) ?? objectKey
+        let encodedKey = objectKey.addingPercentEncoding(withAllowedCharacters: .cloudflareURLPathAllowed) ?? objectKey
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/r2/buckets/\(bucketName)/objects/\(encodedKey)", method: "PUT", body: data, contentType: contentType)
-        struct Res: Codable { let key: String? }
-        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 
     func uploadR2ObjectFromFile(accountId: String, bucketName: String, objectKey: String, fileURL: URL, contentType: String = "application/octet-stream") async throws {
-        let encodedKey = objectKey.addingPercentEncoding(withAllowedCharacters: Self.safeKeyCharSet) ?? objectKey
+        let encodedKey = objectKey.addingPercentEncoding(withAllowedCharacters: .cloudflareURLPathAllowed) ?? objectKey
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/r2/buckets/\(bucketName)/objects/\(encodedKey)", method: "PUT", contentType: contentType)
         let (data, response) = try await URLSession.shared.upload(for: request, fromFile: fileURL)
         guard let http = response as? HTTPURLResponse else {
@@ -164,10 +157,9 @@ final class R2Service: R2ServiceProtocol {
     }
 
     func deleteR2Object(accountId: String, bucketName: String, objectKey: String) async throws {
-        let encodedKey = objectKey.addingPercentEncoding(withAllowedCharacters: Self.safeKeyCharSet) ?? objectKey
+        let encodedKey = objectKey.addingPercentEncoding(withAllowedCharacters: .cloudflareURLPathAllowed) ?? objectKey
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/r2/buckets/\(bucketName)/objects/\(encodedKey)", method: "DELETE")
-        struct Res: Codable { let key: String? }
-        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 
     func getR2ManagedDomain(accountId: String, bucketName: String) async throws -> R2ManagedDomain {
@@ -180,8 +172,7 @@ final class R2Service: R2ServiceProtocol {
         let payload = ["enabled": enabled]
         let data = try JSONSerialization.data(withJSONObject: payload)
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/r2/buckets/\(bucketName)/domains/managed", method: "PUT", body: data)
-        struct Res: Codable { let id: String? }
-        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 
     func getR2CustomDomains(accountId: String, bucketName: String) async throws -> [R2CustomDomain] {
@@ -198,8 +189,7 @@ final class R2Service: R2ServiceProtocol {
 
     func deleteR2CustomDomain(accountId: String, bucketName: String, domain: String) async throws {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/r2/buckets/\(bucketName)/domains/custom/\(domain)", method: "DELETE")
-        struct Res: Codable { let id: String? }
-        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 
     func getR2CORS(accountId: String, bucketName: String) async throws -> [R2CORSRule] {
@@ -214,13 +204,18 @@ final class R2Service: R2ServiceProtocol {
     func putR2CORS(accountId: String, bucketName: String, rules: [R2CORSRule]) async throws {
         let data = try JSONEncoder().encode(["rules": rules])
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/r2/buckets/\(bucketName)/cors", method: "PUT", body: data)
-        struct Res: Codable { let id: String? }
-        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 
     func deleteR2CORS(accountId: String, bucketName: String) async throws {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/r2/buckets/\(bucketName)/cors", method: "DELETE")
-        struct Res: Codable { let id: String? }
-        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
+    }
+
+    /// Fetches bucket storage and object usage metrics (GET /accounts/{account_id}/r2/buckets/{bucket_name}/usage)
+    func getR2BucketUsage(accountId: String, bucketName: String) async throws -> R2BucketUsage? {
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/r2/buckets/\(bucketName)/usage")
+        let (usage, _): (R2BucketUsage?, ResultInfo?) = try await client.performRequest(request)
+        return usage
     }
 }

@@ -3,25 +3,24 @@ import Foundation
 /// Protocol defining Cloudflare Zone domain service
 protocol ZoneServiceProtocol: Sendable {
     func getZones(page: Int, perPage: Int, name: String?, status: String?) async throws -> ([Zone], ResultInfo?)
-    func getAccounts() async throws -> [Account]
     func getZoneDetails(zoneId: String) async throws -> Zone
     func createZone(name: String, accountId: String, jumpStart: Bool) async throws -> Zone
     func deleteZone(zoneId: String) async throws -> String
     func updateZoneStatus(zoneId: String, paused: Bool) async throws
     func pauseZone(zoneId: String, paused: Bool) async throws
     func checkActivation(zoneId: String) async throws -> Bool
-    func purgeCache(zoneId: String) async throws
-    func purgeCache(zoneId: String, files: [String]?, hosts: [String]?, purgeEverything: Bool) async throws
-    func getAuditLogs(accountId: String) async throws -> [AuditLog]
+    func getZoneSubscription(zoneId: String) async throws -> ZoneSubscription?
+    func getZoneHold(zoneId: String) async throws -> ZoneHold?
+    func setZoneHold(zoneId: String, hold: Bool, includeSubdomains: Bool?) async throws -> ZoneHold
+    func updateVanityNameServers(zoneId: String, vanityNameServers: [String]) async throws -> Zone
+    func getZoneSettings(zoneId: String) async throws -> [ZoneSetting]
+    func getZoneSetting(zoneId: String, settingName: String) async throws -> ZoneSetting?
+    func updateZoneSetting(zoneId: String, settingName: String, value: Any) async throws -> ZoneSetting
 }
 
 extension ZoneServiceProtocol {
     func getZones(page: Int = 1, perPage: Int = 50, name: String? = nil, status: String? = nil) async throws -> ([Zone], ResultInfo?) {
         try await getZones(page: page, perPage: perPage, name: name, status: status)
-    }
-
-    func purgeCache(zoneId: String) async throws {
-        try await purgeCache(zoneId: zoneId, files: nil, hosts: nil, purgeEverything: true)
     }
 }
 
@@ -54,13 +53,6 @@ final class ZoneService: ZoneServiceProtocol {
         return (zones ?? [], resultInfo)
     }
 
-    /// Fetches account list
-    func getAccounts() async throws -> [Account] {
-        let request = try factory.createAuthenticatedRequest(path: "accounts")
-        let (accounts, _): ([Account]?, ResultInfo?) = try await client.performRequest(request)
-        return accounts ?? []
-    }
-
     /// Fetches single zone details
     func getZoneDetails(zoneId: String) async throws -> Zone {
         let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)")
@@ -91,8 +83,7 @@ final class ZoneService: ZoneServiceProtocol {
     /// Deletes zone
     func deleteZone(zoneId: String) async throws -> String {
         let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)", method: "DELETE")
-        struct DeleteResult: Codable { let id: String }
-        let (res, _): (DeleteResult?, ResultInfo?) = try await client.performRequest(request)
+        let (res, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
         return res?.id ?? zoneId
     }
 
@@ -111,39 +102,99 @@ final class ZoneService: ZoneServiceProtocol {
     /// Initiates another check for valid DNS data / nameservers for a zone (Official PUT /zones/{id}/activation_check)
     func checkActivation(zoneId: String) async throws -> Bool {
         let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/activation_check", method: "PUT")
-        struct ActivationCheckResponse: Codable {
-            let id: String?
-        }
-        let (res, _): (ActivationCheckResponse?, ResultInfo?) = try await client.performRequest(request)
+        let (res, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
         return res?.id != nil
     }
 
-    /// Purges cached assets (Full or Selective URLs / Hosts) - Official POST /zones/{id}/purge_cache
-    func purgeCache(
-        zoneId: String,
-        files: [String]? = nil,
-        hosts: [String]? = nil,
-        purgeEverything: Bool = true
-    ) async throws {
-        var payload: [String: Any] = [:]
-        if let files, !files.isEmpty {
-            payload["files"] = files
-        } else if let hosts, !hosts.isEmpty {
-            payload["hosts"] = hosts
-        } else {
-            payload["purge_everything"] = purgeEverything
-        }
-
-        let data = try JSONSerialization.data(withJSONObject: payload)
-        let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/purge_cache", method: "POST", body: data)
-        struct PurgeResult: Codable { let id: String? }
-        let (_, _): (PurgeResult?, ResultInfo?) = try await client.performRequest(request)
+    /// Fetches zone subscription and plan details (GET /client/v4/zones/{zone_id}/subscription)
+    func getZoneSubscription(zoneId: String) async throws -> ZoneSubscription? {
+        let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/subscription")
+        let (subscription, _): (ZoneSubscription?, ResultInfo?) = try await client.performRequest(request)
+        return subscription
     }
 
-    /// Fetches account audit logs
-    func getAuditLogs(accountId: String) async throws -> [AuditLog] {
-        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/audit_logs")
-        let (logs, _): ([AuditLog]?, ResultInfo?) = try await client.performRequest(request)
-        return logs ?? []
+    /// Fetches zone hold status (GET /client/v4/zones/{zone_id}/hold)
+    func getZoneHold(zoneId: String) async throws -> ZoneHold? {
+        let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/hold")
+        let (hold, _): (ZoneHold?, ResultInfo?) = try await client.performRequest(request)
+        return hold
+    }
+
+    /// Enables or disables zone hold (POST /client/v4/zones/{zone_id}/hold)
+    func setZoneHold(zoneId: String, hold: Bool, includeSubdomains: Bool? = nil) async throws -> ZoneHold {
+        struct ZoneHoldPayload: Encodable, Sendable {
+            let hold: Bool
+            let includeSubdomains: Bool?
+
+            enum CodingKeys: String, CodingKey {
+                case hold
+                case includeSubdomains = "include_subdomains"
+            }
+        }
+        let payload = ZoneHoldPayload(hold: hold, includeSubdomains: includeSubdomains)
+        let body = try JSONEncoder().encode(payload)
+        let request = try factory.createAuthenticatedRequest(
+            path: "zones/\(zoneId)/hold",
+            method: "POST",
+            body: body
+        )
+        let (res, _): (ZoneHold?, ResultInfo?) = try await client.performRequest(request)
+        guard let res else {
+            throw APIError.cloudflareError("Failed to update zone hold.")
+        }
+        return res
+    }
+
+    /// Updates vanity nameservers for a zone (PATCH /client/v4/zones/{zone_id})
+    func updateVanityNameServers(zoneId: String, vanityNameServers: [String]) async throws -> Zone {
+        struct VanityPayload: Encodable, Sendable {
+            let vanityNameServers: [String]
+
+            enum CodingKeys: String, CodingKey {
+                case vanityNameServers = "vanity_name_servers"
+            }
+        }
+        let payload = VanityPayload(vanityNameServers: vanityNameServers)
+        let body = try JSONEncoder().encode(payload)
+        let request = try factory.createAuthenticatedRequest(
+            path: "zones/\(zoneId)",
+            method: "PATCH",
+            body: body
+        )
+        let (zone, _): (Zone?, ResultInfo?) = try await client.performRequest(request)
+        guard let zone else {
+            throw APIError.cloudflareError("Failed to update vanity nameservers.")
+        }
+        return zone
+    }
+
+    /// Fetches all zone settings (GET /client/v4/zones/{zone_id}/settings)
+    func getZoneSettings(zoneId: String) async throws -> [ZoneSetting] {
+        let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/settings")
+        let (settings, _): ([ZoneSetting]?, ResultInfo?) = try await client.performRequest(request)
+        return settings ?? []
+    }
+
+    /// Fetches a specific zone setting by name (GET /client/v4/zones/{zone_id}/settings/{setting_name})
+    func getZoneSetting(zoneId: String, settingName: String) async throws -> ZoneSetting? {
+        let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/settings/\(settingName)")
+        let (setting, _): (ZoneSetting?, ResultInfo?) = try await client.performRequest(request)
+        return setting
+    }
+
+    /// Updates a specific zone setting by name (PATCH /client/v4/zones/{zone_id}/settings/{setting_name})
+    func updateZoneSetting(zoneId: String, settingName: String, value: Any) async throws -> ZoneSetting {
+        let payload = ["value": value]
+        let data = try JSONSerialization.data(withJSONObject: payload)
+        let request = try factory.createAuthenticatedRequest(
+            path: "zones/\(zoneId)/settings/\(settingName)",
+            method: "PATCH",
+            body: data
+        )
+        let (setting, _): (ZoneSetting?, ResultInfo?) = try await client.performRequest(request)
+        guard let s = setting else {
+            throw APIError.cloudflareError("Failed to update \(settingName).")
+        }
+        return s
     }
 }

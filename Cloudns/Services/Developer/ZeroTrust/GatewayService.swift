@@ -4,6 +4,7 @@ protocol GatewayServiceProtocol: Sendable {
     func listGatewayRules(accountId: String) async throws -> [GatewayRule]
     func createGatewayRule(accountId: String, name: String, action: String, traffic: String, enabled: Bool, filters: [String]) async throws -> GatewayRule
     func deleteGatewayRule(accountId: String, ruleId: String) async throws
+    func toggleGatewayRule(accountId: String, ruleId: String, enabled: Bool) async throws
 }
 
 final class GatewayService: GatewayServiceProtocol {
@@ -50,7 +51,18 @@ final class GatewayService: GatewayServiceProtocol {
 
     func deleteGatewayRule(accountId: String, ruleId: String) async throws {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/gateway/rules/\(ruleId)", method: "DELETE")
-        struct Res: Codable { let id: String? }
-        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
+    }
+
+    /// Toggles active status of a Gateway rule (PATCH /accounts/{account_id}/gateway/rules/{rule_id})
+    func toggleGatewayRule(accountId: String, ruleId: String, enabled: Bool) async throws {
+        let payload: [String: Any] = ["enabled": enabled]
+        let data = try JSONSerialization.data(withJSONObject: payload)
+        let request = try factory.createAuthenticatedRequest(
+            path: "accounts/\(accountId)/gateway/rules/\(ruleId)",
+            method: "PATCH",
+            body: data
+        )
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 }

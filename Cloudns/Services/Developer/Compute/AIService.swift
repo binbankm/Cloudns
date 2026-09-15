@@ -32,14 +32,12 @@ final class AIService: AIServiceProtocol {
         let payload: [String: Any] = ["id": id, "collect_logs": true]
         let data = try JSONSerialization.data(withJSONObject: payload)
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/ai-gateway/gateways", method: "POST", body: data)
-        struct Res: Codable { let id: String? }
-        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 
     func deleteAIGateway(accountId: String, id: String) async throws {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/ai-gateway/gateways/\(id)", method: "DELETE")
-        struct Res: Codable { let id: String? }
-        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 
     func getWorkersAIModels(accountId: String) async throws -> [AIModel] {

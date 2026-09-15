@@ -11,6 +11,8 @@ protocol NetworkSettingsServiceProtocol: Sendable {
     func updateOriginMaxHTTPVersion(zoneId: String, version: String) async throws
     func getSecurityHeader(zoneId: String) async throws -> HSTSSettings
     func updateSecurityHeader(zoneId: String, enabled: Bool, maxAge: Int, includeSubdomains: Bool, preload: Bool, nosniff: Bool) async throws
+    func updateZeroRTT(zoneId: String, isOn: Bool) async throws
+    func updatePseudoIPv4(zoneId: String, value: String) async throws
 }
 
 /// Concrete domain service for Cloudflare network protocols
@@ -66,7 +68,7 @@ final class NetworkSettingsService: NetworkSettingsServiceProtocol {
     }
 
     func getSecurityHeader(zoneId: String) async throws -> HSTSSettings {
-        let setting = try? await getSetting(zoneId: zoneId, settingName: "security_header")
+        let setting = try? await ZoneService.shared.getZoneSetting(zoneId: zoneId, settingName: "security_header")
         guard let s = setting, let hstsVal = s.value.securityHeaderValue?.strict_transport_security else {
             return HSTSSettings(enabled: false, maxAge: 0, includeSubdomains: false, nosniff: false, preload: false)
         }
@@ -75,45 +77,36 @@ final class NetworkSettingsService: NetworkSettingsServiceProtocol {
             maxAge: hstsVal.max_age,
             includeSubdomains: hstsVal.include_subdomains,
             nosniff: hstsVal.nosniff,
-            preload: hstsPreload(hstsVal.preload)
+            preload: hstsVal.preload ?? false
         )
     }
 
-    private func hstsPreload(_ preload: Bool?) -> Bool {
-        preload ?? false
+    func updateSecurityHeader(zoneId: String, enabled: Bool, maxAge: Int, includeSubdomains: Bool, preload: Bool, nosniff: Bool) async throws {
+        try await SSLSettingsService.shared.updateHSTS(
+            zoneId: zoneId,
+            enabled: enabled,
+            maxAge: maxAge,
+            subdomains: includeSubdomains,
+            nosniff: nosniff,
+            preload: preload
+        )
     }
 
-    func updateSecurityHeader(zoneId: String, enabled: Bool, maxAge: Int, includeSubdomains: Bool, preload: Bool, nosniff: Bool) async throws {
-        let payload: [String: Any] = [
-            "value": [
-                "strict_transport_security": [
-                    "enabled": enabled,
-                    "max_age": maxAge,
-                    "include_subdomains": includeSubdomains,
-                    "preload": preload,
-                    "nosniff": nosniff
-                ]
-            ]
-        ]
-        let data = try JSONSerialization.data(withJSONObject: payload)
-        let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/settings/security_header", method: "PATCH", body: data)
-        let (_, _): (ZoneSetting?, ResultInfo?) = try await client.performRequest(request)
+    /// Updates 0-RTT Connection Resumption setting (PATCH /zones/{zone_id}/settings/0rtt)
+    func updateZeroRTT(zoneId: String, isOn: Bool) async throws {
+        _ = try await updateSetting(zoneId: zoneId, settingName: "0rtt", value: isOn ? "on" : "off")
+    }
+
+    /// Updates Pseudo IPv4 setting (PATCH /zones/{zone_id}/settings/pseudo_ipv4)
+    func updatePseudoIPv4(zoneId: String, value: String) async throws {
+        _ = try await updateSetting(zoneId: zoneId, settingName: "pseudo_ipv4", value: value)
     }
 
     private func getSetting(zoneId: String, settingName: String) async throws -> ZoneSetting? {
-        let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/settings/\(settingName)")
-        let (setting, _): (ZoneSetting?, ResultInfo?) = try await client.performRequest(request)
-        return setting
+        try await ZoneService.shared.getZoneSetting(zoneId: zoneId, settingName: settingName)
     }
 
     private func updateSetting(zoneId: String, settingName: String, value: Any) async throws -> ZoneSetting {
-        let payload = ["value": value]
-        let data = try JSONSerialization.data(withJSONObject: payload)
-        let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/settings/\(settingName)", method: "PATCH", body: data)
-        let (setting, _): (ZoneSetting?, ResultInfo?) = try await client.performRequest(request)
-        guard let s = setting else {
-            throw APIError.cloudflareError("Failed to update \(settingName).")
-        }
-        return s
+        try await ZoneService.shared.updateZoneSetting(zoneId: zoneId, settingName: settingName, value: value)
     }
 }

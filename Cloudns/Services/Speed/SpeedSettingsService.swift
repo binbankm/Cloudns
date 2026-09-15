@@ -10,6 +10,7 @@ protocol SpeedSettingsServiceProtocol: Sendable {
     func updateFonts(zoneId: String, isOn: Bool) async throws
     func updateTieredCache(zoneId: String, isOn: Bool) async throws
     func updatePolish(zoneId: String, value: String) async throws
+    func updateMirage(zoneId: String, isOn: Bool) async throws
 }
 
 /// Concrete domain service for Cloudflare web optimization
@@ -74,6 +75,10 @@ final class SpeedSettingsService: SpeedSettingsServiceProtocol {
         _ = try await updateSetting(zoneId: zoneId, settingName: "polish", value: value)
     }
 
+    func updateMirage(zoneId: String, isOn: Bool) async throws {
+        _ = try await updateSetting(zoneId: zoneId, settingName: "mirage", value: isOn ? "on" : "off")
+    }
+
     private func getTieredCacheStatus(zoneId: String) async -> Bool {
         do {
             let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/argo/tiered_caching")
@@ -88,19 +93,10 @@ final class SpeedSettingsService: SpeedSettingsServiceProtocol {
     }
 
     private func getSetting(zoneId: String, settingName: String) async throws -> ZoneSetting? {
-        let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/settings/\(settingName)")
-        let (setting, _): (ZoneSetting?, ResultInfo?) = try await client.performRequest(request)
-        return setting
+        try await ZoneService.shared.getZoneSetting(zoneId: zoneId, settingName: settingName)
     }
 
     private func updateSetting(zoneId: String, settingName: String, value: Any) async throws -> ZoneSetting {
-        let payload = ["value": value]
-        let data = try JSONSerialization.data(withJSONObject: payload)
-        let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/settings/\(settingName)", method: "PATCH", body: data)
-        let (setting, _): (ZoneSetting?, ResultInfo?) = try await client.performRequest(request)
-        guard let s = setting else {
-            throw APIError.cloudflareError("Failed to update \(settingName).")
-        }
-        return s
+        try await ZoneService.shared.updateZoneSetting(zoneId: zoneId, settingName: settingName, value: value)
     }
 }

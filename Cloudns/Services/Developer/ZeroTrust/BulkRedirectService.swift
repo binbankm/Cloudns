@@ -37,8 +37,7 @@ final class BulkRedirectService: BulkRedirectServiceProtocol {
 
     func deleteRedirectList(accountId: String, listId: String) async throws {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/rules/lists/\(listId)", method: "DELETE")
-        struct Res: Codable { let id: String? }
-        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 
     func listRedirectListItems(accountId: String, listId: String) async throws -> [RedirectListItem] {

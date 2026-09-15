@@ -42,8 +42,7 @@ final class TurnstileService: TurnstileServiceProtocol {
 
     func deleteTurnstileWidget(accountId: String, sitekey: String) async throws {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/challenges/widgets/\(sitekey)", method: "DELETE")
-        struct DeleteRes: Codable { let id: String? }
-        let (_, _): (DeleteRes?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 
     func rotateTurnstileSecret(accountId: String, sitekey: String, invalidateImmediately: Bool = false) async throws -> String {

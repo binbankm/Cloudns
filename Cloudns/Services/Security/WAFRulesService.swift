@@ -8,6 +8,7 @@ protocol WAFRulesServiceProtocol: Sendable {
     func deleteWAFRule(zoneId: String, rulesetId: String, ruleId: String) async throws
     func createWAFRule(zoneId: String, rulesetId: String, action: String, expression: String, description: String?, enabled: Bool, ratelimit: RateLimitConfig?, actionParameters: ActionParameters?) async throws -> Ruleset
     func createRuleset(zoneId: String, phase: String, action: String, expression: String, description: String?, enabled: Bool, ratelimit: RateLimitConfig?, actionParameters: ActionParameters?) async throws -> Ruleset
+    func toggleWAFRule(zoneId: String, rulesetId: String, ruleId: String, enabled: Bool) async throws
 }
 
 extension WAFRulesServiceProtocol {
@@ -120,8 +121,7 @@ final class WAFRulesService: WAFRulesServiceProtocol {
             method: "PATCH",
             body: data
         )
-        struct Res: Codable { let id: String? }
-        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 
     func deleteWAFRule(zoneId: String, rulesetId: String, ruleId: String) async throws {
@@ -129,8 +129,7 @@ final class WAFRulesService: WAFRulesServiceProtocol {
             path: "zones/\(zoneId)/rulesets/\(rulesetId)/rules/\(ruleId)",
             method: "DELETE"
         )
-        struct Res: Codable { let id: String? }
-        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 
     func createWAFRule(
@@ -209,5 +208,17 @@ final class WAFRulesService: WAFRulesServiceProtocol {
         let (ruleset, _): (Ruleset?, ResultInfo?) = try await client.performRequest(request)
         guard let rs = ruleset else { throw APIError.cloudflareError("Failed to create ruleset.") }
         return rs
+    }
+
+    /// Toggles active status of an individual WAF rule (PATCH /zones/{id}/rulesets/{id}/rules/{id})
+    func toggleWAFRule(zoneId: String, rulesetId: String, ruleId: String, enabled: Bool) async throws {
+        let payload: [String: Any] = ["enabled": enabled]
+        let data = try JSONSerialization.data(withJSONObject: payload)
+        let request = try factory.createAuthenticatedRequest(
+            path: "zones/\(zoneId)/rulesets/\(rulesetId)/rules/\(ruleId)",
+            method: "PATCH",
+            body: data
+        )
+        let (_, _): (CloudflareIDResponse?, ResultInfo?) = try await client.performRequest(request)
     }
 }

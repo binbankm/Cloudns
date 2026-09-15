@@ -3,12 +3,13 @@ import Foundation
 /// Protocol defining Cloudflare domain security levels and Bot Fight mode service
 protocol SecuritySettingsServiceProtocol: Sendable {
     func fetchZoneSettings(zoneId: String) async throws -> [ZoneSetting]
-    func getSecuritySettings(zoneId: String) async throws -> SecurityGeneralSettings
+    func getSecuritySettings(zoneId: String) async throws -> SecuritySettings
     func getBotManagement(zoneId: String) async throws -> BotManagementConfig?
     func updateSecurityLevel(zoneId: String, level: String) async throws
     func updateChallengeTTL(zoneId: String, ttl: Int) async throws
     func updateBrowserCheck(zoneId: String, isOn: Bool) async throws
     func updateBotFightMode(zoneId: String, isOn: Bool) async throws
+    func setUnderAttackMode(zoneId: String, enabled: Bool) async throws
 }
 
 /// Concrete domain service for Cloudflare core security levels and bot protection
@@ -23,9 +24,7 @@ final class SecuritySettingsService: SecuritySettingsServiceProtocol {
     // MARK: - General Security Settings
 
     func fetchZoneSettings(zoneId: String) async throws -> [ZoneSetting] {
-        let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/settings")
-        let (settings, _): ([ZoneSetting]?, ResultInfo?) = try await client.performRequest(request)
-        return settings ?? []
+        try await ZoneService.shared.getZoneSettings(zoneId: zoneId)
     }
 
     func getBotManagement(zoneId: String) async throws -> BotManagementConfig? {
@@ -34,7 +33,7 @@ final class SecuritySettingsService: SecuritySettingsServiceProtocol {
         return config
     }
 
-    func getSecuritySettings(zoneId: String) async throws -> SecurityGeneralSettings {
+    func getSecuritySettings(zoneId: String) async throws -> SecuritySettings {
         let allSettings = await (try? fetchZoneSettings(zoneId: zoneId)) ?? []
 
         var secLevel: ZoneSetting?
@@ -58,7 +57,7 @@ final class SecuritySettingsService: SecuritySettingsServiceProtocol {
         let botConfig = try? await getBotManagement(zoneId: zoneId)
         let botFightMode = botConfig?.fight_mode ?? false
 
-        return SecurityGeneralSettings(
+        return SecuritySettings(
             securityLevel: secLevel?.value.stringValue ?? "medium",
             challengeTTL: ttl?.value.intValue ?? 1800,
             browserCheck: browser?.value.boolValue ?? true,
@@ -86,22 +85,17 @@ final class SecuritySettingsService: SecuritySettingsServiceProtocol {
         let (_, _): (BotManagementConfig?, ResultInfo?) = try await client.performRequest(request)
     }
 
-    // MARK: - Private Helpers
+    func setUnderAttackMode(zoneId: String, enabled: Bool) async throws {
+        try await updateSecurityLevel(zoneId: zoneId, level: enabled ? "under_attack" : "medium")
+    }
+
+    // MARK: - Centralized Zone Setting Delegation
 
     private func getSetting(zoneId: String, settingName: String) async throws -> ZoneSetting? {
-        let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/settings/\(settingName)")
-        let (setting, _): (ZoneSetting?, ResultInfo?) = try await client.performRequest(request)
-        return setting
+        try await ZoneService.shared.getZoneSetting(zoneId: zoneId, settingName: settingName)
     }
 
     private func updateSetting(zoneId: String, settingName: String, value: Any) async throws -> ZoneSetting {
-        let payload = ["value": value]
-        let data = try JSONSerialization.data(withJSONObject: payload)
-        let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/settings/\(settingName)", method: "PATCH", body: data)
-        let (setting, _): (ZoneSetting?, ResultInfo?) = try await client.performRequest(request)
-        guard let s = setting else {
-            throw APIError.cloudflareError("Failed to update \(settingName).")
-        }
-        return s
+        try await ZoneService.shared.updateZoneSetting(zoneId: zoneId, settingName: settingName, value: value)
     }
 }
