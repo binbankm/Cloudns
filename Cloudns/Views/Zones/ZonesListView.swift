@@ -142,18 +142,23 @@ struct ZonesListView: View {
             } else {
                 LazyVStack(spacing: GentleSpacing.md) {
                     ForEach(viewModel.filteredZones) { zone in
-                        ZoneCardView(
-                            zone: zone,
-                            onTogglePause: {
-                                Task {
-                                    await viewModel.togglePause(for: zone)
+                        NavigationLink {
+                            DNSRecordsView(zone: zone)
+                        } label: {
+                            ZoneCardView(
+                                zone: zone,
+                                onTogglePause: {
+                                    Task {
+                                        await viewModel.togglePause(for: zone)
+                                    }
+                                },
+                                onRequestDelete: {
+                                    zoneToDelete = zone
+                                    showDeleteConfirmation = true
                                 }
-                            },
-                            onRequestDelete: {
-                                zoneToDelete = zone
-                                showDeleteConfirmation = true
-                            }
-                        )
+                            )
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
             }
@@ -204,43 +209,31 @@ struct ZonesListView: View {
             .gentleCardStyle(cornerRadius: GentleCornerRadius.card, padding: GentleSpacing.lg)
             .gentleShimmer()
 
-            // Zone Card Skeletons
-            LazyVStack(spacing: GentleSpacing.md) {
-                ForEach(0 ..< 3, id: \.self) { _ in
-                    VStack(alignment: .leading, spacing: GentleSpacing.md) {
-                        HStack {
-                            VStack(alignment: .leading, spacing: GentleSpacing.xs) {
-                                RoundedRectangle(cornerRadius: GentleCornerRadius.xs, style: .continuous)
-                                    .fill(GentleColor.cardSurfaceSecondary)
-                                    .frame(width: 150, height: 18)
+            // Zone Card Skeletons (Compact with Avatar)
+            LazyVStack(spacing: GentleSpacing.sm) {
+                ForEach(0 ..< 4, id: \.self) { _ in
+                    HStack(alignment: .center, spacing: GentleSpacing.sm) {
+                        RoundedRectangle(cornerRadius: GentleCornerRadius.md, style: .continuous)
+                            .fill(GentleColor.cardSurfaceSecondary)
+                            .frame(width: 38, height: 38)
 
-                                RoundedRectangle(cornerRadius: GentleCornerRadius.micro, style: .continuous)
-                                    .fill(GentleColor.cardSurfaceSecondary.opacity(0.6))
-                                    .frame(width: 80, height: 12)
-                            }
-
-                            Spacer()
-
-                            Capsule()
+                        VStack(alignment: .leading, spacing: GentleSpacing.xs) {
+                            RoundedRectangle(cornerRadius: GentleCornerRadius.xs, style: .continuous)
                                 .fill(GentleColor.cardSurfaceSecondary)
-                                .frame(width: 64, height: 24)
-                        }
+                                .frame(width: 140, height: 18)
 
-                        GentleDivider()
-
-                        HStack {
                             RoundedRectangle(cornerRadius: GentleCornerRadius.micro, style: .continuous)
                                 .fill(GentleColor.cardSurfaceSecondary.opacity(0.6))
-                                .frame(width: 110, height: 12)
-
-                            Spacer()
-
-                            Circle()
-                                .fill(GentleColor.cardSurfaceSecondary.opacity(0.5))
-                                .frame(width: 12, height: 12)
+                                .frame(width: 70, height: 12)
                         }
+
+                        Spacer()
+
+                        Capsule()
+                            .fill(GentleColor.cardSurfaceSecondary)
+                            .frame(width: 60, height: 22)
                     }
-                    .gentleCardStyle(cornerRadius: GentleCornerRadius.card, padding: GentleSpacing.lg)
+                    .gentleCardStyle(cornerRadius: GentleCornerRadius.card, padding: GentleSpacing.md)
                     .gentleShimmer()
                 }
             }

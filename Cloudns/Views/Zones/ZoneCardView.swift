@@ -43,79 +43,46 @@ struct ZoneCardView: View {
             return "exclamationmark.circle"
         }
     }
-
     var body: some View {
-        VStack(alignment: .leading, spacing: GentleSpacing.md) {
-            // MARK: - Header Row: Domain Title & Status Badge
+        HStack(alignment: .center, spacing: GentleSpacing.sm) {
+            GentleDomainAvatar(domain: zone.name, size: .medium)
 
-            HStack(alignment: .center, spacing: GentleSpacing.sm) {
-                VStack(alignment: .leading, spacing: GentleSpacing.micro) {
-                    Text(zone.name)
-                        .font(GentleTypography.cardTitle)
-                        .foregroundStyle(GentleColor.textPrimary)
-                        .lineLimit(1)
-                        .truncationMode(.tail)
+            VStack(alignment: .leading, spacing: GentleSpacing.micro) {
+                Text(zone.name)
+                    .font(GentleTypography.cardTitle)
+                    .foregroundStyle(GentleColor.textPrimary)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
 
-                    HStack(spacing: GentleSpacing.xs) {
-                        Text(LocalizedStringKey(zone.plan?.displayName ?? "Free"))
-                            .font(GentleTypography.caption)
-                            .foregroundStyle(GentleColor.accent)
+                HStack(spacing: GentleSpacing.xs) {
+                    Text(LocalizedStringKey(zone.plan?.displayName ?? "Free"))
+                        .font(GentleTypography.caption)
+                        .foregroundStyle(GentleColor.accent)
 
-                        Text(verbatim: "•")
-                            .font(GentleTypography.caption)
-                            .foregroundStyle(GentleColor.textSecondary.opacity(0.5))
+                    Text(verbatim: "•")
+                        .font(GentleTypography.caption)
+                        .foregroundStyle(GentleColor.textSecondary.opacity(0.5))
 
-                        Text(LocalizedStringKey(zone.type?.capitalized ?? "Full"))
-                            .font(GentleTypography.caption)
-                            .foregroundStyle(GentleColor.textSecondary)
-                    }
+                    Text(LocalizedStringKey(zone.type?.capitalized ?? "Full"))
+                        .font(GentleTypography.caption)
+                        .foregroundStyle(GentleColor.textSecondary)
                 }
-
-                Spacer()
-
-                GentleBadge(
-                    statusBadgeTitle,
-                    iconName: statusBadgeIcon,
-                    type: statusBadgeType
-                )
             }
 
-            GentleDivider()
+            Spacer(minLength: GentleSpacing.xs)
 
-            // MARK: - Footer Row: Nameservers & Action
+            GentleBadge(
+                statusBadgeTitle,
+                iconName: statusBadgeIcon,
+                type: statusBadgeType
+            )
 
-            HStack(alignment: .center, spacing: GentleSpacing.md) {
-                // Nameserver info
-                if let servers = zone.nameServers, !servers.isEmpty {
-                    HStack(spacing: GentleSpacing.xxs) {
-                        Image(systemName: "server.rack")
-                            .font(GentleTypography.caption)
-                            .foregroundStyle(GentleColor.textSecondary)
-
-                        Text("\(servers.count) Nameservers")
-                            .font(GentleTypography.caption)
-                            .foregroundStyle(GentleColor.textSecondary)
-                    }
-                } else {
-                    HStack(spacing: GentleSpacing.xxs) {
-                        Image(systemName: "network")
-                            .font(GentleTypography.caption)
-                            .foregroundStyle(GentleColor.textSecondary)
-
-                        Text("DNS Ready")
-                            .font(GentleTypography.caption)
-                            .foregroundStyle(GentleColor.textSecondary)
-                    }
-                }
-
-                Spacer()
-
-                Image(systemName: "chevron.right")
-                    .font(GentleTypography.captionSmall)
-                    .foregroundStyle(GentleColor.textSecondary.opacity(0.6))
-            }
+            Image(systemName: "chevron.right")
+                .font(GentleTypography.captionSmall)
+                .foregroundStyle(GentleColor.textSecondary.opacity(0.4))
+                .padding(.leading, GentleSpacing.xxs)
         }
-        .gentleCardStyle(cornerRadius: GentleCornerRadius.card, padding: GentleSpacing.lg)
+        .gentleCardStyle(cornerRadius: GentleCornerRadius.card, padding: GentleSpacing.md)
         .contextMenu {
             Button(role: zone.paused ? .none : .destructive) {
                 GentleHaptics.warning()
@@ -128,8 +95,6 @@ struct ZoneCardView: View {
             }
 
             if let onRequestDelete {
-                Divider()
-
                 Button(role: .destructive) {
                     onRequestDelete()
                 } label: {

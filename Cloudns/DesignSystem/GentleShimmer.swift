@@ -17,23 +17,21 @@ public struct GentleShimmerModifier: ViewModifier {
                         LinearGradient(
                             colors: [
                                 Color.white.opacity(0.0),
-                                Color.white.opacity(0.18),
+                                Color.white.opacity(0.22),
                                 Color.white.opacity(0.0)
                             ],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
-                        .frame(width: geo.size.width * 2)
+                        .frame(width: max(geo.size.width * 2, 100))
                         .offset(x: -geo.size.width + (phase * geo.size.width * 2))
-                        .animation(
-                            .linear(duration: 1.6).repeatForever(autoreverses: false),
-                            value: phase
-                        )
                     }
                 )
                 .mask(content)
                 .onAppear {
-                    phase = 1
+                    withAnimation(.linear(duration: 1.5).repeatForever(autoreverses: false)) {
+                        phase = 1
+                    }
                 }
         }
     }

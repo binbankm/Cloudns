@@ -134,7 +134,7 @@ public final class GentleBannerManager: ObservableObject {
     }
 }
 
-// MARK: - Gentle Banner Component View
+// MARK: - Gentle Banner Component View (Apple Dynamic Pill Style)
 
 public struct GentleBannerView: View {
     @Environment(\.colorSchemeContrast) private var colorSchemeContrast
@@ -142,63 +142,56 @@ public struct GentleBannerView: View {
     public var onDismiss: () -> Void
 
     public var body: some View {
-        HStack(spacing: GentleSpacing.sm) {
+        HStack(spacing: GentleSpacing.xs) {
             Image(systemName: data.type.iconName)
-                .font(GentleTypography.headline)
+                .font(GentleTypography.footnoteSemibold)
                 .foregroundStyle(data.type.tintColor)
-                .frame(width: 24, height: 24)
+                .frame(width: 18, height: 18)
                 .accessibilityHidden(true)
 
-            VStack(alignment: .leading, spacing: 2) {
-                Text(LocalizedStringKey(data.title))
-                    .font(GentleTypography.cardTitle)
-                    .foregroundStyle(GentleColor.textPrimary)
-                    .lineLimit(1)
+            if let message = data.message, !message.isEmpty {
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(LocalizedStringKey(data.title))
+                        .font(GentleTypography.footnoteSemibold)
+                        .foregroundStyle(GentleColor.textPrimary)
 
-                if let message = data.message {
                     Text(LocalizedStringKey(message))
-                        .font(GentleTypography.caption)
+                        .font(GentleTypography.captionSmall)
                         .foregroundStyle(GentleColor.textSecondary)
-                        .lineLimit(2)
                 }
+            } else {
+                Text(LocalizedStringKey(data.title))
+                    .font(GentleTypography.footnoteSemibold)
+                    .foregroundStyle(GentleColor.textPrimary)
             }
-
-            Spacer(minLength: GentleSpacing.xs)
-
-            Button {
-                GentleHaptics.soft()
-                onDismiss()
-            } label: {
-                Image(systemName: "xmark")
-                    .font(GentleTypography.captionSmall)
-                    .foregroundStyle(GentleColor.textSecondary.opacity(0.8))
-                    .padding(6)
-                    .background(GentleColor.textSecondary.opacity(0.1))
-                    .clipShape(Circle())
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel(Text("Dismiss notification"))
         }
         .padding(.horizontal, GentleSpacing.md)
-        .padding(.vertical, GentleSpacing.sm + 2)
-        .background(GentleColor.cardSurface)
-        .clipShape(RoundedRectangle(cornerRadius: GentleCornerRadius.card, style: .continuous))
+        .padding(.vertical, GentleSpacing.xs + 2)
+        .background(
+            Capsule()
+                .fill(GentleColor.cardSurface.opacity(0.92))
+        )
+        .background(.ultraThinMaterial, in: Capsule())
         .overlay(
-            RoundedRectangle(cornerRadius: GentleCornerRadius.card, style: .continuous)
+            Capsule()
                 .stroke(
                     colorSchemeContrast == .increased
                         ? data.type.tintColor
                         : data.type.tintColor.opacity(0.25),
-                    lineWidth: 1
+                    lineWidth: 0.8
                 )
         )
-        .shadow(color: Color.black.opacity(0.08), radius: 14, x: 0, y: 6)
-        .padding(.horizontal, GentleSpacing.md)
-        .contentShape(Rectangle())
+        .shadow(color: Color.black.opacity(0.09), radius: 14, x: 0, y: 5)
+        .fixedSize(horizontal: true, vertical: false)
+        .contentShape(Capsule())
+        .onTapGesture {
+            GentleHaptics.light()
+            onDismiss()
+        }
         .gesture(
-            DragGesture(minimumDistance: 10)
+            DragGesture(minimumDistance: 8)
                 .onEnded { value in
-                    if value.translation.height < -15 {
+                    if value.translation.height < -8 {
                         onDismiss()
                     }
                 }
@@ -220,13 +213,14 @@ public struct GentleBannerOverlayModifier: ViewModifier {
                     manager.dismiss()
                 }
                 .transition(.asymmetric(
-                    insertion: .move(edge: .top).combined(with: .opacity),
-                    removal: .move(edge: .top).combined(with: .opacity)
+                    insertion: .move(edge: .top).combined(with: .opacity).combined(with: .scale(scale: 0.92)),
+                    removal: .move(edge: .top).combined(with: .opacity).combined(with: .scale(scale: 0.92))
                 ))
                 .zIndex(999)
-                .padding(.top, 4)
+                .padding(.top, GentleSpacing.xs)
             }
         }
+        .animation(GentleAnimation.spring, value: manager.currentBanner)
     }
 }
 

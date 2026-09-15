@@ -64,6 +64,11 @@ public enum GentleTypography {
         .system(.footnote, design: .rounded)
     }
 
+    /// Footnote semibold (13pt rounded semibold)
+    public static var footnoteSemibold: Font {
+        .system(.footnote, design: .rounded).weight(.semibold)
+    }
+
     /// Caption text (12pt rounded regular)
     public static var caption: Font {
         .system(.caption, design: .rounded)
