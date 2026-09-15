@@ -49,6 +49,11 @@ public enum GentleTypography {
         .system(.subheadline, design: .rounded).weight(.semibold)
     }
 
+    /// Subheadline bold alias
+    public static var subheadlineBold: Font {
+        subheadlineSemibold
+    }
+
     /// Callout text (14pt rounded regular)
     public static var callout: Font {
         .system(.callout, design: .rounded)

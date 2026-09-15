@@ -101,6 +101,16 @@ public final class AccountManager: ObservableObject {
         return account
     }
 
+    /// Updates the display name for an existing account and persists it
+    public func updateAccountName(id: String, name: String) {
+        let cleanName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !cleanName.isEmpty else { return }
+
+        guard let index = accounts.firstIndex(where: { $0.id == id }) else { return }
+        accounts[index].name = cleanName
+        persistAccounts()
+    }
+
     /// Switches the currently active account seamlessly
     public func switchAccount(to id: String) {
         guard accounts.contains(where: { $0.id == id }) else { return }

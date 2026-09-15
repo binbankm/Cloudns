@@ -8,6 +8,7 @@ protocol AuthServiceProtocol: Sendable {
     func getCurrentUserDetails() async throws -> CloudflareUser
     func updateUserProfile(firstName: String?, lastName: String?, telephone: String?, country: String?, zipcode: String?) async throws -> CloudflareUser
     func getAccounts() async throws -> [Account]
+    func getAccounts(email: String, apiKey: String) async throws -> [Account]
     func getAccountDetails(accountId: String) async throws -> Account
     func updateAccount(accountId: String, name: String) async throws -> Account
     func getAccountMembers(accountId: String) async throws -> [AccountMember]
@@ -109,6 +110,17 @@ final class AuthService: AuthServiceProtocol {
     /// Fetches all accounts associated with active credentials (GET /client/v4/accounts)
     func getAccounts() async throws -> [Account] {
         let request = try factory.createAuthenticatedRequest(path: "accounts")
+        let (accounts, _): ([Account]?, ResultInfo?) = try await client.performRequest(request)
+        return accounts ?? []
+    }
+
+    /// Fetches all accounts using explicit credentials during login (GET /client/v4/accounts)
+    func getAccounts(email: String, apiKey: String) async throws -> [Account] {
+        let request = try factory.createExplicitAuthenticatedRequest(
+            email: email,
+            apiKey: apiKey,
+            path: "accounts"
+        )
         let (accounts, _): ([Account]?, ResultInfo?) = try await client.performRequest(request)
         return accounts ?? []
     }

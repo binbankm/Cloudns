@@ -24,6 +24,7 @@ public enum GentleCornerRadius {
 
     /// 22pt - Standard card squircle (AGENTS.md 规范)
     public static let card: CGFloat = 22
+    public static let xxl: CGFloat = 22
 
     /// 24pt - Large dialogs, bottom sheet cards (AGENTS.md 规范)
     public static let cardLarge: CGFloat = 24

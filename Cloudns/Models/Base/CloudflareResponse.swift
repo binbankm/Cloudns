@@ -84,9 +84,9 @@ public struct CloudflareIDResponse: Codable, Equatable, Sendable {
     }
 }
 
-extension CharacterSet {
+public extension CharacterSet {
     /// Standard character set allowed in Cloudflare URL paths (excluding reserved URL delimiters)
-    public static let cloudflareURLPathAllowed: CharacterSet = {
+    static let cloudflareURLPathAllowed: CharacterSet = {
         var set = CharacterSet.urlPathAllowed
         set.remove(charactersIn: "/?#[]@!$&'()*+,;=")
         return set

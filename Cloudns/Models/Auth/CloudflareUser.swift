@@ -62,9 +62,15 @@ public struct CloudflareUser: Codable, Identifiable, Equatable, Sendable {
             }
             return first
         }
-        if let username, !username.isEmpty {
+        if let username, !username.isEmpty, username != id, !Self.isRawHexHash(username) {
             return username
         }
         return email
+    }
+
+    /// Checks whether a string represents a 32-character hexadecimal identifier
+    private static func isRawHexHash(_ string: String) -> Bool {
+        guard string.count == 32 else { return false }
+        return string.allSatisfy { $0.isHexDigit }
     }
 }

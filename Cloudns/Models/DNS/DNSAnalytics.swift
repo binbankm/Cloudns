@@ -19,7 +19,10 @@ public struct DNSAnalyticsReport: Codable, Equatable, Sendable {
 }
 
 public struct DNSResponseCodeMetric: Identifiable, Codable, Equatable, Sendable {
-    public var id: String { responseCode }
+    public var id: String {
+        responseCode
+    }
+
     public let responseCode: String
     public let count: Int
 
@@ -30,7 +33,10 @@ public struct DNSResponseCodeMetric: Identifiable, Codable, Equatable, Sendable 
 }
 
 public struct DNSQueryTypeMetric: Identifiable, Codable, Equatable, Sendable {
-    public var id: String { queryType }
+    public var id: String {
+        queryType
+    }
+
     public let queryType: String
     public let count: Int
 
