@@ -15,7 +15,7 @@ enum APIError: Error, LocalizedError, Sendable {
         case let .networkError(message):
             String(localized: "Network Error: \(message)")
         case .unauthorized:
-            String(localized: "Authentication failed. Please verify your Cloudflare API Token or Global Key in Settings.")
+            String(localized: "Authentication failed. Please check that your email and 37-character Global API Key are valid.")
         case .invalidResponse:
             String(localized: "Invalid response from Cloudflare server.")
         case let .decodingError(message):
@@ -32,7 +32,7 @@ enum APIError: Error, LocalizedError, Sendable {
         case let .networkError(message):
             message
         case .unauthorized:
-            String(localized: "The API token or key provided was rejected or has expired.")
+            String(localized: "The email or Global API Key provided was rejected by Cloudflare.")
         case .invalidResponse:
             String(localized: "The server returned a non-standard HTTP status code or empty response body.")
         case let .decodingError(message):
@@ -47,9 +47,9 @@ enum APIError: Error, LocalizedError, Sendable {
         case .invalidURL:
             String(localized: "Please check your endpoint settings and domain name format.")
         case .networkError:
-            String(localized: "Please check your network connection and try again.")
+            String(localized: "Network connection temporarily disrupted · Tap to retry")
         case .unauthorized:
-            String(localized: "Please re-enter your API credentials in Account Settings.")
+            String(localized: "Please re-check your email and Global API Key in Account Settings.")
         case .invalidResponse:
             String(localized: "Please try again later or check Cloudflare Status.")
         case .decodingError:
@@ -75,7 +75,7 @@ enum APIError: Error, LocalizedError, Sendable {
             let messages = errors.compactMap { err -> String? in
                 guard let msg = err.message, !msg.isEmpty else { return nil }
                 if let code = err.code {
-                    return "\(msg) (Code \(code))"
+                    return translateErrorCode(code, rawMessage: msg)
                 }
                 return msg
             }
@@ -152,5 +152,27 @@ enum APIError: Error, LocalizedError, Sendable {
         }
 
         return rawMessage
+    }
+
+    /// Humane, empathetic translation for common Cloudflare error codes (AGENTS.md 五、文案与微交互语气指南)
+    private static func translateErrorCode(_ code: Int, rawMessage: String) -> String {
+        switch code {
+        case 10000, 9109:
+            return String(localized: "Invalid email or Global API Key · Please verify credentials")
+        case 81057:
+            return String(localized: "A DNS record with this host and type already exists")
+        case 81044:
+            return String(localized: "Record conflict detected · Please check existing CNAME or A records")
+        case 1004:
+            return String(localized: "Invalid DNS record parameters or content format")
+        case 1049:
+            return String(localized: "Domain not found or not active under this account")
+        case 1001:
+            return String(localized: "DNS resolution failed · Invalid request host")
+        case 10001:
+            return String(localized: "Rate limit exceeded · Please slow down requests")
+        default:
+            return "\(rawMessage) (Code \(code))"
+        }
     }
 }

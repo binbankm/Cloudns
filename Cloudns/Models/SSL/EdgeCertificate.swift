@@ -5,9 +5,16 @@ struct CertificatePack: Codable, Identifiable, Equatable, Sendable {
     let type: String
     let hosts: [String]
     let status: String
-    let validation_method: String?
-    let primary_certificate: String?
+    let validationMethod: String?
+    let primaryCertificate: String?
     let certificates: [PackCertificate]?
+
+    enum CodingKeys: String, CodingKey {
+        case id, type, hosts, status
+        case validationMethod = "validation_method"
+        case primaryCertificate = "primary_certificate"
+        case certificates
+    }
 }
 
 struct PackCertificate: Codable, Identifiable, Equatable, Sendable {
@@ -16,19 +23,12 @@ struct PackCertificate: Codable, Identifiable, Equatable, Sendable {
     let issuer: String
     let signature: String
     let status: String
-    let expires_on: String
-}
+    let expiresOn: String
 
-struct CFAPIError: Codable, Equatable, Sendable {
-    let code: Int?
-    let message: String?
-}
-
-struct CertificatePacksResponse: Codable, Sendable {
-    let success: Bool
-    let errors: [CFAPIError]?
-    let messages: [String]?
-    let result: [CertificatePack]?
+    enum CodingKeys: String, CodingKey {
+        case id, hosts, issuer, signature, status
+        case expiresOn = "expires_on"
+    }
 }
 
 /// Unified model for display
@@ -40,4 +40,20 @@ struct EdgeCertificateModel: Identifiable, Equatable, Sendable {
     let status: String
     let expiresOn: String
     let signature: String
+}
+
+/// Cloudflare SSL Verification details for hostnames
+struct SSLVerificationItem: Codable, Identifiable, Equatable, Sendable {
+    var id: String { hostname }
+    let hostname: String
+    let certificateStatus: String?
+    let verificationType: String?
+    let verificationStatus: String?
+
+    enum CodingKeys: String, CodingKey {
+        case hostname
+        case certificateStatus = "certificate_status"
+        case verificationType = "verification_type"
+        case verificationStatus = "verification_status"
+    }
 }

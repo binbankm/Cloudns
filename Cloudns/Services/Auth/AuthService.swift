@@ -4,7 +4,8 @@ import Foundation
 protocol AuthServiceProtocol: Sendable {
     @discardableResult
     func verifyCredentials(email: String, apiKey: String) async throws -> [Zone]
-    func verifyToken() async throws -> [Account]
+    func getUserDetails(email: String, apiKey: String) async throws -> CloudflareUser
+    func getCurrentUserDetails() async throws -> CloudflareUser
     func getAccounts() async throws -> [Account]
 }
 
@@ -17,7 +18,7 @@ final class AuthService: AuthServiceProtocol {
 
     private init() {}
 
-    /// Validates user email and Global API Key credentials
+    /// Validates user email and Global API Key credentials by pinging zones
     @discardableResult
     func verifyCredentials(email: String, apiKey: String) async throws -> [Zone] {
         let request = try factory.createExplicitAuthenticatedRequest(
@@ -33,12 +34,31 @@ final class AuthService: AuthServiceProtocol {
         return zones ?? []
     }
 
-    /// Verifies credentials and retrieves associated Cloudflare accounts
-    func verifyToken() async throws -> [Account] {
-        try await getAccounts()
+    /// Fetches official Cloudflare user details using explicit credentials (GET /client/v4/user)
+    func getUserDetails(email: String, apiKey: String) async throws -> CloudflareUser {
+        let request = try factory.createExplicitAuthenticatedRequest(
+            email: email,
+            apiKey: apiKey,
+            path: "user"
+        )
+        let (user, _): (CloudflareUser?, ResultInfo?) = try await client.performRequest(request)
+        guard let user else {
+            throw APIError.cloudflareError("Failed to load Cloudflare user details.")
+        }
+        return user
     }
 
-    /// Fetches all accounts associated with active credentials
+    /// Fetches current active user details (GET /client/v4/user)
+    func getCurrentUserDetails() async throws -> CloudflareUser {
+        let request = try factory.createAuthenticatedRequest(path: "user")
+        let (user, _): (CloudflareUser?, ResultInfo?) = try await client.performRequest(request)
+        guard let user else {
+            throw APIError.cloudflareError("Failed to load Cloudflare user details.")
+        }
+        return user
+    }
+
+    /// Fetches all accounts associated with active credentials (GET /client/v4/accounts)
     func getAccounts() async throws -> [Account] {
         let request = try factory.createAuthenticatedRequest(path: "accounts")
         let (accounts, _): ([Account]?, ResultInfo?) = try await client.performRequest(request)

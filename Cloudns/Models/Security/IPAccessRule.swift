@@ -5,39 +5,29 @@ struct IPAccessRule: Codable, Identifiable, Equatable, Sendable {
     let mode: String // "block", "challenge", "js_challenge", "managed_challenge", "whitelist" (allow)
     let notes: String?
     let configuration: IPAccessRuleConfiguration
-    let created_on: String?
-    let modified_on: String?
+    let createdOn: String?
+    let modifiedOn: String?
+
+    var created_on: String? { createdOn }
+    var modified_on: String? { modifiedOn }
+
+    enum CodingKeys: String, CodingKey {
+        case id, mode, notes, configuration
+        case createdOn = "created_on"
+        case modifiedOn = "modified_on"
+    }
 
     init(id: String, mode: String = "block", configuration: IPAccessRuleConfiguration, notes: String? = "Block known scrapers") {
         self.id = id
         self.mode = mode
         self.notes = notes
         self.configuration = configuration
-        created_on = "2024-01-01T00:00:00Z"
-        modified_on = "2024-01-01T00:00:00Z"
+        createdOn = "2024-01-01T00:00:00Z"
+        modifiedOn = "2024-01-01T00:00:00Z"
     }
 }
 
 struct IPAccessRuleConfiguration: Codable, Equatable, Sendable {
     let target: String // "ip", "ip_range", "asn", "country"
     let value: String // The actual IP, CIDR, AS number, or 2-letter country code
-}
-
-struct IPAccessRulesResponse: Codable, Sendable {
-    let success: Bool
-    let errors: [CFAPIError]?
-    let messages: [String]?
-    let result: [IPAccessRule]?
-}
-
-struct IPAccessRuleCreateRequest: Codable, Sendable {
-    let mode: String
-    let configuration: IPAccessRuleConfiguration
-    let notes: String
-}
-
-struct IPAccessRuleCreateResponse: Codable, Sendable {
-    let success: Bool
-    let errors: [CFAPIError]?
-    let result: IPAccessRule?
 }

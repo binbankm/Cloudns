@@ -6,6 +6,7 @@ protocol D1ServiceProtocol: Sendable {
     func createD1Database(accountId: String, name: String, primaryLocationHint: String?) async throws -> D1Database
     func deleteD1Database(accountId: String, databaseId: String) async throws
     func executeD1Query(accountId: String, databaseId: String, sql: String) async throws -> D1QueryResult
+    func listD1Tables(accountId: String, databaseId: String) async throws -> [String]
 }
 
 final class D1Service: D1ServiceProtocol {
@@ -112,5 +113,11 @@ final class D1Service: D1ServiceProtocol {
             }
         }
         return D1QueryResult(success: success, query: sql, durationMs: duration, rowsRead: rowsRead, rowsWritten: rowsWritten, columns: columns, rows: rows, rawJson: rawJson)
+    }
+
+    func listD1Tables(accountId: String, databaseId: String) async throws -> [String] {
+        let sql = "SELECT name FROM sqlite_schema WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%' ORDER BY name;"
+        let res = try await executeD1Query(accountId: accountId, databaseId: databaseId, sql: sql)
+        return res.rows.compactMap { $0["name"] }
     }
 }

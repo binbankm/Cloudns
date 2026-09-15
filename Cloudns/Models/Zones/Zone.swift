@@ -165,4 +165,50 @@ public struct Zone: Codable, Identifiable, Equatable, Hashable, Sendable {
     public var planTier: PlanTier {
         plan?.planTier ?? .free
     }
+
+    /// Strongly typed zone status
+    public var zoneStatus: ZoneStatus {
+        ZoneStatus(rawValue: status)
+    }
+
+    /// Whether the zone is active and serving traffic
+    public var isActive: Bool {
+        zoneStatus == .active && !paused
+    }
+}
+
+// MARK: - Zone Status Enum (Cloudflare Official)
+
+public enum ZoneStatus: String, Codable, Equatable, Hashable, Sendable {
+    case active
+    case pending
+    case initializing
+    case moved
+    case deleted
+    case deactivated
+    case unknown
+
+    public init(rawValue: String) {
+        switch rawValue.lowercased() {
+        case "active": self = .active
+        case "pending": self = .pending
+        case "initializing": self = .initializing
+        case "moved": self = .moved
+        case "deleted": self = .deleted
+        case "deactivated": self = .deactivated
+        default: self = .unknown
+        }
+    }
+
+    public var displayName: String {
+        switch self {
+        case .active: return "Active"
+        case .pending: return "Pending"
+        case .initializing: return "Initializing"
+        case .moved: return "Moved"
+        case .deleted: return "Deleted"
+        case .deactivated: return "Deactivated"
+        case .unknown: return "Unknown"
+        }
+    }
 }

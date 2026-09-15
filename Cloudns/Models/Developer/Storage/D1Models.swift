@@ -70,6 +70,10 @@ public struct D1TableColumn: Identifiable, Equatable, Sendable {
     public let dflt_value: String?
     public let pk: Int
 
+    public var defaultValue: String? { dflt_value }
+    public var isPrimaryKey: Bool { pk == 1 }
+    public var isNotNull: Bool { notnull == 1 }
+
     public init(cid: Int, name: String, type: String, notnull: Int, dflt_value: String?, pk: Int) {
         self.cid = cid
         self.name = name

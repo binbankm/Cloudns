@@ -3,33 +3,85 @@ import Foundation
 struct ActionParameters: Codable, Equatable, Sendable {
     // Cache Rules
     var cache: Bool?
-    var edge_ttl: CacheEdgeTTL?
-    var browser_ttl: CacheBrowserTTL?
+    var edgeTTL: CacheEdgeTTL?
+    var browserTTL: CacheBrowserTTL?
 
     // Transform Rules
     var uri: URIRewrite?
     var headers: [String: HeaderTransform]?
 
     // Snippet Rules
-    var snippet_name: String?
+    var snippetName: String?
     var snippet: SnippetRef?
 
     /// Redirect Rules
-    var from_value: FromValue?
+    var fromValue: FromValue?
+
+    var edge_ttl: CacheEdgeTTL? {
+        get { edgeTTL }
+        set { edgeTTL = newValue }
+    }
+    var browser_ttl: CacheBrowserTTL? {
+        get { browserTTL }
+        set { browserTTL = newValue }
+    }
+    var snippet_name: String? {
+        get { snippetName }
+        set { snippetName = newValue }
+    }
+    var from_value: FromValue? {
+        get { fromValue }
+        set { fromValue = newValue }
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case cache
+        case edgeTTL = "edge_ttl"
+        case browserTTL = "browser_ttl"
+        case uri, headers
+        case snippetName = "snippet_name"
+        case snippet
+        case fromValue = "from_value"
+    }
 
     struct SnippetRef: Codable, Equatable, Sendable {
         var name: String
     }
 
     struct FromValue: Codable, Equatable, Sendable {
-        var status_code: Int?
-        var target_url: TargetUrl?
-        var preserve_query_string: Bool?
+        var statusCode: Int?
+        var targetUrl: TargetUrl?
+        var preserveQueryString: Bool?
+
+        var status_code: Int? {
+            get { statusCode }
+            set { statusCode = newValue }
+        }
+        var target_url: TargetUrl? {
+            get { targetUrl }
+            set { targetUrl = newValue }
+        }
+        var preserve_query_string: Bool? {
+            get { preserveQueryString }
+            set { preserveQueryString = newValue }
+        }
+
+        enum CodingKeys: String, CodingKey {
+            case statusCode = "status_code"
+            case targetUrl = "target_url"
+            case preserveQueryString = "preserve_query_string"
+        }
+
+        init(statusCode: Int? = nil, targetUrl: TargetUrl? = nil, preserveQueryString: Bool? = nil) {
+            self.statusCode = statusCode
+            self.targetUrl = targetUrl
+            self.preserveQueryString = preserveQueryString
+        }
 
         init(status_code: Int? = nil, target_url: TargetUrl? = nil, preserve_query_string: Bool? = nil) {
-            self.status_code = status_code
-            self.target_url = target_url
-            self.preserve_query_string = preserve_query_string
+            self.statusCode = status_code
+            self.targetUrl = target_url
+            self.preserveQueryString = preserve_query_string
         }
     }
 
@@ -45,42 +97,62 @@ struct ActionParameters: Codable, Equatable, Sendable {
 
     init(
         cache: Bool? = nil,
-        edge_ttl: CacheEdgeTTL? = nil,
-        browser_ttl: CacheBrowserTTL? = nil,
+        edgeTTL: CacheEdgeTTL? = nil,
+        browserTTL: CacheBrowserTTL? = nil,
         uri: URIRewrite? = nil,
         headers: [String: HeaderTransform]? = nil,
-        snippet_name: String? = nil,
+        snippetName: String? = nil,
         snippet: SnippetRef? = nil,
-        from_value: FromValue? = nil
+        fromValue: FromValue? = nil
     ) {
         self.cache = cache
-        self.edge_ttl = edge_ttl
-        self.browser_ttl = browser_ttl
+        self.edgeTTL = edgeTTL
+        self.browserTTL = browserTTL
         self.uri = uri
         self.headers = headers
-        self.snippet_name = snippet_name
+        self.snippetName = snippetName
         self.snippet = snippet
-        self.from_value = from_value
+        self.fromValue = fromValue
     }
 }
 
 struct CacheEdgeTTL: Codable, Equatable, Sendable {
     var mode: String
-    var default_ttl: Int?
+    var defaultTTL: Int?
+
+    var default_ttl: Int? {
+        get { defaultTTL }
+        set { defaultTTL = newValue }
+    }
 
     enum CodingKeys: String, CodingKey {
         case mode
-        case default_ttl = "default"
+        case defaultTTL = "default"
+    }
+
+    init(mode: String, defaultTTL: Int? = nil) {
+        self.mode = mode
+        self.defaultTTL = defaultTTL
     }
 }
 
 struct CacheBrowserTTL: Codable, Equatable, Sendable {
     var mode: String
-    var default_ttl: Int?
+    var defaultTTL: Int?
+
+    var default_ttl: Int? {
+        get { defaultTTL }
+        set { defaultTTL = newValue }
+    }
 
     enum CodingKeys: String, CodingKey {
         case mode
-        case default_ttl = "default"
+        case defaultTTL = "default"
+    }
+
+    init(mode: String, defaultTTL: Int? = nil) {
+        self.mode = mode
+        self.defaultTTL = defaultTTL
     }
 }
 

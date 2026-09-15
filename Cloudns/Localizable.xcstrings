@@ -833,6 +833,176 @@
           }
         }
       }
+    },
+    "Invalid email or Global API Key · Please verify credentials": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invalid email or Global API Key · Please verify credentials"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "邮箱或 Global API Key 未通过验证 · 请检查是否拼写正确"
+          }
+        }
+      }
+    },
+    "A DNS record with this host and type already exists": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A DNS record with this host and type already exists"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已存在相同主机名与类型的解析记录 · 请修改主机名或内容"
+          }
+        }
+      }
+    },
+    "Record conflict detected · Please check existing CNAME or A records": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Record conflict detected · Please check existing CNAME or A records"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "检测到解析记录冲突 · 请检查根域名是否已存在 CNAME 或 A 记录"
+          }
+        }
+      }
+    },
+    "Invalid DNS record parameters or content format": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invalid DNS record parameters or content format"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "解析记录参数或内容格式无效 · 请检查 IP 地址或主机名"
+          }
+        }
+      }
+    },
+    "Domain not found or not active under this account": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Domain not found or not active under this account"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前账号下未找到该域名或域名未处于激活状态"
+          }
+        }
+      }
+    },
+    "DNS resolution failed · Invalid request host": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DNS resolution failed · Invalid request host"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DNS 解析请求失败 · 请求主机名无效"
+          }
+        }
+      }
+    },
+    "Rate limit exceeded · Please slow down requests": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rate limit exceeded · Please slow down requests"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请求频次已超出 Cloudflare 限制 · 请稍候重试"
+          }
+        }
+      }
+    },
+    "Authentication failed. Please check that your email and 37-character Global API Key are valid.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Authentication failed. Please check that your email and 37-character Global API Key are valid."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "鉴权未通过 · 请检查您的登录邮箱与 37 位 Global API Key 是否匹配有效。"
+          }
+        }
+      }
+    },
+    "The email or Global API Key provided was rejected by Cloudflare.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The email or Global API Key provided was rejected by Cloudflare."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "输入的邮箱或 Global API Key 被 Cloudflare 拒绝验证。"
+          }
+        }
+      }
+    },
+    "Please re-check your email and Global API Key in Account Settings.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please re-check your email and Global API Key in Account Settings."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请在账户设置中重新核对您的邮箱与 Global API Key。"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

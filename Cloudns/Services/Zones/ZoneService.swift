@@ -9,13 +9,19 @@ protocol ZoneServiceProtocol: Sendable {
     func deleteZone(zoneId: String) async throws -> String
     func updateZoneStatus(zoneId: String, paused: Bool) async throws
     func pauseZone(zoneId: String, paused: Bool) async throws
+    func checkActivation(zoneId: String) async throws -> Bool
     func purgeCache(zoneId: String) async throws
+    func purgeCache(zoneId: String, files: [String]?, hosts: [String]?, purgeEverything: Bool) async throws
     func getAuditLogs(accountId: String) async throws -> [AuditLog]
 }
 
 extension ZoneServiceProtocol {
     func getZones(page: Int = 1, perPage: Int = 50, name: String? = nil, status: String? = nil) async throws -> ([Zone], ResultInfo?) {
         try await getZones(page: page, perPage: perPage, name: name, status: status)
+    }
+
+    func purgeCache(zoneId: String) async throws {
+        try await purgeCache(zoneId: zoneId, files: nil, hosts: nil, purgeEverything: true)
     }
 }
 
@@ -102,9 +108,32 @@ final class ZoneService: ZoneServiceProtocol {
         try await updateZoneStatus(zoneId: zoneId, paused: paused)
     }
 
-    /// Purges all cached assets (Purge Everything)
-    func purgeCache(zoneId: String) async throws {
-        let payload = ["purge_everything": true]
+    /// Initiates another check for valid DNS data / nameservers for a zone (Official PUT /zones/{id}/activation_check)
+    func checkActivation(zoneId: String) async throws -> Bool {
+        let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/activation_check", method: "PUT")
+        struct ActivationCheckResponse: Codable {
+            let id: String?
+        }
+        let (res, _): (ActivationCheckResponse?, ResultInfo?) = try await client.performRequest(request)
+        return res?.id != nil
+    }
+
+    /// Purges cached assets (Full or Selective URLs / Hosts) - Official POST /zones/{id}/purge_cache
+    func purgeCache(
+        zoneId: String,
+        files: [String]? = nil,
+        hosts: [String]? = nil,
+        purgeEverything: Bool = true
+    ) async throws {
+        var payload: [String: Any] = [:]
+        if let files, !files.isEmpty {
+            payload["files"] = files
+        } else if let hosts, !hosts.isEmpty {
+            payload["hosts"] = hosts
+        } else {
+            payload["purge_everything"] = purgeEverything
+        }
+
         let data = try JSONSerialization.data(withJSONObject: payload)
         let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/purge_cache", method: "POST", body: data)
         struct PurgeResult: Codable { let id: String? }

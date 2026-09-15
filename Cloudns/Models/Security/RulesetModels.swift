@@ -1,17 +1,5 @@
 import Foundation
 
-struct RulesetsResponse: Codable, Sendable {
-    let success: Bool
-    let errors: [CloudflareError]?
-    let result: [Ruleset]?
-}
-
-struct SingleRulesetResponse: Codable, Sendable {
-    let success: Bool
-    let errors: [CloudflareError]?
-    let result: Ruleset?
-}
-
 struct Ruleset: Codable, Identifiable, Equatable, Sendable {
     let id: String
     let name: String
@@ -28,10 +16,13 @@ struct WAFRule: Codable, Identifiable, Equatable, Sendable {
     let description: String?
     let enabled: Bool
     let ratelimit: RateLimitConfig?
-    let action_parameters: ActionParameters?
+    let actionParameters: ActionParameters?
+
+    var action_parameters: ActionParameters? { actionParameters }
 
     enum CodingKeys: String, CodingKey {
-        case id, action, expression, description, enabled, ratelimit, action_parameters
+        case id, action, expression, description, enabled, ratelimit
+        case actionParameters = "action_parameters"
     }
 
     init(from decoder: Decoder) throws {
@@ -42,7 +33,7 @@ struct WAFRule: Codable, Identifiable, Equatable, Sendable {
         description = try container.decodeIfPresent(String.self, forKey: .description)
         enabled = try container.decodeIfPresent(Bool.self, forKey: .enabled) ?? true
         ratelimit = try container.decodeIfPresent(RateLimitConfig.self, forKey: .ratelimit)
-        action_parameters = try container.decodeIfPresent(ActionParameters.self, forKey: .action_parameters)
+        actionParameters = try container.decodeIfPresent(ActionParameters.self, forKey: .actionParameters)
     }
 
     init(
@@ -52,7 +43,7 @@ struct WAFRule: Codable, Identifiable, Equatable, Sendable {
         description: String? = "Block Admin Endpoint Access",
         enabled: Bool = true,
         ratelimit: RateLimitConfig? = nil,
-        action_parameters: ActionParameters? = nil
+        actionParameters: ActionParameters? = nil
     ) {
         self.id = id
         self.action = action
@@ -60,15 +51,31 @@ struct WAFRule: Codable, Identifiable, Equatable, Sendable {
         self.description = description
         self.enabled = enabled
         self.ratelimit = ratelimit
-        self.action_parameters = action_parameters
+        self.actionParameters = actionParameters
     }
 }
 
 struct RateLimitConfig: Codable, Equatable, Sendable {
     let characteristics: [String]?
-    let mitigation_timeout: Int?
+    let mitigationTimeout: Int?
     let period: Int
-    let requests_per_period: Int
+    let requestsPerPeriod: Int
+
+    var mitigation_timeout: Int? { mitigationTimeout }
+    var requests_per_period: Int { requestsPerPeriod }
+
+    enum CodingKeys: String, CodingKey {
+        case characteristics, period
+        case mitigationTimeout = "mitigation_timeout"
+        case requestsPerPeriod = "requests_per_period"
+    }
+
+    init(characteristics: [String]? = nil, mitigationTimeout: Int? = nil, period: Int, requestsPerPeriod: Int) {
+        self.characteristics = characteristics
+        self.mitigationTimeout = mitigationTimeout
+        self.period = period
+        self.requestsPerPeriod = requestsPerPeriod
+    }
 }
 
 struct UpdateWAFRuleRequest: Codable, Sendable {
@@ -77,13 +84,12 @@ struct UpdateWAFRuleRequest: Codable, Sendable {
     let description: String?
     let enabled: Bool
     let ratelimit: RateLimitConfig?
-    let action_parameters: ActionParameters?
-}
+    let actionParameters: ActionParameters?
 
-struct UpdateWAFRuleResponse: Codable, Sendable {
-    let success: Bool
-    let errors: [CloudflareError]?
-    let result: Ruleset? // The API returns the whole ruleset when updating a rule
+    enum CodingKeys: String, CodingKey {
+        case action, expression, description, enabled, ratelimit
+        case actionParameters = "action_parameters"
+    }
 }
 
 struct WAFEntrypointUpdate: Codable, Sendable {

@@ -83,37 +83,103 @@ struct DNSRecord: Codable, Identifiable, Equatable, Sendable {
     }
 }
 
-struct DNSRecordData: Codable, Equatable, Sendable {
-    // SRV
-    var service: String?
-    var proto: String?
-    var name: String?
-    var priority: Int?
-    var weight: Int?
-    var port: Int?
-    var target: String?
+// MARK: - DNS Record Type Enum
 
-    // CAA
-    var flags: Int?
-    var tag: String?
-    var value: String?
+public enum DNSRecordType: String, CaseIterable, Codable, Sendable, Identifiable {
+    case a = "A"
+    case aaaa = "AAAA"
+    case cname = "CNAME"
+    case txt = "TXT"
+    case mx = "MX"
+    case ns = "NS"
+    case srv = "SRV"
+    case caa = "CAA"
+    case https = "HTTPS"
+    case svcb = "SVCB"
+    case ptr = "PTR"
+    case spf = "SPF"
+    case loc = "LOC"
 
-    // HTTPS / SVCB (RFC 9460)
-    // Priority, target, and value / params
+    public var id: String { rawValue }
+
+    /// Returns true if this record type supports Cloudflare CDN proxying
+    public var isProxiable: Bool {
+        switch self {
+        case .a, .aaaa, .cname:
+            return true
+        default:
+            return false
+        }
+    }
 }
 
-struct DNSRecordPayload: Codable, Sendable {
-    let type: String
-    let name: String
-    let content: String?
-    let ttl: Int
-    let proxied: Bool?
-    let priority: Int?
-    let comment: String?
-    let tags: [String]?
-    let data: DNSRecordData?
+// MARK: - DNS Record Data (RFC 9460 & CAA & SRV)
 
-    init(
+public struct DNSRecordData: Codable, Equatable, Sendable {
+    // SRV
+    public var service: String?
+    public var proto: String?
+    public var name: String?
+    public var priority: Int?
+    public var weight: Int?
+    public var port: Int?
+    public var target: String?
+
+    // CAA
+    public var flags: Int?
+    public var tag: String?
+    public var value: String?
+
+    // HTTPS / SVCB (RFC 9460)
+    public var svcPriority: Int?
+    public var targetName: String?
+    public var svcParams: String?
+
+    public init(
+        service: String? = nil,
+        proto: String? = nil,
+        name: String? = nil,
+        priority: Int? = nil,
+        weight: Int? = nil,
+        port: Int? = nil,
+        target: String? = nil,
+        flags: Int? = nil,
+        tag: String? = nil,
+        value: String? = nil,
+        svcPriority: Int? = nil,
+        targetName: String? = nil,
+        svcParams: String? = nil
+    ) {
+        self.service = service
+        self.proto = proto
+        self.name = name
+        self.priority = priority
+        self.weight = weight
+        self.port = port
+        self.target = target
+        self.flags = flags
+        self.tag = tag
+        self.value = value
+        self.svcPriority = svcPriority
+        self.targetName = targetName
+        self.svcParams = svcParams
+    }
+}
+
+// MARK: - Payloads
+
+public struct DNSRecordPayload: Codable, Sendable {
+    public let type: String
+    public let name: String
+    public let content: String?
+    public let ttl: Int
+    public let proxied: Bool?
+    public let priority: Int?
+    public let comment: String?
+    public let tags: [String]?
+    public let data: DNSRecordData?
+
+    public init(
         type: String,
         name: String,
         content: String?,
@@ -136,10 +202,53 @@ struct DNSRecordPayload: Codable, Sendable {
     }
 }
 
-struct BatchDNSRecordDelete: Codable, Sendable {
-    let id: String
+/// Lightweight payload for official Cloudflare PATCH /zones/{id}/dns_records/{id}
+public struct DNSRecordPatchPayload: Codable, Sendable {
+    public var name: String?
+    public var type: String?
+    public var content: String?
+    public var ttl: Int?
+    public var proxied: Bool?
+    public var comment: String?
+    public var tags: [String]?
+    public var priority: Int?
+    public var data: DNSRecordData?
+
+    public init(
+        name: String? = nil,
+        type: String? = nil,
+        content: String? = nil,
+        ttl: Int? = nil,
+        proxied: Bool? = nil,
+        comment: String? = nil,
+        tags: [String]? = nil,
+        priority: Int? = nil,
+        data: DNSRecordData? = nil
+    ) {
+        self.name = name
+        self.type = type
+        self.content = content
+        self.ttl = ttl
+        self.proxied = proxied
+        self.comment = comment
+        self.tags = tags
+        self.priority = priority
+        self.data = data
+    }
 }
 
-struct BatchDNSRecordsRequest: Codable, Sendable {
-    let deletes: [BatchDNSRecordDelete]?
+public struct BatchDNSRecordDelete: Codable, Sendable {
+    public let id: String
+
+    public init(id: String) {
+        self.id = id
+    }
+}
+
+public struct BatchDNSRecordsRequest: Codable, Sendable {
+    public let deletes: [BatchDNSRecordDelete]?
+
+    public init(deletes: [BatchDNSRecordDelete]? = nil) {
+        self.deletes = deletes
+    }
 }

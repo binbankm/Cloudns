@@ -7,10 +7,13 @@ protocol DNSServiceProtocol: Sendable {
     func createDNSRecord(zoneId: String, record: DNSRecord) async throws -> DNSRecord
     func updateDNSRecord(zoneId: String, recordId: String, payload: DNSRecordPayload) async throws -> DNSRecord
     func updateDNSRecord(zoneId: String, recordId: String, record: DNSRecord) async throws -> DNSRecord
+    func patchDNSRecord(zoneId: String, recordId: String, payload: DNSRecordPatchPayload) async throws -> DNSRecord
+    func updateProxyStatus(zoneId: String, recordId: String, proxied: Bool) async throws -> DNSRecord
     func deleteDNSRecord(zoneId: String, recordId: String) async throws -> String
     func batchDNSRecords(zoneId: String, deletes: [String]) async throws
     func exportDNSRecords(zoneId: String) async throws -> URL
     func importDNSRecords(zoneId: String, fileURL: URL) async throws
+    func scanDNSRecords(zoneId: String) async throws -> Bool
     func getDNSSEC(zoneId: String) async throws -> DNSSEC
     func updateDNSSEC(zoneId: String, status: String) async throws -> DNSSEC
 }
@@ -114,6 +117,24 @@ final class DNSService: DNSServiceProtocol {
         return record
     }
 
+    /// Partially updates existing DNS record - Official PATCH /zones/{id}/dns_records/{id}
+    func patchDNSRecord(zoneId: String, recordId: String, payload: DNSRecordPatchPayload) async throws -> DNSRecord {
+        let encoder = JSONEncoder()
+        let data = try encoder.encode(payload)
+        let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/dns_records/\(recordId)", method: "PATCH", body: data)
+        let (updated, _): (DNSRecord?, ResultInfo?) = try await client.performRequest(request)
+        guard let record = updated else {
+            throw APIError.cloudflareError("Failed to patch DNS record.")
+        }
+        return record
+    }
+
+    /// Fast one-touch proxy toggle using official PATCH endpoint
+    func updateProxyStatus(zoneId: String, recordId: String, proxied: Bool) async throws -> DNSRecord {
+        let payload = DNSRecordPatchPayload(proxied: proxied)
+        return try await patchDNSRecord(zoneId: zoneId, recordId: recordId, payload: payload)
+    }
+
     /// Deletes DNS record
     func deleteDNSRecord(zoneId: String, recordId: String) async throws -> String {
         let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/dns_records/\(recordId)", method: "DELETE")
@@ -159,6 +180,16 @@ final class DNSService: DNSServiceProtocol {
         )
         struct ImportRes: Codable { let recursive_records: Int? }
         let (_, _): (ImportRes?, ResultInfo?) = try await client.performRequest(request)
+    }
+
+    /// Triggers automated scan for common DNS records (Official POST /zones/{id}/dns_records/scan)
+    func scanDNSRecords(zoneId: String) async throws -> Bool {
+        let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/dns_records/scan", method: "POST")
+        struct ScanResponse: Codable {
+            let total_records_parsed: Int?
+        }
+        let (res, _): (ScanResponse?, ResultInfo?) = try await client.performRequest(request)
+        return res != nil
     }
 
     /// Fetches DNSSEC details

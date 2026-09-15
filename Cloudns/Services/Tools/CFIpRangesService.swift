@@ -15,11 +15,7 @@ final class CFIpRangesService: CFIpRangesServiceProtocol {
 
     func getCloudflareIPs() async throws -> ([String], [String]) {
         let request = try factory.createAuthenticatedRequest(path: "ips")
-        struct CFIPsResponse: Codable {
-            let ipv4_cidrs: [String]?
-            let ipv6_cidrs: [String]?
-        }
-        let (data, _): (CFIPsResponse?, ResultInfo?) = try await client.performRequest(request)
-        return (data?.ipv4_cidrs ?? [], data?.ipv6_cidrs ?? [])
+        let (data, _): (CloudflareIPRanges?, ResultInfo?) = try await client.performRequest(request)
+        return (data?.ipv4Cidrs ?? [], data?.ipv6Cidrs ?? [])
     }
 }

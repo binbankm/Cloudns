@@ -19,14 +19,14 @@ final class RedirectRulesService: RedirectRulesServiceProtocol {
         let rs = try? await wafRulesService.fetchRulesetByPhase(zoneId: zoneId, phase: "http_request_dynamic_redirect")
         guard let rules = rs?.rules else { return [] }
         return rules.compactMap { (r: WAFRule) -> RedirectRuleItem? in
-            guard let ap = r.action_parameters else { return nil }
+            guard let ap = r.actionParameters ?? r.action_parameters else { return nil }
             return RedirectRuleItem(
                 id: r.id,
                 description: r.description,
                 expression: r.expression,
-                targetUrl: ap.from_value?.target_url?.value ?? ap.from_value?.target_url?.expression,
-                statusCode: ap.from_value?.status_code ?? 301,
-                preserveQueryString: ap.from_value?.preserve_query_string,
+                targetUrl: ap.fromValue?.targetUrl?.value ?? ap.fromValue?.targetUrl?.expression,
+                statusCode: ap.fromValue?.statusCode ?? 301,
+                preserveQueryString: ap.fromValue?.preserveQueryString,
                 enabled: r.enabled
             )
         }
@@ -42,12 +42,13 @@ final class RedirectRulesService: RedirectRulesServiceProtocol {
     ) async throws {
         let rs = try? await wafRulesService.fetchRulesetByPhase(zoneId: zoneId, phase: "http_request_dynamic_redirect")
         let actionParam = ActionParameters(
-            from_value: ActionParameters.FromValue(
-                status_code: statusCode,
-                target_url: ActionParameters.TargetUrl(value: targetUrl, expression: nil),
-                preserve_query_string: preserveQueryString
+            fromValue: ActionParameters.FromValue(
+                statusCode: statusCode,
+                targetUrl: ActionParameters.TargetUrl(value: targetUrl, expression: nil),
+                preserveQueryString: preserveQueryString
             )
         )
+
         if let ruleset = rs {
             _ = try await wafRulesService.createWAFRule(
                 zoneId: zoneId,

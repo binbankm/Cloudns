@@ -139,27 +139,42 @@ struct ZoneSetting: Codable, Identifiable, Sendable {
     }
 }
 
-struct ZoneSettingsResponse: Codable, Sendable {
-    let success: Bool
-    let errors: [CloudflareError]?
-    let result: [ZoneSetting]?
-}
-
-struct ZoneSettingUpdateResponse: Codable, Sendable {
-    let success: Bool
-    let errors: [CloudflareError]?
-    let result: ZoneSetting?
-}
-
 // MARK: - Bot Management Config
 
 public struct BotManagementConfig: Codable, Sendable {
-    public let fight_mode: Bool?
-    public let optimize_wordpress: Bool?
-    public let sbfm_definitely_automated: String?
-    public let sbfm_likely_automated: String?
-    public let sbfm_verified_bots: String?
-    public let sbfm_static_resource_protection: Bool?
+    public let fightMode: Bool?
+    public let optimizeWordpress: Bool?
+    public let sbfmDefinitelyAutomated: String?
+    public let sbfmLikelyAutomated: String?
+    public let sbfmVerifiedBots: String?
+    public let sbfmStaticResourceProtection: Bool?
+
+    public var fight_mode: Bool? { fightMode }
+
+    enum CodingKeys: String, CodingKey {
+        case fightMode = "fight_mode"
+        case optimizeWordpress = "optimize_wordpress"
+        case sbfmDefinitelyAutomated = "sbfm_definitely_automated"
+        case sbfmLikelyAutomated = "sbfm_likely_automated"
+        case sbfmVerifiedBots = "sbfm_verified_bots"
+        case sbfmStaticResourceProtection = "sbfm_static_resource_protection"
+    }
+
+    public init(
+        fightMode: Bool? = nil,
+        optimizeWordpress: Bool? = nil,
+        sbfmDefinitelyAutomated: String? = nil,
+        sbfmLikelyAutomated: String? = nil,
+        sbfmVerifiedBots: String? = nil,
+        sbfmStaticResourceProtection: Bool? = nil
+    ) {
+        self.fightMode = fightMode
+        self.optimizeWordpress = optimizeWordpress
+        self.sbfmDefinitelyAutomated = sbfmDefinitelyAutomated
+        self.sbfmLikelyAutomated = sbfmLikelyAutomated
+        self.sbfmVerifiedBots = sbfmVerifiedBots
+        self.sbfmStaticResourceProtection = sbfmStaticResourceProtection
+    }
 
     public init(
         fight_mode: Bool? = nil,
@@ -169,11 +184,11 @@ public struct BotManagementConfig: Codable, Sendable {
         sbfm_verified_bots: String? = nil,
         sbfm_static_resource_protection: Bool? = nil
     ) {
-        self.fight_mode = fight_mode
-        self.optimize_wordpress = optimize_wordpress
-        self.sbfm_definitely_automated = sbfm_definitely_automated
-        self.sbfm_likely_automated = sbfm_likely_automated
-        self.sbfm_verified_bots = sbfm_verified_bots
-        self.sbfm_static_resource_protection = sbfm_static_resource_protection
+        self.fightMode = fight_mode
+        self.optimizeWordpress = optimize_wordpress
+        self.sbfmDefinitelyAutomated = sbfm_definitely_automated
+        self.sbfmLikelyAutomated = sbfm_likely_automated
+        self.sbfmVerifiedBots = sbfm_verified_bots
+        self.sbfmStaticResourceProtection = sbfm_static_resource_protection
     }
 }

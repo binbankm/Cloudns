@@ -25,7 +25,9 @@ protocol CertificateServiceProtocol: Sendable {
     func updateUniversalSSL(zoneId: String, enabled: Bool) async throws
     func deleteCertificatePack(zoneId: String, packId: String) async throws
     func fetchCustomCertificates(zoneId: String) async throws -> [CustomCertificate]
+    func uploadCustomCertificate(zoneId: String, certificate: String, privateKey: String, bundleMethod: String) async throws -> CustomCertificate
     func deleteCustomCertificate(zoneId: String, certificateId: String) async throws
+    func getSSLVerification(zoneId: String) async throws -> [SSLVerificationItem]
 }
 
 /// Concrete domain service for Cloudflare SSL/TLS and edge certificates
@@ -206,10 +208,25 @@ final class CertificateService: CertificateServiceProtocol {
         return certs ?? []
     }
 
+    func uploadCustomCertificate(zoneId: String, certificate: String, privateKey: String, bundleMethod: String = "ubiquitous") async throws -> CustomCertificate {
+        let uploadReq = CustomCertificateUploadRequest(certificate: certificate, privateKey: privateKey, bundleMethod: bundleMethod)
+        let data = try JSONEncoder().encode(uploadReq)
+        let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/custom_certificates", method: "POST", body: data)
+        let (cert, _): (CustomCertificate?, ResultInfo?) = try await client.performRequest(request)
+        guard let c = cert else { throw APIError.cloudflareError("Failed to upload custom certificate") }
+        return c
+    }
+
     func deleteCustomCertificate(zoneId: String, certificateId: String) async throws {
         let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/custom_certificates/\(certificateId)", method: "DELETE")
         struct Res: Codable { let id: String? }
         let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+    }
+
+    func getSSLVerification(zoneId: String) async throws -> [SSLVerificationItem] {
+        let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/ssl/verification")
+        let (items, _): ([SSLVerificationItem]?, ResultInfo?) = try await client.performRequest(request)
+        return items ?? []
     }
 
     // MARK: - Generic Setting Helpers
