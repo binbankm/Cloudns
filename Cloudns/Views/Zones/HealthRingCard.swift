@@ -9,20 +9,19 @@ struct HealthRingCard: View {
     let pendingCount: Int
     var pausedCount: Int = 0
 
-    private var statusDescription: String {
+    @ViewBuilder
+    private var statusDescriptionView: some View {
         if totalCount == 0 {
-            return "No domains connected"
+            Text("No domains connected")
+        } else if pendingCount > 0 {
+            Text("\(pendingCount) Pending Review")
+        } else if pausedCount > 0 {
+            Text("\(pausedCount) Paused")
+        } else if healthPercentage >= 100 {
+            Text("All Systems Normal")
+        } else {
+            Text("Action Needed")
         }
-        if pendingCount > 0 {
-            return "\(pendingCount) Pending Review"
-        }
-        if pausedCount > 0 {
-            return "\(pausedCount) Paused"
-        }
-        if healthPercentage >= 100 {
-            return "All Systems Normal"
-        }
-        return "Action Needed"
     }
 
     private var statusDotColor: Color {
@@ -52,7 +51,7 @@ struct HealthRingCard: View {
                         .fill(statusDotColor)
                         .frame(width: GentleSpacing.xs, height: GentleSpacing.xs)
 
-                    Text(statusDescription)
+                    statusDescriptionView
                         .font(GentleTypography.subheadlineBold)
                         .foregroundStyle(GentleColor.textPrimary)
                         .lineLimit(1)

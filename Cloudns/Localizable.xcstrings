@@ -1,1866 +1,2148 @@
 {
-  "sourceLanguage" : "en",
-  "strings" : {
-    "" : {
-
-    },
-    "%lld Nameservers" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld Nameservers"
+  "sourceLanguage": "en",
+  "strings": {
+    "%@ has been successfully added.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ has been successfully added."
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld 个名称服务器"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 已成功添加至 Cloudflare。"
           }
         }
       }
     },
-    "%lld of %lld domains active" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld of %2$lld domains active"
+    "%lld Nameservers": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld Nameservers"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%2$lld 个域名中有 %1$lld 个生效中"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 个名称服务器"
           }
         }
       }
     },
-    "%lld Paused" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld Paused"
+    "%lld of %lld domains active": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld of %lld domains active"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld 个已暂停"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld / %lld 个域名生效中"
           }
         }
       }
     },
-    "%lld Pending Review" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld Pending Review"
+    "%lld Paused": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld Paused"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld 个待配置审核"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 个已暂停"
           }
         }
       }
-    },
-    "%lld percent" : {
-
-    },
-    "%lld/37" : {
-
-    },
-    "%lld%%" : {
-
-    },
-    "•" : {
-
     },
-    "1,248,392 reqs" : {
-
-    },
-    "37-character Global API Key is stored only within the device secure keychain." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "37-character Global API Key is stored only within the device secure keychain."
+    "%lld Pending": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld Pending"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "37 位 Global API Key 仅保存在本机安全钥匙串中，严格防止泄露。"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 个待配置"
           }
         }
       }
-    },
-    "75%" : {
-
     },
-    "A DNS record with this host and type already exists" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A DNS record with this host and type already exists"
+    "%lld Pending Review": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld Pending Review"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "已存在相同主机名与类型的解析记录 · 请修改主机名或内容"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 个待配置审核"
           }
         }
       }
     },
-    "Account Alias (Optional)" : {
-
-    },
-    "Account Avatars" : {
-
-    },
-    "Account Switched" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Account Switched"
+    "%lld percent": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld percent"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "已切换账户"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld%%"
           }
         }
       }
-    },
-    "Account: %@" : {
-
     },
-    "Action Needed" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Action Needed"
+    "37-character API key": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "37-character API key"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "需要关注"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "37 位 Global API Key"
           }
         }
       }
     },
-    "Active" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Active"
+    "A DNS record with this host and type already exists": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A DNS record with this host and type already exists"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "生效中"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已存在相同主机名与类型的 DNS 解析记录"
           }
         }
       }
     },
-    "Active & cryptographically verified" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Active & cryptographically verified"
+    "Account Alias (Optional)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Account Alias (Optional)"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "已生效并通过密码学签名校验"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "账户别名 (选填)"
           }
         }
       }
     },
-    "Active account" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Active account"
+    "Account: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Account: %@"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "当前活跃账号"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "账户：%@"
           }
         }
       }
     },
-    "Active DNS & SSL routing" : {
-
-    },
-    "Add Account" : {
-
-    },
-    "Add Domain" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Add Domain"
+    "Action Needed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Action Needed"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "添加域名"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "需要关注处理"
           }
         }
       }
     },
-    "Add New Domain" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Add New Domain"
+    "Active": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Active"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "添加新域名"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "生效中"
           }
         }
       }
     },
-    "Adding Domain..." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Adding Domain..."
+    "Active account": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Active account"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "正在添加域名..."
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前激活账户"
           }
         }
       }
     },
-    "Adding..." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Adding..."
+    "Add a Cloudflare account to get started.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a Cloudflare account to get started."
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "添加中..."
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "添加 Cloudflare 账户即可开启管理。"
           }
         }
       }
     },
-    "All" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "All"
+    "Add Account": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add Account"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "全部"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "添加账户"
           }
         }
       }
     },
-    "All Systems Normal" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "All Systems Normal"
+    "Add Domain": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add Domain"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "全部正常运行"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "添加域名"
           }
         }
       }
     },
-    "Apex Domain" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Apex Domain"
+    "Adding...": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adding..."
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "根域名"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在添加..."
           }
         }
       }
     },
-    "Apex domain without protocol or path (e.g. example.com)" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Apex domain without protocol or path (e.g. example.com)"
+    "All": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "根域名（无需协议或路径，如 example.com）"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全部"
           }
         }
       }
     },
-    "Audit Logs" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Audit Logs"
+    "All Systems Normal": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All Systems Normal"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "审计日志"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全部域名正常运行"
           }
         }
       }
     },
-    "Authentication failed. Please check that your email and 37-character Global API Key are valid." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Authentication failed. Please check that your email and 37-character Global API Key are valid."
+    "Apex domain without protocol or path (e.g. example.com)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apex domain without protocol or path (e.g. example.com)"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "鉴权未通过 · 请检查您的登录邮箱与 37 位 Global API Key 是否匹配有效。"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请输入不含协议和路径的根域名（例如 example.com）"
           }
         }
       }
     },
-    "Authentication failed. Please verify your Global API Key." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Authentication failed. Please verify your Global API Key."
+    "Authentication failed. Please check that your email and 37-character Global API Key are valid.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Authentication failed. Please check that your email and 37-character Global API Key are valid."
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "鉴权未通过 · 请检查 Global API Key 是否正确"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "凭据校验未通过 · 请确保邮箱与 37 位 Global API Key 填写无误。"
           }
         }
       }
     },
-    "Automatically query and import existing DNS records." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Automatically query and import existing DNS records."
+    "Authentication failed. Please verify your Global API Key.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Authentication failed. Please verify your Global API Key."
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "自动查询并导入现有 DNS 解析记录。"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "鉴权未通过 · 请检查 Global API Key 是否正确"
           }
         }
       }
     },
-    "Buttons & Confirmation" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Buttons & Confirmation"
+    "Automatically query and import existing DNS records.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatically query and import existing DNS records."
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "按钮与交互确认"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自动查询并导入现有 DNS 解析记录。"
           }
         }
       }
     },
-    "Bypass cache for 3 hours" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bypass cache for 3 hours"
+    "Business": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Business"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "临时绕过缓存 3 小时"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "商业版"
           }
         }
       }
     },
-    "Cancel" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cancel"
+    "Cancel": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "取消"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消"
           }
         }
       }
     },
-    "Card Headline Title" : {
-
-    },
-    "Card Variants" : {
-
-    },
-    "Clear input text" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Clear input text"
+    "Clear input text": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear input text"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "清空输入内容"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清空输入"
           }
         }
       }
     },
-    "Clear search text" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Clear search text"
+    "Clear search text": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear search text"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "清空搜索内容"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清空搜索"
           }
         }
       }
     },
-    "Cloudflare account ID not found" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cloudflare account ID not found"
+    "Cloudflare account ID not found": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare account ID not found"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "未找到 Cloudflare 账户 ID"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未获取到 Cloudflare 账户 ID"
           }
         }
       }
-    },
-    "Cloudflare Proxy Status" : {
-
     },
-    "Cloudns" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cloudns"
+    "Cloudflare Dashboard": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Dashboard"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cloudns"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare 控制台"
           }
         }
       }
     },
-    "CNAME records at the root zone are automatically flattened by Cloudflare." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "CNAME records at the root zone are automatically flattened by Cloudflare."
+    "Cloudns": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudns"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "根域名处的 CNAME 记录已被 Cloudflare 自动展平为 A/AAAA 记录解析。"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudns"
           }
         }
       }
     },
-    "Colors & Badges" : {
-
-    },
-    "Connect Account" : {
-
-    },
-    "Core System Status" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Core System Status"
+    "Connect Account": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect Account"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "系统核心状态"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连接账户"
           }
         }
       }
     },
-    "Data formatting error: %@" : {
-
-    },
-    "Delete %@" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Delete %@"
+    "Copy Global API Key": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy Global API Key"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "删除 %@"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "复制 Global API Key"
           }
         }
       }
     },
-    "Delete DNS Record" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Delete DNS Record"
+    "Data formatting error: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Data formatting error: %@"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "删除 DNS 解析记录"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "数据解析错误：%@"
           }
         }
       }
     },
-    "Delete Domain" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Delete Domain"
+    "Deactivated": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deactivated"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "删除域名"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已停用"
           }
         }
       }
     },
-    "Delete Record" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Delete Record"
+    "Delete": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "删除记录"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "删除"
           }
         }
       }
     },
-    "Design System & Infrastructure Ready" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Design System & Infrastructure Ready"
+    "Delete %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete %@"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "温和设计系统与多账号基建已就绪"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "删除 %@"
           }
         }
       }
     },
-    "Development Mode" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Development Mode"
+    "Delete Domain": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete Domain"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "开发模式"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "删除域名"
           }
         }
       }
     },
-    "Dismiss notification" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dismiss notification"
+    "Dismiss notification": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dismiss notification"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "关闭通知"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "忽略通知"
           }
         }
       }
     },
-    "DNS Flattening Notice" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "DNS Flattening Notice"
+    "DNS Ready": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DNS Ready"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "DNS 展平说明"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DNS 就绪"
           }
         }
       }
     },
-    "DNS Ready" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "DNS Ready"
+    "DNS resolution failed · Invalid request host": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DNS resolution failed · Invalid request host"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "DNS 已就绪"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DNS 解析失败 · 请求主机名无效"
           }
         }
       }
     },
-    "DNS record has been successfully purged." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "DNS record has been successfully purged."
+    "Domain Added": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Domain Added"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "DNS 解析记录已从云端成功移除。"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "域名已添加"
           }
         }
       }
     },
-    "DNS resolution failed · Invalid request host" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "DNS resolution failed · Invalid request host"
+    "Domain configuration was deleted from Cloudflare.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Domain configuration was deleted from Cloudflare."
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "DNS 解析请求失败 · 请求主机名无效"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "该域名配置已从 Cloudflare 删除。"
           }
         }
       }
     },
-    "DNSSEC Status" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "DNSSEC Status"
+    "Domain Name": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Domain Name"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "DNSSEC 状态"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "域名名称"
           }
         }
       }
     },
-    "Domain Name" : {
-
-    },
-    "Domain not found or not active under this account" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Domain not found or not active under this account"
+    "Domain not found or not active under this account": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Domain not found or not active under this account"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "当前账号下未找到该域名或域名未处于激活状态"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未找到该域名，或该域名在当前账户下未生效"
           }
         }
       }
     },
-    "Domains" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Domains"
+    "Domain Removed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Domain Removed"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "域名"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "域名已移除"
           }
         }
       }
     },
-    "Done" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Done"
+    "Domains": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Domains"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "完成"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "域名"
           }
         }
       }
     },
-    "Edge certificates are active and enforcing HTTPS redirection." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Edge certificates are active and enforcing HTTPS redirection."
+    "Done": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "边缘证书已激活，正在强制实施 HTTPS 自动重定向。"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完成"
           }
         }
       }
-    },
-    "Elevated Floating Card" : {
-
     },
-    "Email" : {
-
-    },
-    "Enter a valid apex domain (e.g. example.com)" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Enter a valid apex domain (e.g. example.com)"
+    "e.g. example.com": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "e.g. example.com"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "请输入有效的根域名（如 example.com）"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "例如：example.com"
           }
         }
       }
-    },
-    "Gentle Design System" : {
-
     },
-    "Gentle Notification Banners" : {
-
-    },
-    "Gentle Spinner Styles:" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gentle Spinner Styles:"
+    "e.g. Production, Personal": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "e.g. Production, Personal"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "温和微加载指示器样式："
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "例如：生产环境、个人主站"
           }
         }
       }
-    },
-    "Global API Key" : {
-
-    },
-    "Grouped Rows & Insets" : {
-
     },
-    "Health Status" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Health Status"
+    "Email": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Email"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "健康状态"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "邮箱地址"
           }
         }
       }
     },
-    "Hide credential" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hide credential"
+    "Enter a valid apex domain (e.g. example.com)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a valid apex domain (e.g. example.com)"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "隐藏凭证"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请输入有效的根域名（例如 example.com）"
           }
         }
       }
     },
-    "Highlighted Card (Amber Glow)" : {
-
-    },
-    "Inline Callouts & Tips" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Inline Callouts & Tips"
+    "Enterprise": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enterprise"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "行内提示卡与温和说明"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "企业版"
           }
         }
       }
-    },
-    "Input Fields" : {
-
     },
-    "Interactive Tap Card (Spring Scale)" : {
-
-    },
-    "Invalid API URL." : {
-
-    },
-    "Invalid DNS record parameters or content format" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Invalid DNS record parameters or content format"
+    "example.com": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "example.com"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "解析记录参数或内容格式无效 · 请检查 IP 地址或主机名"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "example.com"
           }
         }
       }
     },
-    "Invalid email or Global API Key · Please verify credentials" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Invalid email or Global API Key · Please verify credentials"
+    "Failed to Remove Domain": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to Remove Domain"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "邮箱或 Global API Key 未通过验证 · 请检查是否拼写正确"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "移除域名失败"
           }
         }
       }
-    },
-    "Invalid response from Cloudflare server." : {
-
     },
-    "Keychain Security Isolation" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Keychain Security Isolation"
+    "Free": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Free"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "钥匙串安全物理隔离"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "免费版"
           }
         }
       }
     },
-    "Loading" : {
-
-    },
-    "Loading domains from Cloudflare..." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Loading domains from Cloudflare..."
+    "Full": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "正在从 Cloudflare 获取域名..."
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全功能模式"
           }
         }
       }
     },
-    "Medium" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Medium"
+    "Global API Key": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Global API Key"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "中等"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Global API Key"
           }
         }
       }
-    },
-    "Monospaced Metric:" : {
-
     },
-    "Native Cloudflare Client" : {
-
+    "Health": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Health"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "健康度"
+          }
+        }
+      }
     },
-    "Network connection interrupted. Please check your connection and retry." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Network connection interrupted. Please check your connection and retry."
+    "Hide credential": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide credential"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "网络连接似乎暂时中断了 · 请检查后轻触重试"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "隐藏凭证"
           }
         }
       }
     },
-    "Network connection seems interrupted · Please check and tap to retry" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Network connection seems interrupted · Please check and tap to retry"
+    "How to locate your key": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How to locate your key"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "网络连接似乎暂时中断了 · 请检查后轻触重试"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "获取步骤说明"
           }
         }
       }
     },
-    "Network connection temporarily disrupted · Tap to retry" : {
-
+    "Initializing": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Initializing"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "初始化中"
+          }
+        }
+      }
     },
-    "Network Error: %@" : {
-
+    "Invalid API URL.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invalid API URL."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无效的 API 请求地址。"
+          }
+        }
+      }
     },
-    "No active account · Ready for login & authentication flow" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No active account · Ready for login & authentication flow"
+    "Invalid DNS record parameters or content format": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invalid DNS record parameters or content format"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "当前未绑定账号 · 下一步将启动登录与凭证验证流"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DNS 记录参数或内容格式无效"
           }
         }
       }
     },
-    "No domains found in this account." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No domains found in this account."
+    "Invalid email or Global API Key · Please verify credentials": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invalid email or Global API Key · Please verify credentials"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "当前账户下未找到任何域名。"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "邮箱或 Global API Key 未通过验证 · 请检查是否拼写正确"
           }
         }
       }
     },
-    "No domains match your search or filter criteria." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No domains match your search or filter criteria."
+    "Invalid response from Cloudflare server.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invalid response from Cloudflare server."
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "没有符合搜索或筛选条件的域名。"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare 服务器返回无效响应。"
           }
         }
       }
     },
-    "No Domains Yet" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No Domains Yet"
+    "Keychain Protected": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keychain Protected"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "暂无域名"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "钥匙串硬件级保护"
           }
         }
       }
     },
-    "No Matching Domains" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No Matching Domains"
+    "Loading": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "未找到匹配域名"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "加载中"
           }
         }
       }
     },
-    "Offline" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Offline"
+    "Locate Global API Key, select View, verify, and copy.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Locate Global API Key, select View, verify, and copy."
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "网络离线"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "找到 Global API Key，点击查看并复制。"
           }
         }
       }
     },
-    "Open Cloudflare Dashboard" : {
-
+    "Moved": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moved"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已迁移"
+          }
+        }
+      }
     },
-    "Operational" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Operational"
+    "name@example.com": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "name@example.com"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "正常运行"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "name@example.com"
           }
         }
       }
     },
-    "Paste" : {
-
+    "Native Cloudflare Client": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Native Cloudflare Client"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare 原生客户端"
+          }
+        }
+      }
     },
-    "Pause Cloudflare on Site" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pause Cloudflare on Site"
+    "Network connection interrupted. Please check your connection and retry.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Network connection interrupted. Please check your connection and retry."
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在此站点暂停 Cloudflare"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "网络连接似乎暂时中断了 · 请检查后轻触重试"
           }
         }
       }
     },
-    "Paused" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Paused"
+    "Network connection is unavailable. Please check your network and retry.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Network connection is unavailable. Please check your network and retry."
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "已暂停"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "网络连接不可用 · 请检查网络后重试"
           }
         }
       }
     },
-    "Pending" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pending"
+    "Network connection seems interrupted · Please check and tap to retry": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Network connection seems interrupted · Please check and tap to retry"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "待配置"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "网络连接似乎暂时中断了 · 请检查后轻触重试"
           }
         }
       }
     },
-    "Permanently delete %@? DNS routing will stop immediately." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Permanently delete %@? DNS routing will stop immediately."
+    "Network connection temporarily disrupted · Tap to retry": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Network connection temporarily disrupted · Tap to retry"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "永久删除 %@？DNS 解析与路由将立即终止。"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "网络连接暂时中断 · 请轻触重试"
           }
         }
       }
     },
-    "Please check for app updates to support the latest Cloudflare API schema." : {
-
+    "Network Error: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Network Error: %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "网络错误：%@"
+          }
+        }
+      }
     },
-    "Please check your endpoint settings and domain name format." : {
-
+    "No Accounts": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Accounts"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂无账户"
+          }
+        }
+      }
     },
-    "Please re-check your email and Global API Key in Account Settings." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Please re-check your email and Global API Key in Account Settings."
+    "No Domains": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Domains"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "请在账户设置中重新核对您的邮箱与 Global API Key。"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂无域名"
           }
         }
       }
     },
-    "Please try again later or check Cloudflare Status." : {
-
+    "No domains connected": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No domains connected"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂无已连接域名"
+          }
+        }
+      }
     },
-    "Please verify your input parameters and permissions." : {
-
+    "No domains found in this account.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No domains found in this account."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前账户下未找到任何域名。"
+          }
+        }
+      }
     },
-    "Primary Amber Button" : {
-
+    "No domains match your search or filter criteria.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No domains match your search or filter criteria."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没有符合搜索或筛选条件的域名。"
+          }
+        }
+      }
     },
-    "Progress & Activity Indicators" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Progress & Activity Indicators"
+    "No Matching Domains": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Matching Domains"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "进度条与微加载指示器"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未找到匹配域名"
           }
         }
       }
     },
-    "Rate limit exceeded · Please slow down requests" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rate limit exceeded · Please slow down requests"
+    "Offline": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Offline"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "请求频次已超出 Cloudflare 限制 · 请稍候重试"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "网络离线"
           }
         }
       }
     },
-    "Record conflict detected · Please check existing CNAME or A records" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Record conflict detected · Please check existing CNAME or A records"
+    "Open Cloudflare Dashboard": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Cloudflare Dashboard"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "检测到解析记录冲突 · 请检查根域名是否已存在 CNAME 或 A 记录"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "前往 Cloudflare 控制台"
           }
         }
       }
     },
-    "Record Deleted" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Record Deleted"
+    "Open your profile and select the API Tokens tab.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open your profile and select the API Tokens tab."
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "记录已删除"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "进入个人资料，轻触「API 令牌」标签页。"
           }
         }
       }
     },
-    "Remove %@" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Remove %@"
+    "Operation Failed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Operation Failed"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "移除 %@"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "操作失败"
           }
         }
       }
     },
-    "Remove %@? Credentials will be deleted from this device." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Remove %@? Credentials will be deleted from this device."
+    "Paste": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paste"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "移除 %@？凭据将从本机安全删除。"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "粘贴"
           }
         }
       }
     },
-    "Remove %@? You will be returned to the login screen." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Remove %@? You will be returned to the login screen."
+    "Pause Cloudflare on Site": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pause Cloudflare on Site"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "移除 %@？将返回登录界面。"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在此站点暂停 Cloudflare"
           }
         }
       }
     },
-    "Remove Account" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Remove Account"
+    "Paused": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paused"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "移除此账户"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已暂停"
           }
         }
       }
     },
-    "Resume Cloudflare" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Resume Cloudflare"
+    "Pending": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pending"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "恢复 Cloudflare 代理"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "待配置"
           }
         }
       }
     },
-    "Scan DNS Records" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Scan DNS Records"
+    "Permanently delete %@? DNS routing will stop immediately.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permanently delete %@? DNS routing will stop immediately."
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "扫描 DNS 记录"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "确定要永久删除 %@ 吗？DNS 解析与路由将立即终止。"
           }
         }
       }
     },
-    "Scan Existing DNS" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Scan Existing DNS"
+    "Please check for app updates to support the latest Cloudflare API schema.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please check for app updates to support the latest Cloudflare API schema."
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "扫描现有 DNS"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请检查应用更新以兼容最新的 Cloudflare API 规范。"
           }
         }
       }
     },
-    "Search" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Search"
+    "Please check your endpoint settings and domain name format.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please check your endpoint settings and domain name format."
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "搜索"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请检查请求端点配置与域名格式。"
           }
         }
       }
     },
-    "Search Bar" : {
-
+    "Please re-check your email and Global API Key in Account Settings.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please re-check your email and Global API Key in Account Settings."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请重新核对您的邮箱与 Global API Key。"
+          }
+        }
+      }
     },
-    "Search domains" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Search domains"
+    "Please try again later or check Cloudflare Status.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please try again later or check Cloudflare Status."
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "搜索域名"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请稍后重试或前往 Cloudflare 状态页查看服务运行情况。"
           }
         }
       }
     },
-    "Search domains or records" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Search domains or records"
+    "Please verify your input parameters and permissions.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please verify your input parameters and permissions."
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "搜索域名或解析记录"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请核对您的输入参数与账户操作权限。"
           }
         }
       }
     },
-    "Secondary Surface Button" : {
-
+    "Pro": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "专业版"
+          }
+        }
+      }
     },
-    "Security Level" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Security Level"
+    "Profile → API Tokens": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profile → API Tokens"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "安全等级"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "个人资料 → API 令牌"
           }
         }
       }
     },
-    "Semantic Badges" : {
-
+    "Proxied": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Proxied"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已代理"
+          }
+        }
+      }
     },
-    "Show credential" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Show credential"
+    "Query: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Query: %@"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "显示凭证"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "查询内容：%@"
           }
         }
       }
     },
-    "Simulate Async Action" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Simulate Async Action"
+    "Rate limit exceeded · Please slow down requests": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rate limit exceeded · Please slow down requests"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "模拟异步操作"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已触发频率限制 · 请放缓请求频率"
           }
         }
       }
     },
-    "Something Went Wrong" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Something Went Wrong"
+    "Record conflict detected · Please check existing CNAME or A records": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Record conflict detected · Please check existing CNAME or A records"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "遇到了一点小状况"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "检测到记录冲突 · 请检查现有的 CNAME 或 A 记录"
           }
         }
       }
     },
-    "Specialized Components" : {
-
+    "Refresh": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refresh"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刷新"
+          }
+        }
+      }
     },
-    "SSL Deployment Progress" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "SSL Deployment Progress"
+    "Refresh Failed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refresh Failed"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "SSL 部署进度"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刷新失败"
           }
         }
       }
     },
-    "SSL/TLS Universal Mode" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "SSL/TLS Universal Mode"
+    "Remove %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove %@"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "SSL/TLS 通用模式"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "移除 %@"
           }
         }
       }
     },
-    "Standard Body Text" : {
-
+    "Remove %@? Credentials will be deleted from this device.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove %@? Credentials will be deleted from this device."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "确定移除账号 %@ 吗？已保存的凭据将被抹除。"
+          }
+        }
+      }
     },
-    "State Views & Shimmer" : {
-
+    "Remove %@? You will be returned to the login screen.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove %@? You will be returned to the login screen."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "确定移除账号 %@ 吗？移除后将返回登录界面。"
+          }
+        }
+      }
     },
-    "Switch Account" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Switch Account"
+    "Remove Account": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove Account"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "切换账户"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "移除此账户"
           }
         }
       }
     },
-    "Tap to Retry" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tap to Retry"
+    "Resume Cloudflare": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resume Cloudflare"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "轻触重试"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "恢复 Cloudflare 代理"
           }
         }
       }
     },
-    "The constructed URL was malformed or could not be parsed." : {
-
+    "Scan DNS Records": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scan DNS Records"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "扫描 DNS 记录"
+          }
+        }
+      }
     },
-    "The email or Global API Key provided was rejected by Cloudflare." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The email or Global API Key provided was rejected by Cloudflare."
+    "Search": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "输入的邮箱或 Global API Key 被 Cloudflare 拒绝验证。"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜索"
           }
         }
       }
     },
-    "The server returned a non-standard HTTP status code or empty response body." : {
-
+    "Search domains": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search domains"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜索域名"
+          }
+        }
+      }
     },
-    "This action cannot be undone. Are you sure you want to remove this record from Cloudflare?" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "This action cannot be undone. Are you sure you want to remove this record from Cloudflare?"
+    "Show credential": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show credential"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "此操作无法撤销。您确定要从 Cloudflare 移除此条解析记录吗？"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示凭证"
           }
         }
       }
     },
-    "Title Large" : {
-
+    "Sign in to dash.cloudflare.com.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in to dash.cloudflare.com."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登录 dash.cloudflare.com 控制台。"
+          }
+        }
+      }
     },
-    "Trigger Confirmation Dialog (Destructive)" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Trigger Confirmation Dialog (Destructive)"
+    "Something Went Wrong": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Something Went Wrong"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "触发温和二次确认弹窗（破坏性动作）"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "遇到了一点小状况"
           }
         }
       }
     },
-    "Trigger: Offline Banner (AGENTS.md Guideline)" : {
-
+    "Stored exclusively in your local device Keychain. Never relayed through third-party servers.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stored exclusively in your local device Keychain. Never relayed through third-party servers."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "凭据安全保存在本设备的硬件级钥匙串中，绝不经由任何第三方服务器中转。"
+          }
+        }
+      }
     },
-    "Trigger: Success Banner (Account Switched)" : {
-
+    "Switch Account": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switch Account"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "切换账户"
+          }
+        }
+      }
     },
-    "Trigger: Warning Banner (DNS Flattening)" : {
-
+    "Tap to Retry": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap to Retry"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "轻触重试"
+          }
+        }
+      }
     },
-    "Typography (SF Pro Rounded)" : {
-
+    "The constructed URL was malformed or could not be parsed.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The constructed URL was malformed or could not be parsed."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "构造的请求 URL 格式有误或无法解析。"
+          }
+        }
+      }
     },
-    "Ultra-Gentle & Cozy HIG Foundation" : {
-
+    "The email or Global API Key provided was rejected by Cloudflare.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The email or Global API Key provided was rejected by Cloudflare."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "输入的邮箱或 Global API Key 被 Cloudflare 拒绝验证。"
+          }
+        }
+      }
     },
-    "Unable to load domains. Please pull down to retry." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unable to load domains. Please pull down to retry."
+    "The server returned a non-standard HTTP status code or empty response body.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The server returned a non-standard HTTP status code or empty response body."
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "无法获取域名 · 请下拉重试"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "服务器返回了非标准状态码或空响应。"
           }
         }
       }
     },
-    "Verifying..." : {
-
+    "Unable to load domains at this time. Please pull to refresh.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to load domains at this time. Please pull to refresh."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂无法加载域名 · 请下拉刷新重试"
+          }
+        }
+      }
     },
-    "View recent Cloudflare API actions" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "View recent Cloudflare API actions"
+    "Unable to load domains. Please pull down to retry.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to load domains. Please pull down to retry."
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "查看近期 Cloudflare 接口操作"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法获取域名 · 请下拉重试"
           }
         }
       }
     },
-    "Where is my Global API Key?" : {
-
+    "Verifying...": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verifying..."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在校验..."
+          }
+        }
+      }
     },
-    "Zone Health Overview" : {
-
+    "Where is my Global API Key?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Where is my Global API Key?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "如何获取 Global API Key？"
+          }
+        }
+      }
     }
   },
-  "version" : "1.0"
+  "version": "1.0"
 }

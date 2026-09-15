@@ -56,7 +56,7 @@ public struct DesignSystemGalleryView: View {
 
     private var calloutSection: some View {
         VStack(alignment: .leading, spacing: GentleSpacing.sm) {
-            Text("Inline Callouts & Tips")
+            Text(verbatim: "Inline Callouts & Tips")
                 .font(GentleTypography.titleSection)
                 .foregroundStyle(GentleColor.textPrimary)
 
@@ -86,18 +86,18 @@ public struct DesignSystemGalleryView: View {
 
     private var progressSection: some View {
         VStack(alignment: .leading, spacing: GentleSpacing.sm) {
-            Text("Progress & Activity Indicators")
+            Text(verbatim: "Progress & Activity Indicators")
                 .font(GentleTypography.titleSection)
                 .foregroundStyle(GentleColor.textPrimary)
 
             GentleCard {
                 VStack(spacing: GentleSpacing.md) {
                     HStack {
-                        Text("SSL Deployment Progress")
+                        Text(verbatim: "SSL Deployment Progress")
                             .font(GentleTypography.bodyMedium)
                             .foregroundStyle(GentleColor.textPrimary)
                         Spacer()
-                        Text("75%")
+                        Text(verbatim: "75%")
                             .font(GentleTypography.metricCard)
                             .foregroundStyle(GentleColor.accent)
                     }
@@ -107,7 +107,7 @@ public struct DesignSystemGalleryView: View {
                     GentleDivider()
 
                     HStack(spacing: GentleSpacing.lg) {
-                        Text("Gentle Spinner Styles:")
+                        Text(verbatim: "Gentle Spinner Styles:")
                             .font(GentleTypography.footnote)
                             .foregroundStyle(GentleColor.textSecondary)
 
@@ -125,7 +125,7 @@ public struct DesignSystemGalleryView: View {
 
     private var searchSection: some View {
         VStack(alignment: .leading, spacing: GentleSpacing.sm) {
-            Text("Search Bar")
+            Text(verbatim: "Search Bar")
                 .font(GentleTypography.titleSection)
                 .foregroundStyle(GentleColor.textPrimary)
 
@@ -140,7 +140,7 @@ public struct DesignSystemGalleryView: View {
 
     private var avatarSection: some View {
         VStack(alignment: .leading, spacing: GentleSpacing.sm) {
-            Text("Account Avatars")
+            Text(verbatim: "Account Avatars")
                 .font(GentleTypography.titleSection)
                 .foregroundStyle(GentleColor.textPrimary)
 
@@ -160,19 +160,21 @@ public struct DesignSystemGalleryView: View {
 
     private var componentSection: some View {
         VStack(alignment: .leading, spacing: GentleSpacing.sm) {
-            Text("Specialized Components")
+            Text(verbatim: "Specialized Components")
                 .font(GentleTypography.titleSection)
                 .foregroundStyle(GentleColor.textPrimary)
 
             GentleCard {
                 VStack(spacing: GentleSpacing.md) {
                     HStack {
-                        Text("Cloudflare Proxy Status")
+                        Text(verbatim: "Cloudflare Proxy Status")
                             .font(GentleTypography.bodyMedium)
                             .foregroundStyle(GentleColor.textPrimary)
                         Spacer()
-                        Toggle("", isOn: $sampleProxyOn)
-                            .toggleStyle(.gentleProxy)
+                        Toggle(isOn: $sampleProxyOn) {
+                            EmptyView()
+                        }
+                        .toggleStyle(.gentleProxy)
                     }
 
                     GentleDivider()
@@ -186,10 +188,10 @@ public struct DesignSystemGalleryView: View {
 
                     HStack {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("Zone Health Overview")
+                            Text(verbatim: "Zone Health Overview")
                                 .font(GentleTypography.cardTitle)
                                 .foregroundStyle(GentleColor.textPrimary)
-                            Text("Active DNS & SSL routing")
+                            Text(verbatim: "Active DNS & SSL routing")
                                 .font(GentleTypography.caption)
                                 .foregroundStyle(GentleColor.textSecondary)
                         }
@@ -205,7 +207,7 @@ public struct DesignSystemGalleryView: View {
 
     private var listRowSection: some View {
         VStack(alignment: .leading, spacing: GentleSpacing.sm) {
-            Text("Grouped Rows & Insets")
+            Text(verbatim: "Grouped Rows & Insets")
                 .font(GentleTypography.titleSection)
                 .foregroundStyle(GentleColor.textPrimary)
 
@@ -240,9 +242,11 @@ public struct DesignSystemGalleryView: View {
                         GentleIconTile(systemName: "hammer.fill", tint: GentleColor.apricotGold)
                     },
                     trailing: {
-                        Toggle("", isOn: $sampleProxyOn)
-                            .labelsHidden()
-                            .gentleToggle()
+                        Toggle(isOn: $sampleProxyOn) {
+                            EmptyView()
+                        }
+                        .labelsHidden()
+                        .gentleToggle()
                     }
                 )
             }
@@ -254,31 +258,37 @@ public struct DesignSystemGalleryView: View {
 
     private var bannerSection: some View {
         VStack(alignment: .leading, spacing: GentleSpacing.sm) {
-            Text("Gentle Notification Banners")
+            Text(verbatim: "Gentle Notification Banners")
                 .font(GentleTypography.titleSection)
                 .foregroundStyle(GentleColor.textPrimary)
 
             VStack(spacing: GentleSpacing.sm) {
-                Button("Trigger: Success Banner (Account Switched)") {
+                Button {
                     GentleBannerManager.shared.show(
                         type: .success,
                         title: "Account Switched",
                         message: "Active account switched seamlessly to Personal Site."
                     )
+                } label: {
+                    Text(verbatim: "Trigger: Success Banner (Account Switched)")
                 }
                 .gentleSecondaryButton(height: 44)
 
-                Button("Trigger: Offline Banner (AGENTS.md Guideline)") {
+                Button {
                     GentleBannerManager.shared.showOffline()
+                } label: {
+                    Text(verbatim: "Trigger: Offline Banner (AGENTS.md Guideline)")
                 }
                 .gentleSecondaryButton(height: 44)
 
-                Button("Trigger: Warning Banner (DNS Flattening)") {
+                Button {
                     GentleBannerManager.shared.show(
                         type: .warning,
                         title: "Record Notice",
                         message: "This DNS record has been proxied via CNAME flattening."
                     )
+                } label: {
+                    Text(verbatim: "Trigger: Warning Banner (DNS Flattening)")
                 }
                 .gentleSecondaryButton(height: 44)
             }
@@ -289,11 +299,11 @@ public struct DesignSystemGalleryView: View {
 
     private var headerSection: some View {
         VStack(alignment: .leading, spacing: GentleSpacing.xs) {
-            Text("Gentle Design System")
+            Text(verbatim: "Gentle Design System")
                 .font(GentleTypography.hero)
                 .foregroundStyle(GentleColor.textPrimary)
 
-            Text("Ultra-Gentle & Cozy HIG Foundation")
+            Text(verbatim: "Ultra-Gentle & Cozy HIG Foundation")
                 .font(GentleTypography.body)
                 .foregroundStyle(GentleColor.textSecondary)
         }
@@ -303,7 +313,7 @@ public struct DesignSystemGalleryView: View {
 
     private var colorSection: some View {
         VStack(alignment: .leading, spacing: GentleSpacing.sm) {
-            Text("Colors & Badges")
+            Text(verbatim: "Colors & Badges")
                 .font(GentleTypography.titleSection)
                 .foregroundStyle(GentleColor.textPrimary)
 
@@ -342,29 +352,29 @@ public struct DesignSystemGalleryView: View {
 
     private var typographySection: some View {
         VStack(alignment: .leading, spacing: GentleSpacing.sm) {
-            Text("Typography (SF Pro Rounded)")
+            Text(verbatim: "Typography (SF Pro Rounded)")
                 .font(GentleTypography.titleSection)
                 .foregroundStyle(GentleColor.textPrimary)
 
             GentleCard {
                 VStack(alignment: .leading, spacing: GentleSpacing.sm) {
-                    Text("Title Large")
+                    Text(verbatim: "Title Large")
                         .font(GentleTypography.titleLarge)
                         .foregroundStyle(GentleColor.textPrimary)
 
-                    Text("Card Headline Title")
+                    Text(verbatim: "Card Headline Title")
                         .font(GentleTypography.cardTitle)
                         .foregroundStyle(GentleColor.textPrimary)
 
-                    Text("Standard Body Text")
+                    Text(verbatim: "Standard Body Text")
                         .font(GentleTypography.body)
                         .foregroundStyle(GentleColor.textSecondary)
 
                     HStack {
-                        Text("Monospaced Metric:")
+                        Text(verbatim: "Monospaced Metric:")
                             .font(GentleTypography.caption)
                             .foregroundStyle(GentleColor.textSecondary)
-                        Text("1,248,392 reqs")
+                        Text(verbatim: "1,248,392 reqs")
                             .font(GentleTypography.metricMedium)
                             .foregroundStyle(GentleColor.accent)
                     }
@@ -377,7 +387,7 @@ public struct DesignSystemGalleryView: View {
 
     private var badgeSection: some View {
         VStack(alignment: .leading, spacing: GentleSpacing.sm) {
-            Text("Semantic Badges")
+            Text(verbatim: "Semantic Badges")
                 .font(GentleTypography.titleSection)
                 .foregroundStyle(GentleColor.textPrimary)
 
@@ -396,14 +406,14 @@ public struct DesignSystemGalleryView: View {
 
     private var cardSection: some View {
         VStack(alignment: .leading, spacing: GentleSpacing.sm) {
-            Text("Card Variants")
+            Text(verbatim: "Card Variants")
                 .font(GentleTypography.titleSection)
                 .foregroundStyle(GentleColor.textPrimary)
 
             VStack(spacing: GentleSpacing.cardSpacing) {
                 GentleCard(variant: .elevated) {
                     HStack {
-                        Text("Elevated Floating Card")
+                        Text(verbatim: "Elevated Floating Card")
                             .font(GentleTypography.bodyMedium)
                             .foregroundStyle(GentleColor.textPrimary)
                         Spacer()
@@ -414,7 +424,7 @@ public struct DesignSystemGalleryView: View {
 
                 GentleCard(variant: .highlighted) {
                     HStack {
-                        Text("Highlighted Card (Amber Glow)")
+                        Text(verbatim: "Highlighted Card (Amber Glow)")
                             .font(GentleTypography.bodyMedium)
                             .foregroundStyle(GentleColor.textPrimary)
                         Spacer()
@@ -425,7 +435,7 @@ public struct DesignSystemGalleryView: View {
                     GentleHaptics.selection()
                 } label: {
                     HStack {
-                        Text("Interactive Tap Card (Spring Scale)")
+                        Text(verbatim: "Interactive Tap Card (Spring Scale)")
                             .font(GentleTypography.bodyMedium)
                             .foregroundStyle(GentleColor.textPrimary)
                         Spacer()
@@ -442,13 +452,15 @@ public struct DesignSystemGalleryView: View {
 
     private var buttonSection: some View {
         VStack(alignment: .leading, spacing: GentleSpacing.sm) {
-            Text("Buttons & Confirmation")
+            Text(verbatim: "Buttons & Confirmation")
                 .font(GentleTypography.titleSection)
                 .foregroundStyle(GentleColor.textPrimary)
 
             VStack(spacing: GentleSpacing.sm) {
-                Button("Primary Amber Button") {}
-                    .gentlePrimaryButton()
+                Button {} label: {
+                    Text(verbatim: "Primary Amber Button")
+                }
+                .gentlePrimaryButton()
 
                 GentleLoadingButton(
                     "Simulate Async Action",
@@ -462,11 +474,15 @@ public struct DesignSystemGalleryView: View {
                     }
                 }
 
-                Button("Secondary Surface Button") {}
-                    .gentleSecondaryButton()
+                Button {} label: {
+                    Text(verbatim: "Secondary Surface Button")
+                }
+                .gentleSecondaryButton()
 
-                Button("Trigger Confirmation Dialog (Destructive)") {
+                Button {
                     showConfirmDialog = true
+                } label: {
+                    Text(verbatim: "Trigger Confirmation Dialog (Destructive)")
                 }
                 .gentleDestructiveButton()
             }
@@ -477,7 +493,7 @@ public struct DesignSystemGalleryView: View {
 
     private var inputSection: some View {
         VStack(alignment: .leading, spacing: GentleSpacing.sm) {
-            Text("Input Fields")
+            Text(verbatim: "Input Fields")
                 .font(GentleTypography.titleSection)
                 .foregroundStyle(GentleColor.textPrimary)
 
@@ -503,7 +519,7 @@ public struct DesignSystemGalleryView: View {
 
     private var stateSection: some View {
         VStack(alignment: .leading, spacing: GentleSpacing.sm) {
-            Text("State Views & Shimmer")
+            Text(verbatim: "State Views & Shimmer")
                 .font(GentleTypography.titleSection)
                 .foregroundStyle(GentleColor.textPrimary)
 

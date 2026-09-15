@@ -54,13 +54,13 @@ public struct GentleRingView: View {
 
             // Center metric slot
             VStack(spacing: 1) {
-                Text("\(Int(progress * 100))%")
+                Text(verbatim: "\(Int(progress * 100))%")
                     .font(diameter <= 80 ? .system(size: 16, weight: .bold, design: .rounded) : GentleTypography.metricMedium)
                     .foregroundStyle(GentleColor.textPrimary)
                     .monospacedDigit()
 
                 if let label, !label.isEmpty {
-                    Text(label)
+                    Text(LocalizedStringKey(label))
                         .font(GentleTypography.captionSmall)
                         .foregroundStyle(GentleColor.textSecondary)
                 }
@@ -68,7 +68,7 @@ public struct GentleRingView: View {
         }
         .frame(width: diameter + lineWidth, height: diameter + lineWidth)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(Text("Health Status"))
-        .accessibilityValue(Text("\(Int(progress * 100))%"))
+        .accessibilityLabel(Text(LocalizedStringKey(label ?? "Health")))
+        .accessibilityValue(Text(verbatim: "\(Int(progress * 100))%"))
     }
 }

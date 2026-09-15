@@ -92,12 +92,12 @@ struct ApiKeyGuideSheet: View {
                         .font(GentleTypography.caption)
                         .foregroundStyle(GentleColor.textSecondary)
 
-                    Text(title)
+                    Text(LocalizedStringKey(title))
                         .font(GentleTypography.subheadlineBold)
                         .foregroundStyle(GentleColor.textPrimary)
                 }
 
-                Text(description)
+                Text(LocalizedStringKey(description))
                     .font(GentleTypography.footnote)
                     .foregroundStyle(GentleColor.textSecondary)
                     .lineSpacing(GentleSpacing.micro)

@@ -258,9 +258,11 @@ public struct GentleIconTile: View {
                             GentleIconTile(systemName: "hammer.fill", tint: GentleColor.apricotGold)
                         },
                         trailing: {
-                            Toggle("", isOn: .constant(true))
-                                .labelsHidden()
-                                .gentleToggle()
+                            Toggle(isOn: .constant(true)) {
+                                EmptyView()
+                            }
+                            .labelsHidden()
+                            .gentleToggle()
                         }
                     )
                 }

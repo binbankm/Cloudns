@@ -125,18 +125,18 @@ final class LoginViewModel: ObservableObject {
         if let urlError = error as? URLError {
             switch urlError.code {
             case .notConnectedToInternet, .networkConnectionLost, .cannotConnectToHost, .timedOut:
-                return "Network offline. Please verify connection and retry."
+                return String(localized: "Network connection is unavailable. Please check your network and retry.")
             default:
-                return "Network request interrupted. Please try again."
+                return String(localized: "Network connection interrupted. Please check your connection and retry.")
             }
         }
 
         if let apiError = error as? APIError {
             switch apiError {
             case .unauthorized, .cloudflareError:
-                return "Invalid credentials. Please check your email and Global API Key."
+                return String(localized: "Invalid email or Global API Key · Please verify credentials")
             case .networkError:
-                return "Network offline. Please verify connection and retry."
+                return String(localized: "Network connection is unavailable. Please check your network and retry.")
             default:
                 break
             }
@@ -144,9 +144,9 @@ final class LoginViewModel: ObservableObject {
 
         let message = error.localizedDescription
         if message.contains("401") || message.contains("10000") || message.localizedCaseInsensitiveContains("unauthorized") {
-            return "Invalid credentials. Please check your email and Global API Key."
+            return String(localized: "Invalid email or Global API Key · Please verify credentials")
         }
 
-        return "Verification failed. Please check credentials or network."
+        return String(localized: "Operation Failed")
     }
 }

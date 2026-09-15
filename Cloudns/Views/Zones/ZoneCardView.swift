@@ -57,15 +57,15 @@ struct ZoneCardView: View {
                         .truncationMode(.tail)
 
                     HStack(spacing: GentleSpacing.xs) {
-                        Text(zone.plan?.displayName ?? "Free")
+                        Text(LocalizedStringKey(zone.plan?.displayName ?? "Free"))
                             .font(GentleTypography.caption)
                             .foregroundStyle(GentleColor.accent)
 
-                        Text("•")
+                        Text(verbatim: "•")
                             .font(GentleTypography.caption)
                             .foregroundStyle(GentleColor.textSecondary.opacity(0.5))
 
-                        Text(zone.type?.capitalized ?? "Full")
+                        Text(LocalizedStringKey(zone.type?.capitalized ?? "Full"))
                             .font(GentleTypography.caption)
                             .foregroundStyle(GentleColor.textSecondary)
                     }

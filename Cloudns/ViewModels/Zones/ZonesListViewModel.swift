@@ -192,7 +192,7 @@ final class ZonesListViewModel: ObservableObject {
         GentleBannerManager.shared.show(
             type: .success,
             title: "Domain Added",
-            message: "\(zone.name) has been successfully added."
+            message: String(localized: "\(zone.name) has been successfully added.")
         )
     }
 
@@ -202,7 +202,7 @@ final class ZonesListViewModel: ObservableObject {
             _ = try await zoneService.deleteZone(zoneId: id)
             allZones.removeAll { $0.id == id }
             if allZones.isEmpty {
-                state = .empty(message: "No domains found in this account.")
+                state = .empty(message: String(localized: "No domains found in this account."))
             } else {
                 state = .loaded(allZones)
             }
@@ -210,7 +210,7 @@ final class ZonesListViewModel: ObservableObject {
             GentleBannerManager.shared.show(
                 type: .info,
                 title: "Domain Removed",
-                message: "Domain configuration was deleted from Cloudflare."
+                message: String(localized: "Domain configuration was deleted from Cloudflare.")
             )
         } catch is CancellationError {
             throw CancellationError()
@@ -242,19 +242,19 @@ final class ZonesListViewModel: ObservableObject {
         if let apiError = error as? APIError {
             switch apiError {
             case .unauthorized:
-                return "Authentication failed. Please verify your Global API Key."
+                return String(localized: "Authentication failed. Please verify your Global API Key.")
             case .networkError:
-                return "Network connection interrupted. Please check your connection and retry."
+                return String(localized: "Network connection interrupted. Please check your connection and retry.")
             case let .cloudflareError(message):
                 return message
             default:
-                return "Unable to load domains at this time. Please pull to refresh."
+                return String(localized: "Unable to load domains at this time. Please pull to refresh.")
             }
         }
         let nsError = error as NSError
         if nsError.domain == NSURLErrorDomain {
-            return "Network connection is unavailable. Please check your network and retry."
+            return String(localized: "Network connection is unavailable. Please check your network and retry.")
         }
-        return "Unable to load domains. Please pull down to retry."
+        return String(localized: "Unable to load domains. Please pull down to retry.")
     }
 }

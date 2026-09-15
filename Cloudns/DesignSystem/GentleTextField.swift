@@ -68,9 +68,9 @@ public struct GentleTextField: View {
 
             Group {
                 if isSecure, !isSecureRevealed {
-                    SecureField(placeholder, text: $text)
+                    SecureField(LocalizedStringKey(placeholder), text: $text)
                 } else {
-                    TextField(placeholder, text: $text)
+                    TextField(LocalizedStringKey(placeholder), text: $text)
                 }
             }
             .font(currentFont)
@@ -93,7 +93,7 @@ public struct GentleTextField: View {
                         .foregroundStyle(GentleColor.textSecondary)
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel(Text("Hide credential"))
+                .accessibilityLabel(Text(isSecureRevealed ? "Hide credential" : "Show credential"))
             }
 
             if !text.isEmpty, isFocused {

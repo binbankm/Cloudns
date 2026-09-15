@@ -30,18 +30,28 @@ public enum GentleBadgeType {
 public struct GentleBadge: View {
     @Environment(\.colorSchemeContrast) private var colorSchemeContrast
 
-    public let title: String
+    public let titleKey: LocalizedStringKey
     public var iconName: String?
     public var badgeType: GentleBadgeType
 
     public init(
-        _ title: String,
+        _ titleKey: LocalizedStringKey,
         iconName: String? = nil,
         type: GentleBadgeType = .active
     ) {
-        self.title = title
+        self.titleKey = titleKey
         self.iconName = iconName
-        badgeType = type
+        self.badgeType = type
+    }
+
+    public init<S: StringProtocol>(
+        _ title: S,
+        iconName: String? = nil,
+        type: GentleBadgeType = .active
+    ) {
+        self.titleKey = LocalizedStringKey(String(title))
+        self.iconName = iconName
+        self.badgeType = type
     }
 
     private var backgroundOpacity: Double {
@@ -56,7 +66,7 @@ public struct GentleBadge: View {
                     .imageScale(.small)
                     .accessibilityHidden(true)
             }
-            Text(LocalizedStringKey(title))
+            Text(titleKey)
                 .font(GentleTypography.captionSmall)
                 .lineLimit(1)
         }
@@ -75,7 +85,7 @@ public struct GentleBadge: View {
         )
         .clipShape(Capsule())
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(title)
+        .accessibilityLabel(Text(titleKey))
         .accessibilityAddTraits(.isStaticText)
     }
 }

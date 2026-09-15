@@ -49,9 +49,11 @@ struct AddZoneSheet: View {
 
                             Spacer()
 
-                            Toggle("", isOn: $viewModel.jumpStart)
-                                .labelsHidden()
-                                .tint(GentleColor.accent)
+                            Toggle(isOn: $viewModel.jumpStart) {
+                                EmptyView()
+                            }
+                            .labelsHidden()
+                            .tint(GentleColor.accent)
                         }
                     }
                     .gentleCardStyle(cornerRadius: GentleCornerRadius.card, padding: GentleSpacing.lg)
@@ -74,7 +76,11 @@ struct AddZoneSheet: View {
                                     .tint(GentleColor.textOnAccent)
                                     .padding(.trailing, GentleSpacing.xxs)
                             }
-                            Text(viewModel.isLoading ? "Adding..." : "Add Domain")
+                            if viewModel.isLoading {
+                                Text("Adding...")
+                            } else {
+                                Text("Add Domain")
+                            }
                         }
                     }
                     .buttonStyle(GentlePrimaryButtonStyle())

@@ -108,7 +108,7 @@ struct LoginView: View {
                             // Key character length hint
                             HStack {
                                 Spacer()
-                                Text("\(viewModel.apiKey.trimmingCharacters(in: .whitespacesAndNewlines).count)/37")
+                                Text(verbatim: "\(viewModel.apiKey.trimmingCharacters(in: .whitespacesAndNewlines).count)/37")
                                     .font(GentleTypography.caption)
                                     .foregroundStyle(
                                         viewModel.isApiKeyValid
