@@ -2,14 +2,14 @@ import Foundation
 
 /// Protocol defining Cloudflare network protocol and connectivity options service
 protocol NetworkSettingsServiceProtocol: Sendable {
-    func getNetworkSettings(zoneId: String) async throws -> (ipv6: Bool, websockets: Bool, http2: Bool, http3: Bool, ipGeolocation: Bool, originMaxHttpVersion: String)
+    func getNetworkSettings(zoneId: String) async throws -> NetworkSettings
     func updateIPv6(zoneId: String, isOn: Bool) async throws
     func updateWebsockets(zoneId: String, isOn: Bool) async throws
     func updateHTTP2(zoneId: String, isOn: Bool) async throws
     func updateHTTP3(zoneId: String, isOn: Bool) async throws
     func updateIPGeolocation(zoneId: String, isOn: Bool) async throws
     func updateOriginMaxHTTPVersion(zoneId: String, version: String) async throws
-    func getSecurityHeader(zoneId: String) async throws -> (enabled: Bool, maxAge: Int, includeSubdomains: Bool, preload: Bool, nosniff: Bool)
+    func getSecurityHeader(zoneId: String) async throws -> HSTSSettings
     func updateSecurityHeader(zoneId: String, enabled: Bool, maxAge: Int, includeSubdomains: Bool, preload: Bool, nosniff: Bool) async throws
 }
 
@@ -22,7 +22,7 @@ final class NetworkSettingsService: NetworkSettingsServiceProtocol {
 
     private init() {}
 
-    func getNetworkSettings(zoneId: String) async throws -> (ipv6: Bool, websockets: Bool, http2: Bool, http3: Bool, ipGeolocation: Bool, originMaxHttpVersion: String) {
+    func getNetworkSettings(zoneId: String) async throws -> NetworkSettings {
         async let v6 = try? getSetting(zoneId: zoneId, settingName: "ipv6")
         async let ws = try? getSetting(zoneId: zoneId, settingName: "websockets")
         async let h2 = try? getSetting(zoneId: zoneId, settingName: "http2")
@@ -31,7 +31,7 @@ final class NetworkSettingsService: NetworkSettingsServiceProtocol {
         async let om = try? getSetting(zoneId: zoneId, settingName: "origin_max_http_version")
         let (ipv6, websockets, http2, http3, ipGeo, originMax) = await (v6, ws, h2, h3, geo, om)
 
-        return (
+        return NetworkSettings(
             ipv6: (ipv6?.value.stringValue ?? "off") == "on",
             websockets: (websockets?.value.stringValue ?? "off") == "on",
             http2: (http2?.value.stringValue ?? "off") == "on",
@@ -65,18 +65,22 @@ final class NetworkSettingsService: NetworkSettingsServiceProtocol {
         _ = try await updateSetting(zoneId: zoneId, settingName: "origin_max_http_version", value: version)
     }
 
-    func getSecurityHeader(zoneId: String) async throws -> (enabled: Bool, maxAge: Int, includeSubdomains: Bool, preload: Bool, nosniff: Bool) {
+    func getSecurityHeader(zoneId: String) async throws -> HSTSSettings {
         let setting = try? await getSetting(zoneId: zoneId, settingName: "security_header")
-        guard let s = setting else {
-            return (enabled: false, maxAge: 0, includeSubdomains: false, preload: false, nosniff: false)
+        guard let s = setting, let hstsVal = s.value.securityHeaderValue?.strict_transport_security else {
+            return HSTSSettings(enabled: false, maxAge: 0, includeSubdomains: false, nosniff: false, preload: false)
         }
-        return (
-            enabled: s.value.boolValue,
-            maxAge: 0,
-            includeSubdomains: false,
-            preload: false,
-            nosniff: false
+        return HSTSSettings(
+            enabled: hstsVal.enabled,
+            maxAge: hstsVal.max_age,
+            includeSubdomains: hstsVal.include_subdomains,
+            nosniff: hstsVal.nosniff,
+            preload: hstsPreload(hstsVal.preload)
         )
+    }
+
+    private func hstsPreload(_ preload: Bool?) -> Bool {
+        preload ?? false
     }
 
     func updateSecurityHeader(zoneId: String, enabled: Bool, maxAge: Int, includeSubdomains: Bool, preload: Bool, nosniff: Bool) async throws {

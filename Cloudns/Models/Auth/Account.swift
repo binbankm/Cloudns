@@ -1,6 +1,11 @@
 import Foundation
 
-struct Account: Codable, Identifiable, Sendable {
-    let id: String
-    let name: String
+public struct Account: Codable, Identifiable, Equatable, Sendable {
+    public let id: String
+    public let name: String
+
+    public init(id: String, name: String) {
+        self.id = id
+        self.name = name
+    }
 }

@@ -13,30 +13,30 @@ public enum GentleBannerType: Equatable {
     public var iconName: String {
         switch self {
         case .info:
-            return "info.circle.fill"
+            "info.circle.fill"
         case .success:
-            return "checkmark.circle.fill"
+            "checkmark.circle.fill"
         case .warning:
-            return "exclamationmark.triangle.fill"
+            "exclamationmark.triangle.fill"
         case .danger:
-            return "exclamationmark.octagon.fill"
+            "exclamationmark.octagon.fill"
         case .offline:
-            return "wifi.slash"
+            "wifi.slash"
         }
     }
 
     public var tintColor: Color {
         switch self {
         case .info:
-            return GentleColor.skyBlue
+            GentleColor.skyBlue
         case .success:
-            return GentleColor.statusActive
+            GentleColor.statusActive
         case .warning:
-            return GentleColor.statusWarning
+            GentleColor.statusWarning
         case .danger:
-            return GentleColor.statusDanger
+            GentleColor.statusDanger
         case .offline:
-            return GentleColor.accent
+            GentleColor.accent
         }
     }
 }

@@ -100,15 +100,17 @@ public enum DNSRecordType: String, CaseIterable, Codable, Sendable, Identifiable
     case spf = "SPF"
     case loc = "LOC"
 
-    public var id: String { rawValue }
+    public var id: String {
+        rawValue
+    }
 
     /// Returns true if this record type supports Cloudflare CDN proxying
     public var isProxiable: Bool {
         switch self {
         case .a, .aaaa, .cname:
-            return true
+            true
         default:
-            return false
+            false
         }
     }
 }
@@ -168,7 +170,7 @@ public struct DNSRecordData: Codable, Equatable, Sendable {
 
 // MARK: - Payloads
 
-public struct DNSRecordPayload: Codable, Sendable {
+public struct DNSRecordPayload: Codable, Equatable, Sendable {
     public let type: String
     public let name: String
     public let content: String?
@@ -203,7 +205,7 @@ public struct DNSRecordPayload: Codable, Sendable {
 }
 
 /// Lightweight payload for official Cloudflare PATCH /zones/{id}/dns_records/{id}
-public struct DNSRecordPatchPayload: Codable, Sendable {
+public struct DNSRecordPatchPayload: Codable, Equatable, Sendable {
     public var name: String?
     public var type: String?
     public var content: String?
@@ -237,7 +239,7 @@ public struct DNSRecordPatchPayload: Codable, Sendable {
     }
 }
 
-public struct BatchDNSRecordDelete: Codable, Sendable {
+public struct BatchDNSRecordDelete: Codable, Equatable, Sendable {
     public let id: String
 
     public init(id: String) {
@@ -245,7 +247,7 @@ public struct BatchDNSRecordDelete: Codable, Sendable {
     }
 }
 
-public struct BatchDNSRecordsRequest: Codable, Sendable {
+public struct BatchDNSRecordsRequest: Codable, Equatable, Sendable {
     public let deletes: [BatchDNSRecordDelete]?
 
     public init(deletes: [BatchDNSRecordDelete]? = nil) {

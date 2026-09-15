@@ -31,7 +31,7 @@ public struct GentleShimmerModifier: ViewModifier {
                 .onAppear {
                     withAnimation(
                         .linear(duration: 1.6)
-                        .repeatForever(autoreverses: false)
+                            .repeatForever(autoreverses: false)
                     ) {
                         phase = 1
                     }

@@ -2,16 +2,7 @@ import Foundation
 
 /// Protocol defining Cloudflare SSL/TLS and edge certificates domain service
 protocol CertificateServiceProtocol: Sendable {
-    func getSSLSettings(zoneId: String) async throws -> (
-        sslMode: String,
-        alwaysUseHTTPS: Bool,
-        automaticHTTPSRewrites: Bool,
-        minTLSVersion: String,
-        tls13: Bool,
-        opportunisticEncryption: Bool,
-        opportunisticOnion: Bool,
-        hsts: (enabled: Bool, maxAge: Int, subdomains: Bool, nosniff: Bool, preload: Bool)
-    )
+    func getSSLSettings(zoneId: String) async throws -> SSLSettings
     func updateSSLMode(zoneId: String, mode: String) async throws
     func updateAlwaysUseHTTPS(zoneId: String, isOn: Bool) async throws
     func updateAutomaticHTTPSRewrites(zoneId: String, isOn: Bool) async throws
@@ -41,16 +32,7 @@ final class CertificateService: CertificateServiceProtocol {
 
     // MARK: - SSL Settings
 
-    func getSSLSettings(zoneId: String) async throws -> (
-        sslMode: String,
-        alwaysUseHTTPS: Bool,
-        automaticHTTPSRewrites: Bool,
-        minTLSVersion: String,
-        tls13: Bool,
-        opportunisticEncryption: Bool,
-        opportunisticOnion: Bool,
-        hsts: (enabled: Bool, maxAge: Int, subdomains: Bool, nosniff: Bool, preload: Bool)
-    ) {
+    func getSSLSettings(zoneId: String) async throws -> SSLSettings {
         let allSettings = await (try? fetchZoneSettings(zoneId: zoneId)) ?? []
 
         var s: ZoneSetting?
@@ -106,7 +88,15 @@ final class CertificateService: CertificateServiceProtocol {
             hstsPreload = hstsVal.preload ?? false
         }
 
-        return (
+        let hstsSettings = HSTSSettings(
+            enabled: hstsEnabled,
+            maxAge: hstsMaxAge,
+            includeSubdomains: hstsSubdomains,
+            nosniff: hstsNoSniff,
+            preload: hstsPreload
+        )
+
+        return SSLSettings(
             sslMode: s?.value.stringValue ?? "off",
             alwaysUseHTTPS: h?.value.boolValue ?? false,
             automaticHTTPSRewrites: r?.value.boolValue ?? false,
@@ -114,7 +104,7 @@ final class CertificateService: CertificateServiceProtocol {
             tls13: t?.value.boolValue ?? false,
             opportunisticEncryption: oe?.value.boolValue ?? false,
             opportunisticOnion: oo?.value.boolValue ?? false,
-            hsts: (enabled: hstsEnabled, maxAge: hstsMaxAge, subdomains: hstsSubdomains, nosniff: hstsNoSniff, preload: hstsPreload)
+            hsts: hstsSettings
         )
     }
 

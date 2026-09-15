@@ -58,6 +58,6 @@ public extension ToggleStyle where Self == GentleToggleStyle {
 public extension View {
     /// Applies the gentle toggle micro-switch style
     func gentleToggle(onColor: Color = GentleColor.statusProxied) -> some View {
-        self.toggleStyle(GentleToggleStyle(onColor: onColor))
+        toggleStyle(GentleToggleStyle(onColor: onColor))
     }
 }

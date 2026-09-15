@@ -46,7 +46,7 @@ public struct GentleListRow<Leading: View, Trailing: View>: View {
 
     @ViewBuilder
     private var contentRow: some View {
-        if let action = action {
+        if let action {
             Button {
                 GentleHaptics.selection()
                 action()
@@ -62,7 +62,7 @@ public struct GentleListRow<Leading: View, Trailing: View>: View {
     private var rowLayout: some View {
         HStack(spacing: GentleSpacing.sm) {
             // Leading Accessory
-            if let leading = leading {
+            if let leading {
                 leading
             }
 
@@ -73,7 +73,7 @@ public struct GentleListRow<Leading: View, Trailing: View>: View {
                     .foregroundStyle(GentleColor.textPrimary)
                     .lineLimit(1)
 
-                if let subtitle = subtitle {
+                if let subtitle {
                     Text(LocalizedStringKey(subtitle))
                         .font(GentleTypography.footnote)
                         .foregroundStyle(GentleColor.textSecondary)
@@ -85,14 +85,14 @@ public struct GentleListRow<Leading: View, Trailing: View>: View {
 
             // Trailing Value or Custom Accessory
             HStack(spacing: GentleSpacing.xs) {
-                if let value = value {
+                if let value {
                     Text(LocalizedStringKey(value))
                         .font(GentleTypography.callout)
                         .foregroundStyle(GentleColor.textSecondary)
                         .lineLimit(1)
                 }
 
-                if let trailing = trailing {
+                if let trailing {
                     trailing
                 }
 
@@ -111,8 +111,8 @@ public struct GentleListRow<Leading: View, Trailing: View>: View {
 
 // MARK: - Initializer Convenience Overloads
 
-extension GentleListRow where Leading == EmptyView, Trailing == EmptyView {
-    public init(
+public extension GentleListRow where Leading == EmptyView, Trailing == EmptyView {
+    init(
         title: String,
         subtitle: String? = nil,
         value: String? = nil,
@@ -126,13 +126,13 @@ extension GentleListRow where Leading == EmptyView, Trailing == EmptyView {
         self.showDivider = showDivider
         self.showChevron = showChevron
         self.action = action
-        self.leading = nil
-        self.trailing = nil
+        leading = nil
+        trailing = nil
     }
 }
 
-extension GentleListRow where Leading: View, Trailing == EmptyView {
-    public init(
+public extension GentleListRow where Leading: View, Trailing == EmptyView {
+    init(
         title: String,
         subtitle: String? = nil,
         value: String? = nil,
@@ -148,12 +148,12 @@ extension GentleListRow where Leading: View, Trailing == EmptyView {
         self.showChevron = showChevron
         self.action = action
         self.leading = leading()
-        self.trailing = nil
+        trailing = nil
     }
 }
 
-extension GentleListRow where Leading == EmptyView, Trailing: View {
-    public init(
+public extension GentleListRow where Leading == EmptyView, Trailing: View {
+    init(
         title: String,
         subtitle: String? = nil,
         value: String? = nil,
@@ -168,7 +168,7 @@ extension GentleListRow where Leading == EmptyView, Trailing: View {
         self.showDivider = showDivider
         self.showChevron = showChevron
         self.action = action
-        self.leading = nil
+        leading = nil
         self.trailing = trailing()
     }
 }
@@ -224,50 +224,50 @@ public struct GentleIconTile: View {
 // MARK: - Preview
 
 #if DEBUG
-struct GentleListRow_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack(spacing: GentleSpacing.md) {
-            VStack(spacing: 0) {
-                GentleListRow(
-                    title: "Audit Logs",
-                    subtitle: "View recent Cloudflare API actions",
-                    showDivider: true,
-                    showChevron: true,
-                    action: {},
-                    leading: {
-                        GentleIconTile(systemName: "list.bullet.rectangle", tint: GentleColor.accent)
-                    }
-                )
+    struct GentleListRow_Previews: PreviewProvider {
+        static var previews: some View {
+            VStack(spacing: GentleSpacing.md) {
+                VStack(spacing: 0) {
+                    GentleListRow(
+                        title: "Audit Logs",
+                        subtitle: "View recent Cloudflare API actions",
+                        showDivider: true,
+                        showChevron: true,
+                        action: {},
+                        leading: {
+                            GentleIconTile(systemName: "list.bullet.rectangle", tint: GentleColor.accent)
+                        }
+                    )
 
-                GentleListRow(
-                    title: "Security Level",
-                    value: "Medium",
-                    showDivider: true,
-                    showChevron: true,
-                    action: {},
-                    leading: {
-                        GentleIconTile(systemName: "shield.lefthalf.filled", tint: GentleColor.sageGreen)
-                    }
-                )
+                    GentleListRow(
+                        title: "Security Level",
+                        value: "Medium",
+                        showDivider: true,
+                        showChevron: true,
+                        action: {},
+                        leading: {
+                            GentleIconTile(systemName: "shield.lefthalf.filled", tint: GentleColor.sageGreen)
+                        }
+                    )
 
-                GentleListRow(
-                    title: "Development Mode",
-                    subtitle: "Bypass cache for 3 hours",
-                    showDivider: false,
-                    leading: {
-                        GentleIconTile(systemName: "hammer.fill", tint: GentleColor.apricotGold)
-                    },
-                    trailing: {
-                        Toggle("", isOn: .constant(true))
-                            .labelsHidden()
-                            .gentleToggle()
-                    }
-                )
+                    GentleListRow(
+                        title: "Development Mode",
+                        subtitle: "Bypass cache for 3 hours",
+                        showDivider: false,
+                        leading: {
+                            GentleIconTile(systemName: "hammer.fill", tint: GentleColor.apricotGold)
+                        },
+                        trailing: {
+                            Toggle("", isOn: .constant(true))
+                                .labelsHidden()
+                                .gentleToggle()
+                        }
+                    )
+                }
+                .gentleCard()
             }
-            .gentleCard()
+            .padding()
+            .background(GentleColor.background)
         }
-        .padding()
-        .background(GentleColor.background)
     }
-}
 #endif

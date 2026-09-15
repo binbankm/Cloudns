@@ -184,16 +184,24 @@ public enum GentleColor {
     // MARK: - Raw Palette Colors (基础色板)
 
     /// Muted Pastel Sage Green (#5B8E7D)
-    public static var sageGreen: Color { statusActive }
+    public static var sageGreen: Color {
+        statusActive
+    }
 
     /// Warm Glowing Peach Orange (#E08A58)
-    public static var peachOrange: Color { statusProxied }
+    public static var peachOrange: Color {
+        statusProxied
+    }
 
     /// Muted Coral Red (#D96B6B)
-    public static var coralRed: Color { statusDanger }
+    public static var coralRed: Color {
+        statusDanger
+    }
 
     /// Soft Apricot Gold (#DF9B43)
-    public static var apricotGold: Color { statusWarning }
+    public static var apricotGold: Color {
+        statusWarning
+    }
 
     /// Calm Sky Blue for information/CNAME records (#6593B2)
     public static var skyBlue: Color {

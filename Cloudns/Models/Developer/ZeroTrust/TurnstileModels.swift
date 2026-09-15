@@ -40,7 +40,7 @@ public struct TurnstileWidget: Codable, Identifiable, Equatable, Sendable {
     }
 }
 
-public struct TurnstileCreateInput: Codable, Sendable {
+public struct TurnstileCreateInput: Codable, Equatable, Sendable {
     public let name: String
     public let domains: [String]
     public let mode: String
@@ -54,7 +54,7 @@ public struct TurnstileCreateInput: Codable, Sendable {
     }
 }
 
-public struct TurnstileUpdateInput: Codable, Sendable {
+public struct TurnstileUpdateInput: Codable, Equatable, Sendable {
     public let name: String
     public let domains: [String]
     public let mode: String

@@ -17,7 +17,7 @@ public struct GentleSearchBar: View {
         placeholder: String = "Search domains or records",
         onCommit: (() -> Void)? = nil
     ) {
-        self._text = text
+        _text = text
         self.placeholder = placeholder
         self.onCommit = onCommit
     }
@@ -103,33 +103,33 @@ public struct GentleSearchBar: View {
 // MARK: - Preview
 
 #if DEBUG
-struct GentleSearchBar_Previews: PreviewProvider {
-    static var previews: some View {
-        StatefulPreviewWrapper("") { text in
-            VStack(spacing: 20) {
-                GentleSearchBar(text: text)
-                Text("Query: \(text.wrappedValue)")
-                    .font(GentleTypography.footnote)
-                    .foregroundStyle(GentleColor.textSecondary)
-                Spacer()
+    struct GentleSearchBar_Previews: PreviewProvider {
+        static var previews: some View {
+            StatefulPreviewWrapper("") { text in
+                VStack(spacing: 20) {
+                    GentleSearchBar(text: text)
+                    Text("Query: \(text.wrappedValue)")
+                        .font(GentleTypography.footnote)
+                        .foregroundStyle(GentleColor.textSecondary)
+                    Spacer()
+                }
+                .padding()
+                .background(GentleColor.background)
             }
-            .padding()
-            .background(GentleColor.background)
+        }
+
+        private struct StatefulPreviewWrapper<Value, Content: View>: View {
+            @State private var value: Value
+            private let content: (Binding<Value>) -> Content
+
+            init(_ initialValue: Value, @ViewBuilder content: @escaping (Binding<Value>) -> Content) {
+                _value = State(initialValue: initialValue)
+                self.content = content
+            }
+
+            var body: some View {
+                content($value)
+            }
         }
     }
-
-    private struct StatefulPreviewWrapper<Value, Content: View>: View {
-        @State private var value: Value
-        private let content: (Binding<Value>) -> Content
-
-        init(_ initialValue: Value, @ViewBuilder content: @escaping (Binding<Value>) -> Content) {
-            _value = State(initialValue: initialValue)
-            self.content = content
-        }
-
-        var body: some View {
-            content($value)
-        }
-    }
-}
 #endif

@@ -84,7 +84,7 @@ struct EmailRoutingRule: Codable, Identifiable, Equatable, Sendable {
     }
 }
 
-struct EmailRoutingRuleInput: Codable, Sendable {
+struct EmailRoutingRuleInput: Codable, Equatable, Sendable {
     let name: String?
     let enabled: Bool
     let matchers: [EmailRoutingMatcher]
@@ -112,6 +112,6 @@ struct EmailDestinationAddress: Codable, Identifiable, Equatable, Sendable {
     }
 }
 
-struct EmailDestinationCreate: Codable, Sendable {
+struct EmailDestinationCreate: Codable, Equatable, Sendable {
     let email: String
 }

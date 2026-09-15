@@ -12,7 +12,7 @@ struct SecurityHeader: Codable, Equatable, Sendable {
     var strict_transport_security: StrictTransportSecurity
 }
 
-enum SettingValue: Codable, Equatable {
+enum SettingValue: Codable, Equatable, Sendable {
     case string(String)
     case int(Int)
     case bool(Bool)
@@ -114,7 +114,7 @@ enum SettingValue: Codable, Equatable {
     }
 }
 
-struct ZoneSetting: Codable, Identifiable, Sendable {
+struct ZoneSetting: Codable, Identifiable, Equatable, Sendable {
     var id: String {
         rawId ?? UUID().uuidString
     }
@@ -141,7 +141,7 @@ struct ZoneSetting: Codable, Identifiable, Sendable {
 
 // MARK: - Bot Management Config
 
-public struct BotManagementConfig: Codable, Sendable {
+public struct BotManagementConfig: Codable, Sendable, Equatable {
     public let fightMode: Bool?
     public let optimizeWordpress: Bool?
     public let sbfmDefinitelyAutomated: String?
@@ -149,7 +149,9 @@ public struct BotManagementConfig: Codable, Sendable {
     public let sbfmVerifiedBots: String?
     public let sbfmStaticResourceProtection: Bool?
 
-    public var fight_mode: Bool? { fightMode }
+    public var fight_mode: Bool? {
+        fightMode
+    }
 
     enum CodingKeys: String, CodingKey {
         case fightMode = "fight_mode"
@@ -184,11 +186,11 @@ public struct BotManagementConfig: Codable, Sendable {
         sbfm_verified_bots: String? = nil,
         sbfm_static_resource_protection: Bool? = nil
     ) {
-        self.fightMode = fight_mode
-        self.optimizeWordpress = optimize_wordpress
-        self.sbfmDefinitelyAutomated = sbfm_definitely_automated
-        self.sbfmLikelyAutomated = sbfm_likely_automated
-        self.sbfmVerifiedBots = sbfm_verified_bots
-        self.sbfmStaticResourceProtection = sbfm_static_resource_protection
+        fightMode = fight_mode
+        optimizeWordpress = optimize_wordpress
+        sbfmDefinitelyAutomated = sbfm_definitely_automated
+        sbfmLikelyAutomated = sbfm_likely_automated
+        sbfmVerifiedBots = sbfm_verified_bots
+        sbfmStaticResourceProtection = sbfm_static_resource_protection
     }
 }

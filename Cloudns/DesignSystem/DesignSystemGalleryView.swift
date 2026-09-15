@@ -529,7 +529,7 @@ public struct DesignSystemGalleryView: View {
                     message: "No domains found under this account · Tap below to bind",
                     actionTitle: "Add New Domain"
                 ) {}
-                .gentleCardStyle()
+                    .gentleCardStyle()
             }
         }
     }

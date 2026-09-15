@@ -1,14 +1,14 @@
 import Foundation
 
-struct SecurityGraphQLData: Codable, Sendable {
+struct SecurityGraphQLData: Codable, Equatable, Sendable {
     let viewer: SecurityGraphQLViewer
 }
 
-struct SecurityGraphQLViewer: Codable, Sendable {
+struct SecurityGraphQLViewer: Codable, Equatable, Sendable {
     let zones: [SecurityGraphQLZone]
 }
 
-struct SecurityGraphQLZone: Codable, Sendable {
+struct SecurityGraphQLZone: Codable, Equatable, Sendable {
     let firewallEventsAdaptive: [SecurityEvent]?
 }
 

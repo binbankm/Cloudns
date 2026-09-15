@@ -42,7 +42,7 @@ public struct WorkerScript: Codable, Identifiable, Equatable, Hashable, Sendable
     }
 }
 
-public struct WorkerModuleItem: Identifiable, Hashable, Codable, Sendable {
+public struct WorkerModuleItem: Identifiable, Equatable, Hashable, Codable, Sendable {
     public var id: String {
         name
     }
@@ -197,15 +197,15 @@ public struct WorkerSchedule: Codable, Identifiable, Equatable, Sendable {
     }
 }
 
-public struct WorkerSchedulesResult: Codable, Sendable {
+public struct WorkerSchedulesResult: Codable, Equatable, Sendable {
     public let schedules: [WorkerSchedule]?
 }
 
-public struct WorkerScheduleInput: Codable, Sendable {
+public struct WorkerScheduleInput: Codable, Equatable, Sendable {
     public let cron: String
 }
 
-public struct WorkerTailSession: Codable, Sendable {
+public struct WorkerTailSession: Codable, Equatable, Sendable {
     public let id: String
     public let url: String
     public let expiresAt: String?
@@ -216,7 +216,7 @@ public struct WorkerTailSession: Codable, Sendable {
     }
 }
 
-public struct TailTraceItem: Codable, Identifiable, Sendable {
+public struct TailTraceItem: Codable, Identifiable, Equatable, Sendable {
     public var id = UUID()
     public let outcome: String?
     public let scriptName: String?
@@ -230,17 +230,17 @@ public struct TailTraceItem: Codable, Identifiable, Sendable {
     }
 }
 
-public struct TailEventInfo: Codable, Sendable {
+public struct TailEventInfo: Codable, Equatable, Sendable {
     public let request: TailRequestInfo?
     public let cron: String?
 }
 
-public struct TailRequestInfo: Codable, Sendable {
+public struct TailRequestInfo: Codable, Equatable, Sendable {
     public let url: String?
     public let method: String?
 }
 
-public struct TailLog: Codable, Identifiable, Sendable {
+public struct TailLog: Codable, Identifiable, Equatable, Sendable {
     public var id = UUID()
     public let level: String?
     public let timestamp: Int?
@@ -251,7 +251,7 @@ public struct TailLog: Codable, Identifiable, Sendable {
     }
 }
 
-public struct TailException: Codable, Identifiable, Sendable {
+public struct TailException: Codable, Identifiable, Equatable, Sendable {
     public var id = UUID()
     public let name: String?
     public let message: String?
@@ -262,66 +262,7 @@ public struct TailException: Codable, Identifiable, Sendable {
     }
 }
 
-public indirect enum JSONValue: Codable, Sendable, Equatable {
-    case string(String)
-    case number(Double)
-    case bool(Bool)
-    case null
-    case array([JSONValue])
-    case object([String: JSONValue])
-
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        if container.decodeNil() {
-            self = .null
-        } else if let value = try? container.decode(Bool.self) {
-            self = .bool(value)
-        } else if let value = try? container.decode(Double.self) {
-            self = .number(value)
-        } else if let value = try? container.decode(String.self) {
-            self = .string(value)
-        } else if let value = try? container.decode([JSONValue].self) {
-            self = .array(value)
-        } else if let value = try? container.decode([String: JSONValue].self) {
-            self = .object(value)
-        } else {
-            self = .string("")
-        }
-    }
-
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        switch self {
-        case let .string(value): try container.encode(value)
-        case let .number(value): try container.encode(value)
-        case let .bool(value): try container.encode(value)
-        case .null: try container.encodeNil()
-        case let .array(value): try container.encode(value)
-        case let .object(value): try container.encode(value)
-        }
-    }
-
-    public var displayText: String {
-        switch self {
-        case let .string(value):
-            return value
-        case let .number(value):
-            return value.truncatingRemainder(dividingBy: 1) == 0
-                ? String(Int(value))
-                : String(value)
-        case let .bool(value):
-            return value ? "true" : "false"
-        case .null:
-            return "null"
-        case let .array(values):
-            return "[" + values.map(\.displayText).joined(separator: ", ") + "]"
-        case let .object(dict):
-            let pairs = dict.sorted { $0.key < $1.key }
-                .map { "\($0.key): \($0.value.displayText)" }
-            return "{" + pairs.joined(separator: ", ") + "}"
-        }
-    }
-}
+// (JSONValue is centralized as AnyJSONValue in Models/Base/AnyJSONValue.swift)
 
 public struct WorkerZoneRoute: Codable, Identifiable, Equatable, Sendable {
     public let id: String
@@ -424,6 +365,6 @@ public struct WorkerDeploymentAnnotations: Codable, Equatable, Sendable {
     }
 }
 
-public struct WorkerDeploymentsResult: Codable, Sendable {
+public struct WorkerDeploymentsResult: Codable, Equatable, Sendable {
     public let deployments: [WorkerDeployment]?
 }

@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - WHOIS Info Model
 
-public struct WhoisInfo: Identifiable, Sendable {
+public struct WhoisInfo: Identifiable, Codable, Equatable, Sendable {
     public nonisolated var id: String {
         domain
     }

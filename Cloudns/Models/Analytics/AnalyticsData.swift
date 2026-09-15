@@ -5,19 +5,19 @@ struct GraphQLResponse<T: Codable & Sendable>: Codable, Sendable {
     let errors: [GraphQLError]?
 }
 
-struct GraphQLError: Codable, Sendable {
+struct GraphQLError: Codable, Equatable, Sendable {
     let message: String?
 }
 
-struct AnalyticsViewerData: Codable, Sendable {
+struct AnalyticsViewerData: Codable, Equatable, Sendable {
     let viewer: AnalyticsViewer
 }
 
-struct AnalyticsViewer: Codable, Sendable {
+struct AnalyticsViewer: Codable, Equatable, Sendable {
     let zones: [AnalyticsZone]?
 }
 
-struct AnalyticsZone: Codable, Sendable {
+struct AnalyticsZone: Codable, Equatable, Sendable {
     let zoneTag: String?
     let httpRequests1dGroups: [AnalyticsDataPoint]?
     let httpRequests1hGroups: [AnalyticsDataPoint]?
@@ -144,7 +144,7 @@ public struct WorkerAnalyticsSummaryItem: Codable, Equatable, Sendable {
     public let quantiles: WorkerAnalyticsItem.WorkerAnalyticsQuantiles?
 }
 
-public struct WorkerAnalyticsAccountItem: Codable, Sendable {
+public struct WorkerAnalyticsAccountItem: Codable, Equatable, Sendable {
     public let summary: [WorkerAnalyticsSummaryItem]?
     public let series: [WorkerAnalyticsItem]?
     public let byStatus: [WorkerAnalyticsItem]?
@@ -152,10 +152,12 @@ public struct WorkerAnalyticsAccountItem: Codable, Sendable {
     public let pagesFunctionsInvocationsAdaptiveGroups: [WorkerAnalyticsItem]?
 }
 
-public struct WorkerAnalyticsViewer: Codable, Sendable {
+public struct WorkerAnalyticsViewer: Codable, Equatable, Sendable {
     public let accounts: [WorkerAnalyticsAccountItem]?
 }
 
-public struct WorkerAnalyticsViewerData: Codable, Sendable {
+public struct WorkerAnalyticsViewerData: Codable, Equatable, Sendable {
     public let viewer: WorkerAnalyticsViewer
 }
+
+extension GraphQLResponse: Equatable where T: Equatable {}

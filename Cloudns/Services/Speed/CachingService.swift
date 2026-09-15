@@ -6,7 +6,7 @@ private struct PurgeCacheResponse: Codable, Sendable {
 
 /// Protocol defining Cloudflare edge cache and purge domain service
 protocol CachingServiceProtocol: Sendable {
-    func getCachingSettings(zoneId: String) async throws -> (cacheLevel: String, browserTTL: Int, alwaysOnline: Bool, devMode: Bool)
+    func getCachingSettings(zoneId: String) async throws -> CachingSettings
     func updateCacheLevel(zoneId: String, level: String) async throws
     func updateBrowserCacheTTL(zoneId: String, ttl: Int) async throws
     func updateAlwaysOnline(zoneId: String, isOn: Bool) async throws
@@ -28,18 +28,18 @@ final class CachingService: CachingServiceProtocol {
 
     private init() {}
 
-    func getCachingSettings(zoneId: String) async throws -> (cacheLevel: String, browserTTL: Int, alwaysOnline: Bool, devMode: Bool) {
+    func getCachingSettings(zoneId: String) async throws -> CachingSettings {
         async let cl = try? getSetting(zoneId: zoneId, settingName: "cache_level")
         async let bt = try? getSetting(zoneId: zoneId, settingName: "browser_cache_ttl")
         async let ao = try? getSetting(zoneId: zoneId, settingName: "always_online")
         async let dm = try? getSetting(zoneId: zoneId, settingName: "development_mode")
         let (cacheLevel, browserTTL, alwaysOnline, devMode) = await (cl, bt, ao, dm)
 
-        return (
+        return CachingSettings(
             cacheLevel: cacheLevel?.value.stringValue ?? "aggressive",
             browserTTL: browserTTL?.value.intValue ?? 14400,
             alwaysOnline: alwaysOnline?.value.boolValue ?? true,
-            devMode: devMode?.value.boolValue ?? false
+            developmentMode: devMode?.value.boolValue ?? false
         )
     }
 

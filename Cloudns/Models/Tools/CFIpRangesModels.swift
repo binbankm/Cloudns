@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - Cloudflare Official IP Ranges Models
 
-public struct CloudflareIPRanges: Codable, Sendable {
+public struct CloudflareIPRanges: Codable, Sendable, Equatable {
     public let ipv4Cidrs: [String]
     public let ipv6Cidrs: [String]
 

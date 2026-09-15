@@ -202,13 +202,13 @@ public enum ZoneStatus: String, Codable, Equatable, Hashable, Sendable {
 
     public var displayName: String {
         switch self {
-        case .active: return "Active"
-        case .pending: return "Pending"
-        case .initializing: return "Initializing"
-        case .moved: return "Moved"
-        case .deleted: return "Deleted"
-        case .deactivated: return "Deactivated"
-        case .unknown: return "Unknown"
+        case .active: "Active"
+        case .pending: "Pending"
+        case .initializing: "Initializing"
+        case .moved: "Moved"
+        case .deleted: "Deleted"
+        case .deactivated: "Deactivated"
+        case .unknown: "Unknown"
         }
     }
 }

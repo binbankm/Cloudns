@@ -38,7 +38,7 @@ public enum GentleShadow {
 public extension View {
     /// Applies standard feather-soft card shadow
     func gentleCardShadow() -> some View {
-        self.shadow(
+        shadow(
             color: Color.black.opacity(0.035),
             radius: 10,
             x: 0,
@@ -48,7 +48,7 @@ public extension View {
 
     /// Applies subtle pill or control shadow
     func gentleSubtleShadow() -> some View {
-        self.shadow(
+        shadow(
             color: Color.black.opacity(0.025),
             radius: 6,
             x: 0,

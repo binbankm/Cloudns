@@ -11,26 +11,26 @@ public enum GentleCalloutType {
     public var tintColor: Color {
         switch self {
         case .info:
-            return GentleColor.accent
+            GentleColor.accent
         case .success:
-            return GentleColor.sageGreen
+            GentleColor.sageGreen
         case .warning:
-            return GentleColor.apricotGold
+            GentleColor.apricotGold
         case .danger:
-            return GentleColor.statusDanger
+            GentleColor.statusDanger
         }
     }
 
     public var defaultIconName: String {
         switch self {
         case .info:
-            return "info.circle.fill"
+            "info.circle.fill"
         case .success:
-            return "checkmark.circle.fill"
+            "checkmark.circle.fill"
         case .warning:
-            return "exclamationmark.triangle.fill"
+            "exclamationmark.triangle.fill"
         case .danger:
-            return "xmark.octagon.fill"
+            "xmark.octagon.fill"
         }
     }
 }

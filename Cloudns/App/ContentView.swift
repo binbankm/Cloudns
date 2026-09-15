@@ -7,6 +7,7 @@ struct ContentView: View {
         NavigationStack {
             VStack(spacing: 24) {
                 // MARK: - Welcome & Brand Header
+
                 VStack(spacing: 8) {
                     Image(systemName: "cloud.sun.fill")
                         .font(.system(size: 48, weight: .medium))
@@ -23,6 +24,7 @@ struct ContentView: View {
                 .padding(.top, 20)
 
                 // MARK: - Status Card Preview
+
                 VStack(alignment: .leading, spacing: 14) {
                     HStack {
                         Text("Core System Status")

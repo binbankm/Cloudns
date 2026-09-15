@@ -21,14 +21,17 @@ struct ActionParameters: Codable, Equatable, Sendable {
         get { edgeTTL }
         set { edgeTTL = newValue }
     }
+
     var browser_ttl: CacheBrowserTTL? {
         get { browserTTL }
         set { browserTTL = newValue }
     }
+
     var snippet_name: String? {
         get { snippetName }
         set { snippetName = newValue }
     }
+
     var from_value: FromValue? {
         get { fromValue }
         set { fromValue = newValue }
@@ -57,10 +60,12 @@ struct ActionParameters: Codable, Equatable, Sendable {
             get { statusCode }
             set { statusCode = newValue }
         }
+
         var target_url: TargetUrl? {
             get { targetUrl }
             set { targetUrl = newValue }
         }
+
         var preserve_query_string: Bool? {
             get { preserveQueryString }
             set { preserveQueryString = newValue }
@@ -79,9 +84,9 @@ struct ActionParameters: Codable, Equatable, Sendable {
         }
 
         init(status_code: Int? = nil, target_url: TargetUrl? = nil, preserve_query_string: Bool? = nil) {
-            self.statusCode = status_code
-            self.targetUrl = target_url
-            self.preserveQueryString = preserve_query_string
+            statusCode = status_code
+            targetUrl = target_url
+            preserveQueryString = preserve_query_string
         }
     }
 

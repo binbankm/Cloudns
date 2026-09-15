@@ -10,7 +10,7 @@ public struct GentleSegmentedControl<T: Hashable & CustomStringConvertible>: Vie
 
     public init(items: [T], selection: Binding<T>) {
         self.items = items
-        self._selection = selection
+        _selection = selection
     }
 
     public var body: some View {

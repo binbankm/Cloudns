@@ -247,7 +247,7 @@ public struct PagesDeploymentLog: Codable, Identifiable, Equatable, Sendable {
     public let line: String
 }
 
-public struct PagesDeploymentLogsResult: Codable, Sendable {
+public struct PagesDeploymentLogsResult: Codable, Equatable, Sendable {
     public let total: Int?
     public let data: [PagesDeploymentLog]?
 }

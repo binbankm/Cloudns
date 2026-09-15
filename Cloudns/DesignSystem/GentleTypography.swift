@@ -70,11 +70,25 @@ public enum GentleTypography {
     }
 
     /// Standard HIG Hierarchy Aliases
-    public static var largeTitle: Font { hero }
-    public static var title: Font { titleLarge }
-    public static var title2: Font { titleSection }
-    public static var headline: Font { cardTitle }
-    public static var caption2: Font { captionSmall }
+    public static var largeTitle: Font {
+        hero
+    }
+
+    public static var title: Font {
+        titleLarge
+    }
+
+    public static var title2: Font {
+        titleSection
+    }
+
+    public static var headline: Font {
+        cardTitle
+    }
+
+    public static var caption2: Font {
+        captionSmall
+    }
 
     /// Button action label (17pt rounded semibold)
     public static var buttonLabel: Font {

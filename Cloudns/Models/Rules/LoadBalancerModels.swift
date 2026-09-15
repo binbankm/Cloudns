@@ -20,7 +20,7 @@ struct LoadBalancer: Codable, Identifiable, Equatable, Sendable {
     }
 }
 
-struct LoadBalancerUpdate: Codable, Sendable {
+struct LoadBalancerUpdate: Codable, Equatable, Sendable {
     var name: String?
     var enabled: Bool?
     var ttl: Int?
@@ -89,7 +89,7 @@ struct LBMonitor: Codable, Identifiable, Equatable, Sendable {
     }
 }
 
-struct LBPoolUpdate: Codable, Sendable {
+struct LBPoolUpdate: Codable, Equatable, Sendable {
     var name: String
     var description: String?
     var enabled: Bool
@@ -103,7 +103,7 @@ struct LBPoolUpdate: Codable, Sendable {
     }
 }
 
-struct LBMonitorUpdate: Codable, Sendable {
+struct LBMonitorUpdate: Codable, Equatable, Sendable {
     var type: String
     var description: String?
     var method: String?

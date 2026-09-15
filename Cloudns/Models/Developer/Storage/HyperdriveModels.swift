@@ -60,7 +60,7 @@ public struct HyperdriveCaching: Codable, Equatable, Sendable {
     }
 }
 
-public struct HyperdriveCreate: Codable, Sendable {
+public struct HyperdriveCreate: Codable, Equatable, Sendable {
     public let name: String
     public let origin: HyperdriveOriginInput
     public let caching: HyperdriveCaching?
@@ -72,7 +72,7 @@ public struct HyperdriveCreate: Codable, Sendable {
     }
 }
 
-public struct HyperdriveOriginInput: Codable, Sendable {
+public struct HyperdriveOriginInput: Codable, Equatable, Sendable {
     public let host: String
     public let port: Int
     public let database: String
@@ -90,7 +90,7 @@ public struct HyperdriveOriginInput: Codable, Sendable {
     }
 }
 
-public struct HyperdrivePatch: Codable, Sendable {
+public struct HyperdrivePatch: Codable, Equatable, Sendable {
     public let name: String?
     public let origin: HyperdriveOriginInput?
     public let caching: HyperdriveCaching?

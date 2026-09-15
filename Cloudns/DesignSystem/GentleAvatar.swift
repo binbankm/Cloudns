@@ -6,35 +6,35 @@ import SwiftUI
 /// and an optional active indicator dot.
 public struct GentleAvatar: View {
     public enum Size {
-        case small    // 28pt (navigation bar, compact rows)
-        case medium   // 36pt (standard list row, switcher items)
-        case large    // 48pt (drawer header, card profile)
-        case xlarge   // 64pt (settings hero, account detail)
+        case small // 28pt (navigation bar, compact rows)
+        case medium // 36pt (standard list row, switcher items)
+        case large // 48pt (drawer header, card profile)
+        case xlarge // 64pt (settings hero, account detail)
 
         var dimension: CGFloat {
             switch self {
-            case .small: return 28
-            case .medium: return 36
-            case .large: return 48
-            case .xlarge: return 64
+            case .small: 28
+            case .medium: 36
+            case .large: 48
+            case .xlarge: 64
             }
         }
 
         var fontSize: CGFloat {
             switch self {
-            case .small: return 12
-            case .medium: return 15
-            case .large: return 20
-            case .xlarge: return 26
+            case .small: 12
+            case .medium: 15
+            case .large: 20
+            case .xlarge: 26
             }
         }
 
         var indicatorSize: CGFloat {
             switch self {
-            case .small: return 8
-            case .medium: return 10
-            case .large: return 12
-            case .xlarge: return 14
+            case .small: 8
+            case .medium: 10
+            case .large: 12
+            case .xlarge: 14
             }
         }
     }
@@ -104,7 +104,7 @@ public struct GentleAvatar: View {
             }
         }
 
-        if let email = email, let first = email.first {
+        if let email, let first = email.first {
             return String(first).uppercased()
         }
 
@@ -128,16 +128,16 @@ public struct GentleAvatar: View {
 // MARK: - Preview
 
 #if DEBUG
-struct GentleAvatar_Previews: PreviewProvider {
-    static var previews: some View {
-        HStack(spacing: GentleSpacing.md) {
-            GentleAvatar(name: "Production Master", size: .small, isActive: true)
-            GentleAvatar(name: "Dev Workspace", email: "dev@cloudflare.com", size: .medium, isActive: true)
-            GentleAvatar(name: "Acme Corp", size: .large, isActive: false)
-            GentleAvatar(name: "Cloudflare", size: .xlarge, isActive: true)
+    struct GentleAvatar_Previews: PreviewProvider {
+        static var previews: some View {
+            HStack(spacing: GentleSpacing.md) {
+                GentleAvatar(name: "Production Master", size: .small, isActive: true)
+                GentleAvatar(name: "Dev Workspace", email: "dev@cloudflare.com", size: .medium, isActive: true)
+                GentleAvatar(name: "Acme Corp", size: .large, isActive: false)
+                GentleAvatar(name: "Cloudflare", size: .xlarge, isActive: true)
+            }
+            .padding()
+            .background(GentleColor.background)
         }
-        .padding()
-        .background(GentleColor.background)
     }
-}
 #endif

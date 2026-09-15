@@ -78,7 +78,7 @@ public struct RedirectItemDetail: Codable, Equatable, Sendable {
     }
 }
 
-public struct BulkOperationRef: Codable, Sendable {
+public struct BulkOperationRef: Codable, Equatable, Sendable {
     public let operationId: String
     enum CodingKeys: String, CodingKey {
         case operationId = "operation_id"
@@ -89,7 +89,7 @@ public struct BulkOperationRef: Codable, Sendable {
     }
 }
 
-public struct BulkOperation: Codable, Sendable {
+public struct BulkOperation: Codable, Identifiable, Equatable, Sendable {
     public let id: String
     public let status: String
     public let error: String?

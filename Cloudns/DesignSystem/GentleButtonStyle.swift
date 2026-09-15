@@ -38,7 +38,7 @@ public struct GentlePrimaryButtonStyle: ButtonStyle {
             .opacity(configuration.isPressed ? 0.9 : 1.0)
             .animation(GentleAnimation.spring, value: configuration.isPressed)
             .onChange(of: configuration.isPressed) { isPressed in
-                if isPressed && isEnabled {
+                if isPressed, isEnabled {
                     GentleHaptics.soft()
                 }
             }
@@ -77,7 +77,7 @@ public struct GentleSecondaryButtonStyle: ButtonStyle {
             .opacity(configuration.isPressed ? 0.85 : 1.0)
             .animation(GentleAnimation.spring, value: configuration.isPressed)
             .onChange(of: configuration.isPressed) { isPressed in
-                if isPressed && isEnabled {
+                if isPressed, isEnabled {
                     GentleHaptics.selection()
                 }
             }
@@ -115,7 +115,7 @@ public struct GentleDestructiveButtonStyle: ButtonStyle {
             .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
             .animation(GentleAnimation.spring, value: configuration.isPressed)
             .onChange(of: configuration.isPressed) { isPressed in
-                if isPressed && isEnabled {
+                if isPressed, isEnabled {
                     GentleHaptics.warning()
                 }
             }
@@ -187,7 +187,6 @@ public struct GentleLoadingButton: View {
 }
 
 private extension View {
-    @ViewBuilder
     func modify<Content: View>(@ViewBuilder transform: (Self) -> Content) -> Content {
         transform(self)
     }

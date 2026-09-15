@@ -18,7 +18,9 @@ struct WAFRule: Codable, Identifiable, Equatable, Sendable {
     let ratelimit: RateLimitConfig?
     let actionParameters: ActionParameters?
 
-    var action_parameters: ActionParameters? { actionParameters }
+    var action_parameters: ActionParameters? {
+        actionParameters
+    }
 
     enum CodingKeys: String, CodingKey {
         case id, action, expression, description, enabled, ratelimit
@@ -61,8 +63,13 @@ struct RateLimitConfig: Codable, Equatable, Sendable {
     let period: Int
     let requestsPerPeriod: Int
 
-    var mitigation_timeout: Int? { mitigationTimeout }
-    var requests_per_period: Int { requestsPerPeriod }
+    var mitigation_timeout: Int? {
+        mitigationTimeout
+    }
+
+    var requests_per_period: Int {
+        requestsPerPeriod
+    }
 
     enum CodingKeys: String, CodingKey {
         case characteristics, period
@@ -78,7 +85,7 @@ struct RateLimitConfig: Codable, Equatable, Sendable {
     }
 }
 
-struct UpdateWAFRuleRequest: Codable, Sendable {
+struct UpdateWAFRuleRequest: Codable, Equatable, Sendable {
     let action: String
     let expression: String
     let description: String?
@@ -92,6 +99,6 @@ struct UpdateWAFRuleRequest: Codable, Sendable {
     }
 }
 
-struct WAFEntrypointUpdate: Codable, Sendable {
+struct WAFEntrypointUpdate: Codable, Equatable, Sendable {
     let rules: [UpdateWAFRuleRequest]
 }

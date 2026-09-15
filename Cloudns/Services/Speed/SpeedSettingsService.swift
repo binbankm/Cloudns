@@ -2,7 +2,7 @@ import Foundation
 
 /// Protocol defining Cloudflare web performance and speed optimization service
 protocol SpeedSettingsServiceProtocol: Sendable {
-    func getSpeedSettings(zoneId: String) async throws -> (brotli: Bool, rocketLoader: Bool, earlyHints: Bool, speedBrain: Bool, fonts: Bool, tieredCache: Bool, polish: String)
+    func getSpeedSettings(zoneId: String) async throws -> SpeedSettings
     func updateBrotli(zoneId: String, isOn: Bool) async throws
     func updateRocketLoader(zoneId: String, isOn: Bool) async throws
     func updateEarlyHints(zoneId: String, isOn: Bool) async throws
@@ -21,7 +21,7 @@ final class SpeedSettingsService: SpeedSettingsServiceProtocol {
 
     private init() {}
 
-    func getSpeedSettings(zoneId: String) async throws -> (brotli: Bool, rocketLoader: Bool, earlyHints: Bool, speedBrain: Bool, fonts: Bool, tieredCache: Bool, polish: String) {
+    func getSpeedSettings(zoneId: String) async throws -> SpeedSettings {
         async let br = try? getSetting(zoneId: zoneId, settingName: "brotli")
         async let rl = try? getSetting(zoneId: zoneId, settingName: "rocket_loader")
         async let eh = try? getSetting(zoneId: zoneId, settingName: "early_hints")
@@ -32,7 +32,7 @@ final class SpeedSettingsService: SpeedSettingsServiceProtocol {
 
         let tieredCacheOn = await getTieredCacheStatus(zoneId: zoneId)
 
-        return (
+        return SpeedSettings(
             brotli: brotli?.value.boolValue ?? false,
             rocketLoader: rocket?.value.boolValue ?? false,
             earlyHints: hints?.value.boolValue ?? false,

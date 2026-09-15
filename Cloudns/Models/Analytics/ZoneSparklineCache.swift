@@ -1,6 +1,6 @@
 import Foundation
 
-public struct ZoneSparklineCache: Codable, Sendable {
+public struct ZoneSparklineCache: Codable, Sendable, Equatable {
     public let points: [Double]
     public let totalRequests: Int
 

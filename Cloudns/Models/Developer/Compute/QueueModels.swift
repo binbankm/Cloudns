@@ -89,7 +89,7 @@ public struct CFQueueConsumerSettings: Codable, Equatable, Sendable {
     }
 }
 
-public struct CFQueueCreate: Codable, Sendable {
+public struct CFQueueCreate: Codable, Equatable, Sendable {
     public let queueName: String
     enum CodingKeys: String, CodingKey {
         case queueName = "queue_name"
@@ -100,7 +100,7 @@ public struct CFQueueCreate: Codable, Sendable {
     }
 }
 
-public struct CFQueueUpdate: Codable, Sendable {
+public struct CFQueueUpdate: Codable, Equatable, Sendable {
     public let queueName: String?
     public let deliveryDelay: Int?
     public let messageRetentionPeriod: Int?
@@ -121,7 +121,7 @@ public struct CFQueueUpdate: Codable, Sendable {
     }
 }
 
-public struct CFQueuePurge: Codable, Sendable {
+public struct CFQueuePurge: Codable, Equatable, Sendable {
     public let deleteMessagesPermanently: Bool
     enum CodingKeys: String, CodingKey {
         case deleteMessagesPermanently = "delete_messages_permanently"

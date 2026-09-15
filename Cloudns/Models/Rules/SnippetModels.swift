@@ -11,8 +11,13 @@ public struct SnippetItem: Codable, Identifiable, Equatable, Sendable {
     public let modifiedOn: String?
     public let createdOn: String?
 
-    public var name: String { snippet_name }
-    public var snippetName: String { snippet_name }
+    public var name: String {
+        snippet_name
+    }
+
+    public var snippetName: String {
+        snippet_name
+    }
 
     enum CodingKeys: String, CodingKey {
         case snippet_name
@@ -27,7 +32,7 @@ public struct SnippetItem: Codable, Identifiable, Equatable, Sendable {
     }
 
     public init(name: String, modifiedOn: String? = nil, createdOn: String? = nil) {
-        self.snippet_name = name
+        snippet_name = name
         self.modifiedOn = modifiedOn
         self.createdOn = createdOn
     }

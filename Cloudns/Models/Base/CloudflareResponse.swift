@@ -72,3 +72,5 @@ public struct CloudflareError: Codable, Equatable, Sendable {
         self.message = message
     }
 }
+
+extension CloudflareResponse: Equatable where T: Equatable {}

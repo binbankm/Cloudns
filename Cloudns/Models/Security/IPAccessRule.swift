@@ -8,8 +8,13 @@ struct IPAccessRule: Codable, Identifiable, Equatable, Sendable {
     let createdOn: String?
     let modifiedOn: String?
 
-    var created_on: String? { createdOn }
-    var modified_on: String? { modifiedOn }
+    var created_on: String? {
+        createdOn
+    }
+
+    var modified_on: String? {
+        modifiedOn
+    }
 
     enum CodingKeys: String, CodingKey {
         case id, mode, notes, configuration

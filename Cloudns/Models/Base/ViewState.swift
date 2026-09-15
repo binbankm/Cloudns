@@ -4,7 +4,7 @@ import Foundation
 
 /// Unified generic UI state machine for ViewModels and Views.
 /// Eliminates multiple scattered boolean flags (isLoading, isError, hasData).
-public enum ViewState<T>: Equatable where T: Equatable {
+public enum ViewState<T: Equatable>: Equatable {
     /// Initial idle state
     case idle
     /// Loading state (triggers gentle skeleton shimmer or progress)
@@ -17,12 +17,16 @@ public enum ViewState<T>: Equatable where T: Equatable {
     case error(message: String)
 
     public var isLoading: Bool {
-        if case .loading = self { return true }
+        if case .loading = self {
+            return true
+        }
         return false
     }
 
     public var data: T? {
-        if case let .loaded(data) = self { return data }
+        if case let .loaded(data) = self {
+            return data
+        }
         return nil
     }
 }

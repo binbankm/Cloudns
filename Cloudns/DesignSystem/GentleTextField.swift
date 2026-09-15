@@ -30,7 +30,7 @@ public struct GentleTextField: View {
         onCommit: (() -> Void)? = nil
     ) {
         self.placeholder = placeholder
-        self._text = text
+        _text = text
         self.leadingIcon = leadingIcon
         self.isSecure = isSecure
         self.isMonospaced = isMonospaced
@@ -67,7 +67,7 @@ public struct GentleTextField: View {
             }
 
             Group {
-                if isSecure && !isSecureRevealed {
+                if isSecure, !isSecureRevealed {
                     SecureField(placeholder, text: $text)
                 } else {
                     TextField(placeholder, text: $text)
@@ -96,7 +96,7 @@ public struct GentleTextField: View {
                 .accessibilityLabel(Text("Hide credential"))
             }
 
-            if !text.isEmpty && isFocused {
+            if !text.isEmpty, isFocused {
                 Button {
                     text = ""
                     GentleHaptics.soft()

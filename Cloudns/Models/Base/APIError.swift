@@ -158,21 +158,21 @@ enum APIError: Error, LocalizedError, Sendable {
     private static func translateErrorCode(_ code: Int, rawMessage: String) -> String {
         switch code {
         case 10000, 9109:
-            return String(localized: "Invalid email or Global API Key · Please verify credentials")
+            String(localized: "Invalid email or Global API Key · Please verify credentials")
         case 81057:
-            return String(localized: "A DNS record with this host and type already exists")
+            String(localized: "A DNS record with this host and type already exists")
         case 81044:
-            return String(localized: "Record conflict detected · Please check existing CNAME or A records")
+            String(localized: "Record conflict detected · Please check existing CNAME or A records")
         case 1004:
-            return String(localized: "Invalid DNS record parameters or content format")
+            String(localized: "Invalid DNS record parameters or content format")
         case 1049:
-            return String(localized: "Domain not found or not active under this account")
+            String(localized: "Domain not found or not active under this account")
         case 1001:
-            return String(localized: "DNS resolution failed · Invalid request host")
+            String(localized: "DNS resolution failed · Invalid request host")
         case 10001:
-            return String(localized: "Rate limit exceeded · Please slow down requests")
+            String(localized: "Rate limit exceeded · Please slow down requests")
         default:
-            return "\(rawMessage) (Code \(code))"
+            "\(rawMessage) (Code \(code))"
         }
     }
 }

@@ -41,7 +41,7 @@ public struct GentleBadge: View {
     ) {
         self.title = title
         self.iconName = iconName
-        self.badgeType = type
+        badgeType = type
     }
 
     private var backgroundOpacity: Double {

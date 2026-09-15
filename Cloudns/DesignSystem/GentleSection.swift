@@ -27,7 +27,7 @@ public struct GentleSection<Content: View, Trailing: View>: View {
             // Header Row
             if title != nil || trailing != nil {
                 HStack(alignment: .bottom) {
-                    if let title = title {
+                    if let title {
                         Text(LocalizedStringKey(title))
                             .font(GentleTypography.captionSmall)
                             .foregroundStyle(GentleColor.textSecondary)
@@ -37,7 +37,7 @@ public struct GentleSection<Content: View, Trailing: View>: View {
 
                     Spacer(minLength: GentleSpacing.sm)
 
-                    if let trailing = trailing {
+                    if let trailing {
                         trailing
                     }
                 }
@@ -49,7 +49,7 @@ public struct GentleSection<Content: View, Trailing: View>: View {
                 .gentleCard(variant: .elevated)
 
             // Footer Explanatory Text
-            if let footer = footer {
+            if let footer {
                 Text(LocalizedStringKey(footer))
                     .font(GentleTypography.footnote)
                     .foregroundStyle(GentleColor.textTertiary)
@@ -62,15 +62,15 @@ public struct GentleSection<Content: View, Trailing: View>: View {
     }
 }
 
-extension GentleSection where Trailing == EmptyView {
-    public init(
+public extension GentleSection where Trailing == EmptyView {
+    init(
         title: String? = nil,
         footer: String? = nil,
         @ViewBuilder content: () -> Content
     ) {
         self.title = title
         self.footer = footer
-        self.trailing = nil
+        trailing = nil
         self.content = content()
     }
 }
@@ -78,42 +78,42 @@ extension GentleSection where Trailing == EmptyView {
 // MARK: - Preview
 
 #if DEBUG
-struct GentleSection_Previews: PreviewProvider {
-    static var previews: some View {
-        ScrollView {
-            VStack(spacing: GentleSpacing.md) {
-                GentleSection(
-                    title: "Domain Security",
-                    footer: "DNSSEC protects your domain from DNS spoofing and cache poisoning."
-                ) {
-                    VStack(alignment: .leading, spacing: GentleSpacing.sm) {
-                        Text("DNSSEC Status")
-                            .font(GentleTypography.cardTitle)
-                            .foregroundStyle(GentleColor.textPrimary)
-                        Text("Active & cryptographically verified")
-                            .font(GentleTypography.body)
-                            .foregroundStyle(GentleColor.textSecondary)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                }
-
-                GentleSection(
-                    title: "Quick Actions",
-                    trailing: {
-                        Button("Manage") {}
-                            .font(GentleTypography.captionSmall)
-                            .foregroundStyle(GentleColor.accent)
-                    }
-                ) {
-                    Text("Card with trailing action")
-                        .font(GentleTypography.body)
-                        .foregroundStyle(GentleColor.textPrimary)
+    struct GentleSection_Previews: PreviewProvider {
+        static var previews: some View {
+            ScrollView {
+                VStack(spacing: GentleSpacing.md) {
+                    GentleSection(
+                        title: "Domain Security",
+                        footer: "DNSSEC protects your domain from DNS spoofing and cache poisoning."
+                    ) {
+                        VStack(alignment: .leading, spacing: GentleSpacing.sm) {
+                            Text("DNSSEC Status")
+                                .font(GentleTypography.cardTitle)
+                                .foregroundStyle(GentleColor.textPrimary)
+                            Text("Active & cryptographically verified")
+                                .font(GentleTypography.body)
+                                .foregroundStyle(GentleColor.textSecondary)
+                        }
                         .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+
+                    GentleSection(
+                        title: "Quick Actions",
+                        trailing: {
+                            Button("Manage") {}
+                                .font(GentleTypography.captionSmall)
+                                .foregroundStyle(GentleColor.accent)
+                        }
+                    ) {
+                        Text("Card with trailing action")
+                            .font(GentleTypography.body)
+                            .foregroundStyle(GentleColor.textPrimary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
                 }
+                .padding(.vertical)
             }
-            .padding(.vertical)
+            .background(GentleColor.background)
         }
-        .background(GentleColor.background)
     }
-}
 #endif

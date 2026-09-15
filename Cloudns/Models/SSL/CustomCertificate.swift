@@ -8,7 +8,9 @@ struct CustomCertificate: Codable, Identifiable, Equatable, Sendable {
     let status: String?
     let signature: String?
 
-    var expires_on: String? { expiresOn }
+    var expires_on: String? {
+        expiresOn
+    }
 
     enum CodingKeys: String, CodingKey {
         case id, hosts, issuer, status, signature
@@ -25,7 +27,7 @@ struct CustomCertificate: Codable, Identifiable, Equatable, Sendable {
     }
 }
 
-struct CustomCertificateUploadRequest: Codable, Sendable {
+struct CustomCertificateUploadRequest: Codable, Equatable, Sendable {
     let certificate: String
     let privateKey: String
     let bundleMethod: String

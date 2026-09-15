@@ -44,7 +44,10 @@ struct EdgeCertificateModel: Identifiable, Equatable, Sendable {
 
 /// Cloudflare SSL Verification details for hostnames
 struct SSLVerificationItem: Codable, Identifiable, Equatable, Sendable {
-    var id: String { hostname }
+    var id: String {
+        hostname
+    }
+
     let hostname: String
     let certificateStatus: String?
     let verificationType: String?

@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - Dashboard Snapshot (SWR Offline Persistence)
 
-public struct DashboardSnapshot: Codable, Sendable {
+public struct DashboardSnapshot: Codable, Sendable, Equatable {
     public let zones: [Zone]
     public let workers: [WorkerScript]
     public let pages: [PagesProject]
@@ -32,7 +32,7 @@ public struct DashboardSnapshot: Codable, Sendable {
 
 // MARK: - Dashboard Fleet Trend Chart Models
 
-public enum DashboardChartMetric: String, CaseIterable, Identifiable, Sendable {
+public enum DashboardChartMetric: String, CaseIterable, Identifiable, Sendable, Equatable {
     case requests = "Requests"
     case bandwidth = "Bandwidth"
     case threats = "Threats"
