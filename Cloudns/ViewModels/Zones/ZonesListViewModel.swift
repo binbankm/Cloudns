@@ -45,6 +45,7 @@ final class ZonesListViewModel: ObservableObject {
         self.zoneService = zoneService
         self.accountManager = accountManager
         setupAccountSwitchListener()
+        setupZoneUpdateListener()
     }
 
     // MARK: - Computed Presentation Properties
@@ -172,8 +173,70 @@ final class ZonesListViewModel: ObservableObject {
                 )
                 allZones[index] = updated
                 state = .loaded(allZones)
+                NotificationCenter.default.post(name: .zoneUpdated, object: updated)
             }
         } catch {
+            let errString = error.localizedDescription.lowercased()
+            if errString.contains("1019") || errString.contains("already paused") {
+                if let index = allZones.firstIndex(where: { $0.id == zone.id }) {
+                    let updated = Zone(
+                        account: zone.account,
+                        id: zone.id,
+                        name: zone.name,
+                        status: zone.status,
+                        paused: true,
+                        type: zone.type,
+                        plan: zone.plan,
+                        developmentMode: zone.developmentMode,
+                        nameServers: zone.nameServers,
+                        originalNameServers: zone.originalNameServers,
+                        originalRegistrar: zone.originalRegistrar,
+                        originalDnshost: zone.originalDnshost,
+                        modifiedOn: zone.modifiedOn,
+                        createdOn: zone.createdOn,
+                        activatedOn: zone.activatedOn
+                    )
+                    allZones[index] = updated
+                    state = .loaded(allZones)
+                    NotificationCenter.default.post(name: .zoneUpdated, object: updated)
+                }
+                GentleBannerManager.shared.show(
+                    type: .warning,
+                    title: "Cloudflare Paused",
+                    message: "Domain status synchronized with Cloudflare"
+                )
+                return
+            } else if errString.contains("not paused") {
+                if let index = allZones.firstIndex(where: { $0.id == zone.id }) {
+                    let updated = Zone(
+                        account: zone.account,
+                        id: zone.id,
+                        name: zone.name,
+                        status: zone.status,
+                        paused: false,
+                        type: zone.type,
+                        plan: zone.plan,
+                        developmentMode: zone.developmentMode,
+                        nameServers: zone.nameServers,
+                        originalNameServers: zone.originalNameServers,
+                        originalRegistrar: zone.originalRegistrar,
+                        originalDnshost: zone.originalDnshost,
+                        modifiedOn: zone.modifiedOn,
+                        createdOn: zone.createdOn,
+                        activatedOn: zone.activatedOn
+                    )
+                    allZones[index] = updated
+                    state = .loaded(allZones)
+                    NotificationCenter.default.post(name: .zoneUpdated, object: updated)
+                }
+                GentleBannerManager.shared.show(
+                    type: .success,
+                    title: "Cloudflare Resumed",
+                    message: "Domain status synchronized with Cloudflare"
+                )
+                return
+            }
+
             let humaneMessage = resolveHumaneErrorMessage(for: error)
             GentleBannerManager.shared.show(
                 type: .warning,
@@ -233,6 +296,19 @@ final class ZonesListViewModel: ObservableObject {
             .sink { [weak self] _ in
                 Task { [weak self] in
                     await self?.loadZones()
+                }
+            }
+            .store(in: &cancellables)
+    }
+
+    private func setupZoneUpdateListener() {
+        NotificationCenter.default
+            .publisher(for: .zoneUpdated)
+            .sink { [weak self] notification in
+                guard let self, let updated = notification.object as? Zone else { return }
+                if let index = self.allZones.firstIndex(where: { $0.id == updated.id }) {
+                    self.allZones[index] = updated
+                    self.state = .loaded(self.allZones)
                 }
             }
             .store(in: &cancellables)

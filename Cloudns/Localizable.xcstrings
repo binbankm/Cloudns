@@ -132,7 +132,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld 条记录"
+            "value": "%lld 条解析记录"
           }
         }
       }
@@ -273,6 +273,23 @@
         }
       }
     },
+    "24h Traffic Insights": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "24h Traffic Insights"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "24 小时流量洞察"
+          }
+        }
+      }
+    },
     "30 mins": {
       "extractionState": "manual",
       "localizations": {
@@ -388,6 +405,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "需要关注处理"
+          }
+        }
+      }
+    },
+    "Activation Check Error": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activation Check Error"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "检测生效状态失败"
+          }
+        }
+      }
+    },
+    "Activation Check Queued": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activation Check Queued"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "域名生效状态检测已排队"
           }
         }
       }
@@ -528,6 +579,23 @@
         }
       }
     },
+    "All cached assets are being purged globally": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All cached assets are being purged globally"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全球边缘节点正在清除所有已缓存资产"
+          }
+        }
+      }
+    },
     "All Systems Normal": {
       "extractionState": "manual",
       "localizations": {
@@ -558,6 +626,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "请输入不含协议和路径的根域名（例如 example.com）"
+          }
+        }
+      }
+    },
+    "Are you sure you want to delete %@? DNS routing will stop immediately and cannot be undone.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Are you sure you want to delete %@? DNS routing will stop immediately and cannot be undone."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "确定要彻底删除 %@ 吗？DNS 路由将立即终止且无法撤销。"
           }
         }
       }
@@ -647,6 +732,23 @@
         }
       }
     },
+    "Brotli • HTTP/3": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brotli • HTTP/3"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brotli • HTTP/3"
+          }
+        }
+      }
+    },
     "Business": {
       "extractionState": "manual",
       "localizations": {
@@ -677,6 +779,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "取消"
+          }
+        }
+      }
+    },
+    "Check NS": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check NS"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "检测 NS"
+          }
+        }
+      }
+    },
+    "Check Rate Limited": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check Rate Limited"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "检测过于频繁"
           }
         }
       }
@@ -715,6 +851,23 @@
         }
       }
     },
+    "Cloudflare acceleration and security active": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare acceleration and security active"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare 边缘加速与安全防护已全面恢复"
+          }
+        }
+      }
+    },
     "Cloudflare account ID not found": {
       "extractionState": "manual",
       "localizations": {
@@ -745,6 +898,57 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cloudflare 控制台"
+          }
+        }
+      }
+    },
+    "Cloudflare is querying nameservers across global nodes": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare is querying nameservers across global nodes"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare 正在全球节点递归检测权威名称服务器"
+          }
+        }
+      }
+    },
+    "Cloudflare Paused": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Paused"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare 代理已暂停"
+          }
+        }
+      }
+    },
+    "Cloudflare Resumed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Resumed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare 代理已恢复"
           }
         }
       }
@@ -953,6 +1157,23 @@
         }
       }
     },
+    "Delete Domain from Cloudflare": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete Domain from Cloudflare"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从 Cloudflare 移除此域名"
+          }
+        }
+      }
+    },
     "Delete Failed": {
       "extractionState": "manual",
       "localizations": {
@@ -983,6 +1204,57 @@
           "stringUnit": {
             "state": "translated",
             "value": "删除记录"
+          }
+        }
+      }
+    },
+    "Dev Mode": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dev Mode"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开发模式"
+          }
+        }
+      }
+    },
+    "Development Mode Disabled": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Development Mode Disabled"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开发模式已关闭"
+          }
+        }
+      }
+    },
+    "Development Mode Enabled": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Development Mode Enabled"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开发模式已开启"
           }
         }
       }
@@ -1038,6 +1310,23 @@
         }
       }
     },
+    "DNS Records & DNSSEC": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DNS Records & DNSSEC"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DNS 解析与 DNSSEC"
+          }
+        }
+      }
+    },
     "DNS resolution failed · Invalid request host": {
       "extractionState": "manual",
       "localizations": {
@@ -1072,6 +1361,40 @@
         }
       }
     },
+    "Domain Analytics": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Domain Analytics"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "域名分析洞察"
+          }
+        }
+      }
+    },
+    "Domain Analytics Coming in Step 8": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Domain Analytics Coming in Step 8"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "域名分析功能即将上线"
+          }
+        }
+      }
+    },
     "Domain configuration was deleted from Cloudflare.": {
       "extractionState": "manual",
       "localizations": {
@@ -1085,6 +1408,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "该域名配置已从 Cloudflare 删除。"
+          }
+        }
+      }
+    },
+    "Domain Deleted": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Domain Deleted"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "域名已成功移除"
+          }
+        }
+      }
+    },
+    "Domain is locked against transfers": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Domain is locked against transfers"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "域名已被锁定，防止跨账号未授权转移与抢占"
           }
         }
       }
@@ -1136,6 +1493,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "域名已移除"
+          }
+        }
+      }
+    },
+    "Domain removed from your Cloudflare account": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Domain removed from your Cloudflare account"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "域名已彻底从您的 Cloudflare 账户解绑"
           }
         }
       }
@@ -1225,6 +1599,40 @@
         }
       }
     },
+    "Edge cache will be bypassed for 3 hours": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edge cache will be bypassed for 3 hours"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "边缘节点缓存将临时绕过 3 小时"
+          }
+        }
+      }
+    },
+    "Edge caching resumed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edge caching resumed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "边缘节点已恢复标准缓存机制"
+          }
+        }
+      }
+    },
     "Edit Record": {
       "extractionState": "manual",
       "localizations": {
@@ -1255,6 +1663,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "邮箱地址"
+          }
+        }
+      }
+    },
+    "Email Routing": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Email Routing"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "邮件路由转发"
+          }
+        }
+      }
+    },
+    "Email Routing Coming in Step 7": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Email Routing Coming in Step 7"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "电子邮件路由功能即将上线"
           }
         }
       }
@@ -1310,6 +1752,40 @@
         }
       }
     },
+    "Extra verification challenges active": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Extra verification challenges active"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已针对所有访客启用额外人机验证质询"
+          }
+        }
+      }
+    },
+    "Failed to Pause Zone": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to Pause Zone"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂停代理失败"
+          }
+        }
+      }
+    },
     "Failed to Remove Domain": {
       "extractionState": "manual",
       "localizations": {
@@ -1323,6 +1799,74 @@
           "stringUnit": {
             "state": "translated",
             "value": "删除域名失败"
+          }
+        }
+      }
+    },
+    "Failed to Update Development Mode": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to Update Development Mode"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新开发模式失败"
+          }
+        }
+      }
+    },
+    "Failed to Update Security": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to Update Security"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新安全设置失败"
+          }
+        }
+      }
+    },
+    "Failed to Update Zone Hold": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to Update Zone Hold"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新防盗转保护锁失败"
+          }
+        }
+      }
+    },
+    "Forwarding Rules": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forwarding Rules"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "转发规则"
           }
         }
       }
@@ -1356,7 +1900,24 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "全功能模式"
+            "value": "完全加密 (Full)"
+          }
+        }
+      }
+    },
+    "Full (Strict)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full (Strict)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "严格加密 (Strict)"
           }
         }
       }
@@ -1565,6 +2126,23 @@
         }
       }
     },
+    "Lock domain against unauthorized transfers": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lock domain against unauthorized transfers"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "防止域名在未授权的情况下被转移或抢占"
+          }
+        }
+      }
+    },
     "Moved": {
       "extractionState": "manual",
       "localizations": {
@@ -1612,6 +2190,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "name@example.com"
+          }
+        }
+      }
+    },
+    "Nameservers Copied": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nameservers Copied"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nameservers 已复制"
           }
         }
       }
@@ -1867,6 +2462,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "无匹配记录"
+          }
+        }
+      }
+    },
+    "No Nameservers Assigned": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Nameservers Assigned"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未分配名称服务器"
           }
         }
       }
@@ -2177,6 +2789,23 @@
         }
       }
     },
+    "Please wait a few minutes before checking again": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please wait a few minutes before checking again"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请稍候几分钟后再尝试重新检测"
+          }
+        }
+      }
+    },
     "Priority": {
       "extractionState": "manual",
       "localizations": {
@@ -2262,6 +2891,40 @@
         }
       }
     },
+    "Proxy Disabled": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Proxy Disabled"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "代理已关闭"
+          }
+        }
+      }
+    },
+    "Proxy Enabled": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Proxy Enabled"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "代理已开启"
+          }
+        }
+      }
+    },
     "Proxy Status": {
       "extractionState": "manual",
       "localizations": {
@@ -2275,6 +2938,91 @@
           "stringUnit": {
             "state": "translated",
             "value": "代理状态"
+          }
+        }
+      }
+    },
+    "Purge Cache": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Purge Cache"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清除缓存"
+          }
+        }
+      }
+    },
+    "Purge Cache Failed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Purge Cache Failed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清除缓存失败"
+          }
+        }
+      }
+    },
+    "Purge Everything": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Purge Everything"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清除全部缓存"
+          }
+        }
+      }
+    },
+    "Purge Initiated": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Purge Initiated"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "缓存清除请求已发送"
+          }
+        }
+      }
+    },
+    "Purging cache will force Cloudflare to fetch all assets from your origin server. This may temporarily increase server load.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Purging cache will force Cloudflare to fetch all assets from your origin server. This may temporarily increase server load."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清除全部缓存将强制 Cloudflare 从源站重新拉取资产，可能暂时增加源站负载。"
           }
         }
       }
@@ -2343,6 +3091,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "记录已删除"
+          }
+        }
+      }
+    },
+    "Redirects & Pools": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Redirects & Pools"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重定向与服务器池"
           }
         }
       }
@@ -2466,6 +3231,40 @@
         }
       }
     },
+    "Route traffic directly to origin for troubleshooting": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Route traffic directly to origin for troubleshooting"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "直连源站服务器以便排查故障"
+          }
+        }
+      }
+    },
+    "Rules & Load Balancing": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rules & Load Balancing"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "流量规则与负载均衡"
+          }
+        }
+      }
+    },
     "Save Changes": {
       "extractionState": "manual",
       "localizations": {
@@ -2585,6 +3384,57 @@
         }
       }
     },
+    "Security & WAF Coming in Step 4": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Security & WAF Coming in Step 4"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "安全防护与 WAF 功能即将上线"
+          }
+        }
+      }
+    },
+    "Security & WAF Protection": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Security & WAF Protection"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "安全防护与 WAF"
+          }
+        }
+      }
+    },
+    "Security level restored to normal": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Security level restored to normal"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "安全防护等级已恢复为正常水平"
+          }
+        }
+      }
+    },
     "Show credential": {
       "extractionState": "manual",
       "localizations": {
@@ -2632,6 +3482,74 @@
           "stringUnit": {
             "state": "translated",
             "value": "出错了"
+          }
+        }
+      }
+    },
+    "Speed & Optimization Coming in Step 5": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speed & Optimization Coming in Step 5"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "速度优化与网络功能即将上线"
+          }
+        }
+      }
+    },
+    "Speed, Caching & Network": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speed, Caching & Network"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "速度、缓存与网络"
+          }
+        }
+      }
+    },
+    "SSL / TLS Encryption": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SSL / TLS Encryption"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SSL / TLS 加密"
+          }
+        }
+      }
+    },
+    "SSL / TLS Settings Coming in Step 3": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SSL / TLS Settings Coming in Step 3"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SSL / TLS 加密设置即将上线"
           }
         }
       }
@@ -2738,6 +3656,91 @@
         }
       }
     },
+    "Traffic routed through Cloudflare": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traffic routed through Cloudflare"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "流量经 Cloudflare 转发"
+          }
+        }
+      }
+    },
+    "Traffic routes directly to origin": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traffic routes directly to origin"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "流量直接解析至源站"
+          }
+        }
+      }
+    },
+    "Traffic routes directly to origin server": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traffic routes directly to origin server"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "流量将直接解析至源站服务器"
+          }
+        }
+      }
+    },
+    "Traffic Rules Coming in Step 6": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traffic Rules Coming in Step 6"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "流量规则与负载均衡即将上线"
+          }
+        }
+      }
+    },
+    "Transfer protection unlocked": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transfer protection unlocked"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "转移保护已解锁"
+          }
+        }
+      }
+    },
     "TTL": {
       "extractionState": "manual",
       "localizations": {
@@ -2840,6 +3843,57 @@
         }
       }
     },
+    "Under Attack": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Under Attack"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "五秒盾"
+          }
+        }
+      }
+    },
+    "Under Attack Mode Disabled": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Under Attack Mode Disabled"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "五秒盾防御已关闭"
+          }
+        }
+      }
+    },
+    "Under Attack Mode Enabled": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Under Attack Mode Enabled"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "五秒盾防御已开启"
+          }
+        }
+      }
+    },
     "Use @ for root domain, or enter subdomain (e.g. api)": {
       "extractionState": "manual",
       "localizations": {
@@ -2891,70 +3945,1633 @@
         }
       }
     },
-    "Proxy Enabled": {
+    "Zone Hold Disabled": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Proxy Enabled"
+            "value": "Zone Hold Disabled"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "代理已开启"
+            "value": "域名防盗转保护锁已关闭"
           }
         }
       }
     },
-    "Proxy Disabled": {
+    "Zone Hold Enabled": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Proxy Disabled"
+            "value": "Zone Hold Enabled"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "代理已关闭"
+            "value": "域名防盗转保护锁已启用"
           }
         }
       }
     },
-    "Traffic routed through Cloudflare": {
+    "Zone Hold Protection": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Traffic routed through Cloudflare"
+            "value": "Zone Hold Protection"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "流量经 Cloudflare 转发"
+            "value": "域名防盗转保护锁"
           }
         }
       }
     },
-    "Traffic routes directly to origin": {
+    "Zone ID Copied": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Traffic routes directly to origin"
+            "value": "Zone ID Copied"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "流量直接解析至源站"
+            "value": "Zone ID 已复制"
+          }
+        }
+      }
+    },
+    "DNSSEC": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DNSSEC"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DNSSEC 保护"
+          }
+        }
+      }
+    },
+    "DNSSEC Protection": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DNSSEC Protection"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DNSSEC 域名保护"
+          }
+        }
+      }
+    },
+    "DNSSEC Status": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DNSSEC Status"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DNSSEC 状态"
+          }
+        }
+      }
+    },
+    "Checking DNSSEC status...": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checking DNSSEC status..."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在检查 DNSSEC 状态..."
+          }
+        }
+      }
+    },
+    "DNSSEC Unavailable": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DNSSEC Unavailable"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DNSSEC 信息不可用"
+          }
+        }
+      }
+    },
+    "DNSSEC details could not be retrieved for this zone.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DNSSEC details could not be retrieved for this zone."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法获取该域名的 DNSSEC 详细信息。"
+          }
+        }
+      }
+    },
+    "Domain is cryptographically protected against spoofing.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Domain is cryptographically protected against spoofing."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "域名已受密码学签名保护，防止 DNS 劫持。"
+          }
+        }
+      }
+    },
+    "Waiting for DS record configuration at registrar.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for DS record configuration at registrar."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "等待在域名注册商处配置 DS 记录。"
+          }
+        }
+      }
+    },
+    "DNS responses are currently unsigned.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DNS responses are currently unsigned."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前 DNS 响应未经过数字签名。"
+          }
+        }
+      }
+    },
+    "DS Record Details": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DS Record Details"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DS 记录详情"
+          }
+        }
+      }
+    },
+    "DS Record": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DS Record"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DS 记录"
+          }
+        }
+      }
+    },
+    "Key Tag": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Key Tag"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "密钥标签 (Key Tag)"
+          }
+        }
+      }
+    },
+    "Algorithm": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Algorithm"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "算法 (Algorithm)"
+          }
+        }
+      }
+    },
+    "Digest Type": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Digest Type"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "摘要类型 (Digest Type)"
+          }
+        }
+      }
+    },
+    "Digest": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Digest"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "摘要 (Digest)"
+          }
+        }
+      }
+    },
+    "Public Key": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Public Key"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "公钥 (Public Key)"
+          }
+        }
+      }
+    },
+    "Copied": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copied"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已复制"
+          }
+        }
+      }
+    },
+    "Copy": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "复制"
+          }
+        }
+      }
+    },
+    "Registrar Setup": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registrar Setup"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "注册商配置指引"
+          }
+        }
+      }
+    },
+    "Copy the DS record parameters above to your domain registrar to finish DNSSEC validation.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy the DS record parameters above to your domain registrar to finish DNSSEC validation."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "复制上方 DS 记录参数并填入您的域名注册商 DNSSEC 设置页，以完成校验。"
+          }
+        }
+      }
+    },
+    "Cryptographic Protection": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cryptographic Protection"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "密码学真实性保护"
+          }
+        }
+      }
+    },
+    "DNSSEC validates that responses to DNS queries are authentic and originate from your authoritative server.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DNSSEC validates that responses to DNS queries are authentic and originate from your authoritative server."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DNSSEC 确保 DNS 查询结果真实可靠且来自权威解析服务器，防范缓存投毒与劫持。"
+          }
+        }
+      }
+    },
+    "Enable DNSSEC": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable DNSSEC"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "启用 DNSSEC"
+          }
+        }
+      }
+    },
+    "Disable DNSSEC": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disable DNSSEC"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "停用 DNSSEC"
+          }
+        }
+      }
+    },
+    "DNSSEC Enabled": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DNSSEC Enabled"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DNSSEC 已启用"
+          }
+        }
+      }
+    },
+    "DNSSEC Disabled": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DNSSEC Disabled"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DNSSEC 已停用"
+          }
+        }
+      }
+    },
+    "DNSSEC cryptographic signatures have been activated for this zone.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DNSSEC cryptographic signatures have been activated for this zone."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "该域名的 DNSSEC 数字签名已成功激活。"
+          }
+        }
+      }
+    },
+    "DNSSEC validation has been turned off.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DNSSEC validation has been turned off."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DNSSEC 校验已关闭。"
+          }
+        }
+      }
+    },
+    "Failed to Enable DNSSEC": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to Enable DNSSEC"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "启用 DNSSEC 失败"
+          }
+        }
+      }
+    },
+    "Failed to Disable DNSSEC": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to Disable DNSSEC"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "停用 DNSSEC 失败"
+          }
+        }
+      }
+    },
+    "Disabling DNSSEC will immediately stop cryptographic signing. Ensure you remove the DS record from your registrar first.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disabling DNSSEC will immediately stop cryptographic signing. Ensure you remove the DS record from your registrar first."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "停用 DNSSEC 将立即终止签名。请确保已先在域名注册商处删除 DS 记录，否则可能导致解析异常。"
+          }
+        }
+      }
+    },
+    "Scan Common Records": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scan Common Records"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自动扫描常见记录"
+          }
+        }
+      }
+    },
+    "Scanning DNS Records": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scanning DNS Records"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在扫描 DNS 记录"
+          }
+        }
+      }
+    },
+    "Automated scan initiated. Cloudflare is querying common hostnames.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automated scan initiated. Cloudflare is querying common hostnames."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已发起自动扫描，Cloudflare 正在探测常用主机记录。"
+          }
+        }
+      }
+    },
+    "Export BIND Zone": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export BIND Zone"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "导出 BIND 区域文件"
+          }
+        }
+      }
+    },
+    "Exporting DNS Zone": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exporting DNS Zone"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在导出 DNS 区域"
+          }
+        }
+      }
+    },
+    "Zone file exported successfully.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zone file exported successfully."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DNS 区域文件导出成功。"
+          }
+        }
+      }
+    },
+    "Failed to Export Zone": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to Export Zone"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "导出区域文件失败"
+          }
+        }
+      }
+    },
+    "Off": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Off"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已关闭"
+          }
+        }
+      }
+    },
+    "Flexible": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flexible"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "灵活模式 (Flexible)"
+          }
+        }
+      }
+    },
+    "Essentially Off": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Essentially Off"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "基本关闭 (Off)"
+          }
+        }
+      }
+    },
+    "Low": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Low"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "低防护 (Low)"
+          }
+        }
+      }
+    },
+    "Medium": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Medium"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "中等防护 (Medium)"
+          }
+        }
+      }
+    },
+    "High": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "High"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "高防护 (High)"
+          }
+        }
+      }
+    },
+    "I'm Under Attack": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I'm Under Attack"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "五秒盾防护中"
+          }
+        }
+      }
+    },
+    "Development Mode": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Development Mode"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开发模式"
+          }
+        }
+      }
+    },
+    "1 Records": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 Record"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 条解析记录"
+          }
+        }
+      }
+    },
+    "Authoritative DNS Active": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Authoritative DNS Active"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "权威解析正常生效 · DNSSEC 状态监控"
+          }
+        }
+      }
+    },
+    "%lld DNS Records · Authoritative Active": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld DNS Records · Authoritative Active"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 条解析记录 · 权威解析正常生效"
+          }
+        }
+      }
+    },
+    "1 DNS Record · Authoritative Active": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 DNS Record · Authoritative Active"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 条解析记录 · 权威解析正常生效"
+          }
+        }
+      }
+    },
+    "Strict (End-to-End) · Edge Cert Active": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strict (End-to-End) · Edge Cert Active"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "严格端到端加密 · 边缘证书已就绪"
+          }
+        }
+      }
+    },
+    "Full Encryption · Origin Cert Verified": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full Encryption · Origin Cert Verified"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完全加密 · 允许自签名源站证书"
+          }
+        }
+      }
+    },
+    "Flexible · Browser to CF Encrypted": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flexible · Browser to CF Encrypted"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "灵活加密 · 仅客户端到节点加密 (源站 HTTP)"
+          }
+        }
+      }
+    },
+    "Encryption Disabled · Plaintext HTTP Only": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encryption Disabled · Plaintext HTTP Only"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未开启加密 · 仅明文 HTTP 传输"
+          }
+        }
+      }
+    },
+    "Medium Level · Bot & Threat Shield Active": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Medium Level · Bot & Threat Shield Active"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "中等防护 · 过滤已知恶意威胁与爬虫"
+          }
+        }
+      }
+    },
+    "High Level · Suspicious Visitors Challenged": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "High Level · Suspicious Visitors Challenged"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "高防护 · 对疑似风险访客执行质询验证"
+          }
+        }
+      }
+    },
+    "Under Attack · Global JS Challenge Enforced": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Under Attack · Global JS Challenge Enforced"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "五秒盾生效中 · 全网强制人机验证"
+          }
+        }
+      }
+    },
+    "Low Level · Only Severe Threats Blocked": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Low Level · Only Severe Threats Blocked"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "低防护 · 仅拦截极高危攻击"
+          }
+        }
+      }
+    },
+    "Essentially Off · Basic Protection Only": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Essentially Off · Basic Protection Only"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "基本关闭 · 仅保留最基础安全检查"
+          }
+        }
+      }
+    },
+    "Brotli, HTTP/3 (QUIC) & Edge Caching Active": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brotli, HTTP/3 (QUIC) & Edge Caching Active"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brotli 压缩 · HTTP/3 (QUIC) · 边缘节点缓存加速"
+          }
+        }
+      }
+    },
+    "URL Redirects, Page Rules & Origin Pools": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "URL Redirects, Page Rules & Origin Pools"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "URL 重定向 · 页面规则 · 源站负载健康监测"
+          }
+        }
+      }
+    },
+    "Custom Domain Mailboxes & Instant Forwarding": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom Domain Mailboxes & Instant Forwarding"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "域名专属邮箱 · 零服务器无缝转发至个人收箱"
+          }
+        }
+      }
+    },
+    "24h Visitors, Bandwidth & Threat Telemetry": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "24h Visitors, Bandwidth & Threat Telemetry"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "24 小时独立访客、请求带宽与威胁拦截洞察"
+          }
+        }
+      }
+    },
+    "Full Zone (Authoritative)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full Zone (Authoritative)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全功能解析模式 (Full DNS)"
+          }
+        }
+      }
+    },
+    "CNAME Setup (Partial)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CNAME Setup (Partial)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "接入模式 (CNAME Setup)"
+          }
+        }
+      }
+    },
+    "Cloudflare Free Plan": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Free Plan"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare 免费版"
+          }
+        }
+      }
+    },
+    "Cloudflare Pro Plan": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Pro Plan"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare 专业版"
+          }
+        }
+      }
+    },
+    "Cloudflare Business Plan": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Business Plan"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare 商业版"
+          }
+        }
+      }
+    },
+    "Cloudflare Enterprise Plan": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Enterprise Plan"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare 企业版"
+          }
+        }
+      }
+    },
+    "1 Record": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 Record"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 条解析记录"
+          }
+        }
+      }
+    },
+    "DNS Active": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DNS Active"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DNS 解析正常"
+          }
+        }
+      }
+    },
+    "Medium Security": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Medium Security"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "中等防护 (Medium)"
+          }
+        }
+      }
+    },
+    "High Security": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "High Security"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "高防护 (High)"
+          }
+        }
+      }
+    },
+    "Low Security": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Low Security"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "低防护 (Low)"
+          }
+        }
+      }
+    },
+    "Brotli · HTTP/3 · Edge Cache": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brotli · HTTP/3 · Edge Cache"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brotli · HTTP/3 · 边缘缓存"
+          }
+        }
+      }
+    },
+    "Redirects, Rules & Pools": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Redirects, Rules & Pools"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重定向 · 页面规则 · 负载池"
+          }
+        }
+      }
+    },
+    "Custom Routing & Forwarding": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom Routing & Forwarding"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "域名路由 · 邮件转发"
+          }
+        }
+      }
+    },
+    "24h Traffic, Requests & Threats": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "24h Traffic, Requests & Threats"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "24 小时流量 · 请求与威胁"
+          }
+        }
+      }
+    },
+    "Instant": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instant"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "即时清理"
+          }
+        }
+      }
+    },
+    "Nameserver Copied": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nameserver Copied"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "名称服务器已复制"
+          }
+        }
+      }
+    },
+    "Pending nameserver verification": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pending nameserver verification"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "等待名称服务器生效验证"
+          }
+        }
+      }
+    },
+    "Manage records, proxy routing & DNSSEC signing": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manage records, proxy routing & DNSSEC signing"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "解析记录管理、代理路由与 DNSSEC 签名"
+          }
+        }
+      }
+    },
+    "Edge & origin encryption modes and certificates": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edge & origin encryption modes and certificates"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "边缘与源站加密模式及证书安全配置"
+          }
+        }
+      }
+    },
+    "Firewall rules, bot fighting & threat defense": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Firewall rules, bot fighting & threat defense"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "防火墙规则、防爬虫与安全威胁防护"
+          }
+        }
+      }
+    },
+    "Cache optimization, Brotli compression & HTTP/3": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cache optimization, Brotli compression & HTTP/3"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "缓存优化、Brotli 压缩与 HTTP/3 网络加速"
+          }
+        }
+      }
+    },
+    "Page rules, URL redirects & load balancing pools": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Page rules, URL redirects & load balancing pools"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "页面规则、URL 重定向与多源站负载均衡"
+          }
+        }
+      }
+    },
+    "Custom domain addresses & seamless forwarding": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom domain addresses & seamless forwarding"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自定义域名邮箱创建与邮件转发管理"
+          }
+        }
+      }
+    },
+    "Real-time traffic, request telemetry & security insights": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Real-time traffic, request telemetry & security insights"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "实时流量统计、请求分析与安全威胁洞察"
+          }
+        }
+      }
+    },
+    "Domain status synchronized with Cloudflare": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Domain status synchronized with Cloudflare"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "域名状态已与 Cloudflare 保持同步"
+          }
+        }
+      }
+    },
+    "Domain is already paused on Cloudflare.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Domain is already paused on Cloudflare."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "该域名在 Cloudflare 上已经是暂停状态"
+          }
+        }
+      }
+    },
+    "Enterprise Feature": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "企业版专属功能"
+          }
+        }
+      }
+    },
+    "Zone Hold protection is exclusively available on Cloudflare Enterprise plans": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "域名防盗转保护锁仅限 Cloudflare 企业版 (Enterprise) 域名使用"
+          }
+        }
+      }
+    },
+    "Zone Hold is only available on Cloudflare Enterprise plans": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "防盗转保护锁仅限 Cloudflare 企业版 (Enterprise) 计划使用"
           }
         }
       }

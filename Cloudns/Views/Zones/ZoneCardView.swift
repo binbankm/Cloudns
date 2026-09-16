@@ -47,27 +47,11 @@ struct ZoneCardView: View {
         HStack(alignment: .center, spacing: GentleSpacing.sm) {
             GentleDomainAvatar(domain: zone.name, size: .medium)
 
-            VStack(alignment: .leading, spacing: GentleSpacing.micro) {
-                Text(zone.name)
-                    .font(GentleTypography.cardTitle)
-                    .foregroundStyle(GentleColor.textPrimary)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
-
-                HStack(spacing: GentleSpacing.xs) {
-                    Text(LocalizedStringKey(zone.plan?.displayName ?? "Free"))
-                        .font(GentleTypography.caption)
-                        .foregroundStyle(GentleColor.accent)
-
-                    Text(verbatim: "•")
-                        .font(GentleTypography.caption)
-                        .foregroundStyle(GentleColor.textSecondary.opacity(0.5))
-
-                    Text(LocalizedStringKey(zone.type?.capitalized ?? "Full"))
-                        .font(GentleTypography.caption)
-                        .foregroundStyle(GentleColor.textSecondary)
-                }
-            }
+            Text(zone.name)
+                .font(GentleTypography.cardTitle)
+                .foregroundStyle(GentleColor.textPrimary)
+                .lineLimit(1)
+                .truncationMode(.tail)
 
             Spacer(minLength: GentleSpacing.xs)
 

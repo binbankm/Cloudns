@@ -143,7 +143,7 @@ struct ZonesListView: View {
                 LazyVStack(spacing: GentleSpacing.md) {
                     ForEach(viewModel.filteredZones) { zone in
                         NavigationLink {
-                            DNSRecordsView(zone: zone)
+                            ZoneDetailView(zone: zone)
                         } label: {
                             ZoneCardView(
                                 zone: zone,
@@ -217,15 +217,9 @@ struct ZonesListView: View {
                             .fill(GentleColor.cardSurfaceSecondary)
                             .frame(width: 38, height: 38)
 
-                        VStack(alignment: .leading, spacing: GentleSpacing.xs) {
-                            RoundedRectangle(cornerRadius: GentleCornerRadius.xs, style: .continuous)
-                                .fill(GentleColor.cardSurfaceSecondary)
-                                .frame(width: 140, height: 18)
-
-                            RoundedRectangle(cornerRadius: GentleCornerRadius.micro, style: .continuous)
-                                .fill(GentleColor.cardSurfaceSecondary.opacity(0.6))
-                                .frame(width: 70, height: 12)
-                        }
+                        RoundedRectangle(cornerRadius: GentleCornerRadius.xs, style: .continuous)
+                            .fill(GentleColor.cardSurfaceSecondary)
+                            .frame(width: 140, height: 18)
 
                         Spacer()
 

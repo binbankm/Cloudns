@@ -48,4 +48,15 @@ public enum GentleSpacing {
 
     /// Page horizontal outer margins: 16pt
     public static let pageHorizontal: CGFloat = 16
+
+    // MARK: - Icon Container Dimensions
+
+    /// Compact icon container dimension: 28pt
+    public static let iconSmall: CGFloat = 28
+
+    /// Standard card tile icon container dimension: 36pt
+    public static let iconMedium: CGFloat = 36
+
+    /// Large hero icon container dimension: 40pt
+    public static let iconLarge: CGFloat = 40
 }

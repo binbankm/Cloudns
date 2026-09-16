@@ -74,6 +74,11 @@ public enum GentleTypography {
         .system(.caption, design: .rounded)
     }
 
+    /// Caption medium emphasis (12pt rounded medium)
+    public static var captionMedium: Font {
+        .system(.caption, design: .rounded).weight(.medium)
+    }
+
     /// Caption small / secondary (11pt rounded semibold)
     public static var captionSmall: Font {
         .system(.caption2, design: .rounded).weight(.semibold)

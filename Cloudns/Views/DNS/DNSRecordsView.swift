@@ -131,13 +131,13 @@ struct DNSRecordsView: View {
                             Text(filter.rawValue)
                                 .font(isSelected ? GentleTypography.subheadlineBold : GentleTypography.subheadline)
                                 .padding(.horizontal, GentleSpacing.sm)
-                                .padding(.vertical, 7)
+                                .padding(.vertical, GentleSpacing.xs)
                                 .foregroundStyle(isSelected ? GentleColor.accent : GentleColor.textSecondary)
                                 .background(
                                     RoundedRectangle(cornerRadius: GentleCornerRadius.md, style: .continuous)
                                         .fill(isSelected ? GentleColor.cardSurface : GentleColor.cardSurfaceSecondary)
-                                        .shadow(color: isSelected ? Color.black.opacity(0.04) : Color.clear, radius: 4, x: 0, y: 2)
                                 )
+                                .gentleSubtleShadow(isEnabled: isSelected)
                         }
                         .buttonStyle(.plain)
                     }

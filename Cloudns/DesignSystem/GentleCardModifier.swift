@@ -174,6 +174,16 @@ public extension View {
         gentleCard(variant: variant, cornerRadius: cornerRadius, padding: padding)
     }
 
+    /// Applies subtle gentle ambient shadow
+    func gentleSubtleShadow(isEnabled: Bool = true) -> some View {
+        shadow(color: isEnabled ? Color.black.opacity(0.035) : Color.clear, radius: 6, x: 0, y: 2)
+    }
+
+    /// Applies standard gentle card elevation shadow
+    func gentleCardShadow(isEnabled: Bool = true) -> some View {
+        shadow(color: isEnabled ? Color.black.opacity(0.04) : Color.clear, radius: 10, x: 0, y: 3)
+    }
+
     /// Sets the ultra-gentle oat-milk canvas background with interactive tap dismissal
     func gentleCanvas() -> some View {
         background(

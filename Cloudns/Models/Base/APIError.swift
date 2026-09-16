@@ -171,6 +171,8 @@ enum APIError: Error, LocalizedError, Sendable {
             String(localized: "DNS resolution failed · Invalid request host")
         case 10001:
             String(localized: "Rate limit exceeded · Please slow down requests")
+        case 1005:
+            String(localized: "Zone Hold is only available on Cloudflare Enterprise plans")
         default:
             "\(rawMessage) (Code \(code))"
         }

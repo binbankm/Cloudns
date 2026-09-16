@@ -5,6 +5,7 @@ import Foundation
 
 public extension Notification.Name {
     static let accountSwitched = Notification.Name("com.cloudns.accountSwitched")
+    static let zoneUpdated = Notification.Name("com.cloudns.zoneUpdated")
 }
 
 // MARK: - Account Manager

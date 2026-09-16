@@ -154,15 +154,19 @@ public struct GentleBannerView: View {
                     Text(LocalizedStringKey(data.title))
                         .font(GentleTypography.footnoteSemibold)
                         .foregroundStyle(GentleColor.textPrimary)
+                        .lineLimit(1)
 
                     Text(LocalizedStringKey(message))
                         .font(GentleTypography.captionSmall)
                         .foregroundStyle(GentleColor.textSecondary)
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
             } else {
                 Text(LocalizedStringKey(data.title))
                     .font(GentleTypography.footnoteSemibold)
                     .foregroundStyle(GentleColor.textPrimary)
+                    .lineLimit(1)
             }
         }
         .padding(.horizontal, GentleSpacing.md)
@@ -182,7 +186,7 @@ public struct GentleBannerView: View {
                 )
         )
         .shadow(color: Color.black.opacity(0.09), radius: 14, x: 0, y: 5)
-        .fixedSize(horizontal: true, vertical: false)
+        .frame(maxWidth: min(UIScreen.main.bounds.width - GentleSpacing.xl * 2, 380))
         .contentShape(Capsule())
         .onTapGesture {
             GentleHaptics.light()
@@ -218,6 +222,7 @@ public struct GentleBannerOverlayModifier: ViewModifier {
                 ))
                 .zIndex(999)
                 .padding(.top, GentleSpacing.xs)
+                .padding(.horizontal, GentleSpacing.md)
             }
         }
         .animation(GentleAnimation.spring, value: manager.currentBanner)
