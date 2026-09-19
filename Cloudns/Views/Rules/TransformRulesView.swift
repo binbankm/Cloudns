@@ -184,8 +184,11 @@ struct TransformRuleCardView: View {
                 Toggle(isOn: Binding(
                     get: { rule.enabled },
                     set: { _ in onToggle() }
-                )) {}
-                    .labelsHidden()
+                )) {
+                    Text(rule.description ?? "Unnamed Rule")
+                }
+                .labelsHidden()
+                .accessibilityLabel(rule.description ?? "Unnamed Rule")
             }
 
             Text(verbatim: rule.expression)

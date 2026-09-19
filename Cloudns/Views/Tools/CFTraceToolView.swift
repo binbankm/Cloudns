@@ -294,8 +294,11 @@ struct CFTraceToolView: View {
                     Image(systemName: "doc.on.doc")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel("Copy \(field.key)")
             }
             .contextMenu {
                 Button {

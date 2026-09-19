@@ -55,8 +55,11 @@ struct ZoneDetailView: View {
                                         .font(.caption2)
                                         .foregroundStyle(.tint)
                                 }
+                                .padding(.vertical, 4)
+                                .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
+                            .accessibilityLabel("Nameserver \(index + 1): \(ns), tap to copy")
                         } label: {
                             if nsArray.count > 1 {
                                 Text("Nameserver \(index + 1)")

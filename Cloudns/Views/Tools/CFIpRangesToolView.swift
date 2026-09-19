@@ -176,15 +176,19 @@ struct CFIpRangesToolView: View {
                 .navigationTitle("Firewall Allowlist Export")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button("Done") { showingExportSheet = false }
-                    }
-                    ToolbarItem(placement: .primaryAction) {
+                    ToolbarItem(placement: .topBarLeading) {
                         Button {
                             copyToClipboard(generateExportCode(), toast: "Rules Copied")
                         } label: {
                             Image(systemName: "doc.on.doc")
+                                .frame(width: 44, height: 44)
+                                .contentShape(Rectangle())
                         }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Copy Firewall Rules")
+                    }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Done") { showingExportSheet = false }
                     }
                 }
             }

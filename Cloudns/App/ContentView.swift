@@ -56,7 +56,15 @@ struct ContentView: View {
                             .foregroundStyle(.white)
                             .padding(.horizontal, 14)
                             .padding(.vertical, 6)
-                            .background(Capsule().fill(Color.orange.opacity(0.92)))
+                            .background(
+                                Capsule().fill(
+                                    Color(uiColor: UIColor { trait in
+                                        trait.userInterfaceStyle == .dark
+                                            ? UIColor(red: 0.92, green: 0.46, blue: 0.08, alpha: 0.95)
+                                            : UIColor(red: 0.76, green: 0.34, blue: 0.02, alpha: 0.98) // High-contrast deep amber for WCAG AA
+                                    })
+                                )
+                            )
                             .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 3)
                             .padding(.top, 4)
                             .transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity))
@@ -126,28 +134,28 @@ struct ContentView: View {
                 case .dig:
                     DNSDigToolView()
                         .toolbar {
-                            ToolbarItem(placement: .cancellationAction) {
+                            ToolbarItem(placement: .confirmationAction) {
                                 Button("Done") { router.activeDestination = nil }
                             }
                         }
                 case .trace:
                     CFTraceToolView()
                         .toolbar {
-                            ToolbarItem(placement: .cancellationAction) {
+                            ToolbarItem(placement: .confirmationAction) {
                                 Button("Done") { router.activeDestination = nil }
                             }
                         }
                 case .status:
                     CloudflareStatusView()
                         .toolbar {
-                            ToolbarItem(placement: .cancellationAction) {
+                            ToolbarItem(placement: .confirmationAction) {
                                 Button("Done") { router.activeDestination = nil }
                             }
                         }
                 case .ipranges:
                     CFIpRangesToolView()
                         .toolbar {
-                            ToolbarItem(placement: .cancellationAction) {
+                            ToolbarItem(placement: .confirmationAction) {
                                 Button("Done") { router.activeDestination = nil }
                             }
                         }

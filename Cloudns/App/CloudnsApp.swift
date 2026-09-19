@@ -14,17 +14,6 @@ struct CloudnsApp: App {
         let navBarAppearance = UINavigationBarAppearance()
         navBarAppearance.configureWithDefaultBackground()
 
-        let backButtonAppearance = UIBarButtonItemAppearance()
-        backButtonAppearance.normal.titleTextAttributes = [
-            .foregroundColor: UIColor.clear,
-            .font: UIFont.systemFont(ofSize: 0.1)
-        ]
-        backButtonAppearance.highlighted.titleTextAttributes = [
-            .foregroundColor: UIColor.clear,
-            .font: UIFont.systemFont(ofSize: 0.1)
-        ]
-        navBarAppearance.backButtonAppearance = backButtonAppearance
-
         UINavigationBar.appearance().standardAppearance = navBarAppearance
         UINavigationBar.appearance().compactAppearance = navBarAppearance
         UINavigationBar.appearance().scrollEdgeAppearance = navBarAppearance

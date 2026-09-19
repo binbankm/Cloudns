@@ -90,14 +90,14 @@ public final class ToastManager: ObservableObject {
     /// Presents error toast HUD with dynamic string message
     public func showError(_ message: String, icon: String = "exclamationmark.triangle.fill") {
         HapticManager.notification(.error)
-        let item = ToastItem(message: LocalizedStringKey(message), icon: icon, iconColor: .red, duration: 2.5)
+        let item = ToastItem(verbatimMessage: message, icon: icon, iconColor: .red, duration: 2.5)
         present(item)
     }
 
     /// Presents success toast HUD with dynamic string message
     public func showSuccess(_ message: String, icon: String = "checkmark.circle.fill") {
         HapticManager.notification(.success)
-        let item = ToastItem(message: LocalizedStringKey(message), icon: icon, iconColor: .green, duration: 2.0)
+        let item = ToastItem(verbatimMessage: message, icon: icon, iconColor: .green, duration: 2.0)
         present(item)
     }
 
@@ -111,6 +111,17 @@ public final class ToastManager: ObservableObject {
 
     private func present(_ toast: ToastItem) {
         dismissTask?.cancel()
+
+        // Apple HIG: Post VoiceOver accessibility announcement for transient status messages
+        switch toast.message {
+        case let .localized(key):
+            let mirror = Mirror(reflecting: key)
+            if let keyString = mirror.children.first(where: { $0.label == "key" })?.value as? String {
+                UIAccessibility.post(notification: .announcement, argument: NSLocalizedString(keyString, comment: ""))
+            }
+        case let .verbatim(text):
+            UIAccessibility.post(notification: .announcement, argument: text)
+        }
 
         withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
             self.currentToast = toast
@@ -149,20 +160,22 @@ public struct ToastOverlay: View {
                         Text(key)
                             .font(.subheadline.weight(.medium))
                             .foregroundStyle(.primary)
-                            .lineLimit(1)
+                            .lineLimit(3)
+                            .multilineTextAlignment(.leading)
                     case let .verbatim(text):
                         Text(verbatim: text)
                             .font(.subheadline.weight(.medium))
                             .foregroundStyle(.primary)
-                            .lineLimit(1)
+                            .lineLimit(3)
+                            .multilineTextAlignment(.leading)
                     }
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 10)
                 .background(.ultraThinMaterial)
-                .clipShape(Capsule())
+                .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
                 .overlay(
-                    Capsule()
+                    RoundedRectangle(cornerRadius: 22, style: .continuous)
                         .stroke(Color.primary.opacity(0.08), lineWidth: 0.8)
                 )
                 .shadow(

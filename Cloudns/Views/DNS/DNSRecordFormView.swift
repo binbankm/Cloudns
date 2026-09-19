@@ -294,8 +294,11 @@ struct DNSRecordFormView: View {
                                     .foregroundStyle(.secondary)
                             }
                             Spacer()
-                            Toggle(isOn: $proxied) {}
-                                .labelsHidden()
+                            Toggle(isOn: $proxied) {
+                                Text("Cloudflare Proxy")
+                            }
+                            .labelsHidden()
+                            .accessibilityLabel("Cloudflare Proxy")
                         }
                     }
 

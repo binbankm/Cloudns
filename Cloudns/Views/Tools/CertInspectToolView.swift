@@ -262,8 +262,11 @@ struct CertInspectToolView: View {
                     Image(systemName: "doc.on.doc")
                         .font(.caption)
                         .foregroundStyle(.secondary)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel("Copy SAN \(san)")
             }
             .contextMenu {
                 Button {
