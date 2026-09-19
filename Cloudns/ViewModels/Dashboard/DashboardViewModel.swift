@@ -53,6 +53,8 @@ final class DashboardViewModel: BaseLoadableViewModel {
     }
 
     private var cancellables = Set<AnyCancellable>()
+    /// Tracks the current in-flight fetch to enable cancellation on rapid re-fetch (e.g. account switching).
+    private var fetchTask: Task<Void, Never>?
 
     init(
         zoneService: ZoneServiceProtocol = ZoneService.shared,
@@ -163,6 +165,15 @@ final class DashboardViewModel: BaseLoadableViewModel {
         d1Count = 0
         sparklines = [:]
         resetLoadingState()
+    }
+
+    /// Cancels any in-flight fetch before scheduling a new one, preventing race conditions
+    /// when the user rapidly switches accounts or triggers multiple refresh events.
+    func scheduleFetch(isRefresh: Bool = false) {
+        fetchTask?.cancel()
+        fetchTask = Task { [weak self] in
+            await self?.fetchDashboard(isRefresh: isRefresh)
+        }
     }
 
     func fetchDashboard(isRefresh: Bool = false) async {

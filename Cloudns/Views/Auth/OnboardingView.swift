@@ -135,9 +135,7 @@ struct OnboardingView: View {
                     .tag(3)
                 }
                 .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-                .onChange(of: currentPage) { _ in
-                    HapticManager.selection()
-                }
+                .onChange(of: currentPage) { _ in HapticManager.selection() }
 
                 // Bottom Controls
                 VStack(spacing: 20) {

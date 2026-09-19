@@ -151,7 +151,7 @@ public struct ToastOverlay: View {
                             .foregroundStyle(.primary)
                             .lineLimit(1)
                     case let .verbatim(text):
-                        Text(LocalizedStringKey(text))
+                        Text(verbatim: text)
                             .font(.subheadline.weight(.medium))
                             .foregroundStyle(.primary)
                             .lineLimit(1)

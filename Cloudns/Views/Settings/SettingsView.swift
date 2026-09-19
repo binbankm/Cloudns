@@ -154,9 +154,7 @@ struct SettingsView: View {
                     }
                     .pickerStyle(.menu)
                     .tint(.secondary)
-                    .onChange(of: themePreference) { _ in
-                        HapticManager.impact(.light)
-                    }
+                    .onChange(of: themePreference) { _ in HapticManager.impact(.light) }
 
                     NavigationLink {
                         ThemeColorPickerView()
@@ -218,9 +216,7 @@ struct SettingsView: View {
                     }
                     .pickerStyle(.menu)
                     .tint(.secondary)
-                    .onChange(of: appLanguage) { _ in
-                        HapticManager.selection()
-                    }
+                    .onChange(of: appLanguage) { _ in HapticManager.selection() }
 
                     Toggle(isOn: $hapticsEnabled) {
                         SettingsRowView(

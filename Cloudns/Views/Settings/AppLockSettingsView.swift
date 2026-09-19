@@ -50,8 +50,14 @@ struct AppLockSettingsView: View {
                 Section {
                     ForEach(timeoutOptions, id: \.seconds) { option in
                         Button {
-                            HapticManager.selection()
-                            autoLockTimeout = option.seconds
+                            Task { @MainActor in
+                                let reason = String(localized: "Verify your identity to change the Auto-Lock timeout.")
+                                let success = await authManager.verifyBiometrics(reason: reason)
+                                if success {
+                                    HapticManager.selection()
+                                    autoLockTimeout = option.seconds
+                                }
+                            }
                         } label: {
                             HStack {
                                 Text(option.title)

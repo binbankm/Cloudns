@@ -251,7 +251,7 @@ struct LoginView: View {
                                             }
                                     } else {
                                         SecureField("Enter Global API Key", text: $viewModel.apiKey)
-                                            .textContentType(.none)
+                                            .textContentType(.password)
                                             .keyboardType(.asciiCapable)
                                             .textInputAutocapitalization(.never)
                                             .autocorrectionDisabled()

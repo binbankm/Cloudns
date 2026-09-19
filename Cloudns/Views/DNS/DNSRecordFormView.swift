@@ -57,13 +57,36 @@ struct DNSRecordFormView: View {
 
     private var hasUnsavedChanges: Bool {
         if let record = existingRecord {
-            name != record.name ||
+            let baseChanged = name != record.name ||
                 content != (record.content ?? "") ||
                 proxied != (record.proxied ?? false) ||
                 ttl != record.ttl ||
-                comment != (record.comment ?? "")
+                comment != (record.comment ?? "") ||
+                priority != String(record.priority ?? 10) ||
+                tagsText != (record.tags ?? []).joined(separator: ", ")
+
+            let srvChanged = record.type == "SRV" && (
+                srvService != (record.data?.service ?? "") ||
+                srvProto != (record.data?.proto ?? "") ||
+                srvWeight != String(record.data?.weight ?? 1) ||
+                srvPort != String(record.data?.port ?? 443) ||
+                srvTarget != (record.data?.target ?? "")
+            )
+
+            let caaChanged = record.type == "CAA" && (
+                caaFlags != String(record.data?.flags ?? 0) ||
+                caaTag != (record.data?.tag ?? "issue") ||
+                caaValue != (record.data?.value ?? "")
+            )
+
+            let httpsChanged = (record.type == "HTTPS" || record.type == "SVCB") && (
+                httpsTarget != "." ||
+                httpsParams != "alpn=\"h3,h2\" port=443"
+            )
+
+            return baseChanged || srvChanged || caaChanged || httpsChanged
         } else {
-            !name.isEmpty || !content.isEmpty || !comment.isEmpty || !tagsText.isEmpty
+            return !name.isEmpty || !content.isEmpty || !comment.isEmpty || !tagsText.isEmpty
         }
     }
 

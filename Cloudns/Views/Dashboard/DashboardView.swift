@@ -71,15 +71,15 @@ struct DashboardView: View {
             }
             .onReceive(NotificationCenter.default.publisher(for: .accountSwitched)) { _ in
                 viewModel.resetState()
-                Task { await viewModel.fetchDashboard(isRefresh: true) }
+                viewModel.scheduleFetch(isRefresh: true)
             }
             .onReceive(NotificationCenter.default.publisher(for: .localCachePurged)) { _ in
                 viewModel.resetState()
-                Task { await viewModel.fetchDashboard(isRefresh: true) }
+                viewModel.scheduleFetch(isRefresh: true)
             }
             .onReceive(NotificationCenter.default.publisher(for: .appWillEnterForeground)) { _ in
                 if viewModel.isStale {
-                    Task { await viewModel.fetchDashboard(isRefresh: true) }
+                    viewModel.scheduleFetch(isRefresh: true)
                 }
             }
             .onAppear {

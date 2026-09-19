@@ -127,8 +127,17 @@ final class AppAuthManager: ObservableObject {
             return
         }
 
-        isAuthenticating = true
         checkBiometry()
+
+        // Safety guard: if device has no passcode/biometry at all, unlock and disable App Lock
+        // to prevent the user from being permanently locked out of the app.
+        guard isDeviceAuthAvailable else {
+            UserDefaults.standard.set(false, forKey: AppStorageKey.isAppLockEnabled)
+            isUnlocked = true
+            return
+        }
+
+        isAuthenticating = true
 
         Task { @MainActor in
             defer { self.isAuthenticating = false }
