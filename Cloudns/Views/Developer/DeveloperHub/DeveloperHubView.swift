@@ -17,6 +17,9 @@ struct DeveloperHubView: View {
         !(viewModel.selectedAccount?.id ?? "").isEmpty
     }
 
+    @State private var showingWorkersPaidUpgradeSheet = false
+    @State private var upgradeFeatureName: LocalizedStringKey = "Workers Paid"
+
     let embeddedInNavigation: Bool
 
     init(embeddedInNavigation: Bool = false) {
@@ -85,30 +88,40 @@ struct DeveloperHubView: View {
                 }
                 .disabled(!isAccountReady)
 
-                NavigationLink {
-                    QueuesView(accountId: accountId)
+                Button {
+                    upgradeFeatureName = "Queues"
+                    HapticManager.selection()
+                    showingWorkersPaidUpgradeSheet = true
                 } label: {
                     DeveloperHubRowView(
                         icon: "tray.2.fill",
                         iconColor: .purple,
                         title: "Queues",
                         subtitle: "Asynchronous message queue delivery",
-                        badgeText: "PAID"
+                        requiredTier: .paid,
+                        showLock: true,
+                        isInteractiveLocked: true
                     )
                 }
+                .buttonStyle(.plain)
                 .disabled(!isAccountReady)
 
-                NavigationLink {
-                    DurableObjectsView(accountId: accountId)
+                Button {
+                    upgradeFeatureName = "Durable Objects"
+                    HapticManager.selection()
+                    showingWorkersPaidUpgradeSheet = true
                 } label: {
                     DeveloperHubRowView(
                         icon: "cube.fill",
                         iconColor: .cyan,
                         title: "Durable Objects",
                         subtitle: "Coordinated edge state namespaces",
-                        badgeText: "PAID"
+                        requiredTier: .paid,
+                        showLock: true,
+                        isInteractiveLocked: true
                     )
                 }
+                .buttonStyle(.plain)
                 .disabled(!isAccountReady)
             }
 
@@ -139,17 +152,22 @@ struct DeveloperHubView: View {
                 }
                 .disabled(!isAccountReady)
 
-                NavigationLink {
-                    HyperdriveView(accountId: accountId)
+                Button {
+                    upgradeFeatureName = "Hyperdrive"
+                    HapticManager.selection()
+                    showingWorkersPaidUpgradeSheet = true
                 } label: {
                     DeveloperHubRowView(
                         icon: "bolt.horizontal.fill",
                         iconColor: .yellow,
                         title: "Hyperdrive",
                         subtitle: "Regional database connection acceleration",
-                        badgeText: "PAID"
+                        requiredTier: .paid,
+                        showLock: true,
+                        isInteractiveLocked: true
                     )
                 }
+                .buttonStyle(.plain)
                 .disabled(!isAccountReady)
             }
 
@@ -269,6 +287,12 @@ struct DeveloperHubView: View {
         .refreshable {
             await viewModel.fetchOverview(isRefresh: true)
         }
+        .sheet(isPresented: $showingWorkersPaidUpgradeSheet) {
+            PlanUpgradeSheetView(
+                featureName: upgradeFeatureName,
+                requiredTier: .paid
+            )
+        }
     }
 }
 
@@ -279,8 +303,11 @@ struct DeveloperHubRowView: View {
     let iconColor: Color
     let title: LocalizedStringKey
     let subtitle: LocalizedStringKey
+    var requiredTier: PlanTier?
+    var showLock: Bool = false
+    var isInteractiveLocked: Bool = false
     var badgeText: String?
-    var badgeColor: Color = .purple
+    var badgeColor: Color = .orange
 
     var body: some View {
         HStack(spacing: 12) {
@@ -292,13 +319,18 @@ struct DeveloperHubRowView: View {
                         .font(.body.weight(.medium))
                         .foregroundStyle(.primary)
 
-                    if let badgeText {
-                        Text(badgeText)
-                            .font(.caption2.weight(.bold))
-                            .foregroundStyle(badgeColor)
-                            .padding(.horizontal, 5)
-                            .padding(.vertical, 1.5)
-                            .background(Capsule().fill(badgeColor.opacity(0.12)))
+                    if let requiredTier {
+                        PlanBadgeView(
+                            title: requiredTier.shortBadge,
+                            tintColor: PlanBadgeView.color(for: requiredTier),
+                            isUnlocked: !showLock
+                        )
+                    } else if let badgeText {
+                        PlanBadgeView(
+                            title: badgeText,
+                            tintColor: badgeColor,
+                            isUnlocked: true
+                        )
                     }
                 }
 
@@ -309,8 +341,16 @@ struct DeveloperHubRowView: View {
             }
 
             Spacer()
+
+            if isInteractiveLocked {
+                Image(systemName: "chevron.right")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(.tertiary)
+            }
         }
         .padding(.vertical, 2)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
     }
 }

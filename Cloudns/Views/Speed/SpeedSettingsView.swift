@@ -6,8 +6,11 @@ import SwiftUI
 
 struct SpeedSettingsView: View {
     let zoneId: String
+    var zoneName: String?
+    var zoneTier: PlanTier = .free
 
     @StateObject private var viewModel = SpeedSettingsViewModel()
+    @State private var showingPolishUpgradeSheet = false
 
     var body: some View {
         List {
@@ -229,45 +232,81 @@ struct SpeedSettingsView: View {
                 header: Text("Image Optimization"),
                 footer: Text("Cloudflare Polish optimizes images on the fly, reducing payload for mobile visitors.")
             ) {
-                HStack(spacing: 12) {
-                    ListRowIcon(icon: "photo.fill", color: .green)
-                    VStack(alignment: .leading, spacing: 2) {
-                        HStack(spacing: 6) {
-                            Text("Polish (WebP)")
-                                .font(.body)
-                                .lineLimit(1)
-                            Text("Pro")
-                                .font(.caption2.weight(.semibold))
-                                .foregroundStyle(.blue)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(Color.blue.opacity(0.14))
-                                .clipShape(Capsule())
-                        }
-                        Text("Automatic image compression and modern WebP conversion.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                    Picker("Polish", selection: Binding(
-                        get: { viewModel.polish },
-                        set: { val in
-                            HapticManager.selection()
-                            Task {
-                                await viewModel.updatePolish(zoneId: zoneId, value: val)
-                                ToastManager.shared.showSuccess("Polish Updated to \(val.capitalized)", icon: "photo.fill")
+                let isPolishLocked = zoneTier < .pro
+
+                if isPolishLocked {
+                    Button {
+                        HapticManager.selection()
+                        showingPolishUpgradeSheet = true
+                    } label: {
+                        HStack(spacing: 12) {
+                            ListRowIcon(icon: "photo.fill", color: .green)
+                            VStack(alignment: .leading, spacing: 2) {
+                                HStack(spacing: 6) {
+                                    Text("Polish (WebP)")
+                                        .font(.body)
+                                        .foregroundStyle(.primary)
+                                        .lineLimit(1)
+
+                                    PlanBadgeView(required: .pro, current: zoneTier)
+                                }
+                                Text("Automatic image compression and modern WebP conversion.")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
                             }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.caption2.weight(.semibold))
+                                .foregroundStyle(.tertiary)
                         }
-                    )) {
-                        Text("Off").tag("off")
-                        Text("Lossless").tag("lossless")
-                        Text("Lossy").tag("lossy")
+                        .padding(.vertical, 2)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(Rectangle())
                     }
-                    .pickerStyle(.menu)
-                    .labelsHidden()
+                    .buttonStyle(.plain)
+                } else {
+                    HStack(spacing: 12) {
+                        ListRowIcon(icon: "photo.fill", color: .green)
+                        VStack(alignment: .leading, spacing: 2) {
+                            HStack(spacing: 6) {
+                                Text("Polish (WebP)")
+                                    .font(.body)
+                                    .lineLimit(1)
+
+                                PlanBadgeView(required: .pro, current: zoneTier)
+                            }
+                            Text("Automatic image compression and modern WebP conversion.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                        Picker("Polish", selection: Binding(
+                            get: { viewModel.polish },
+                            set: { val in
+                                HapticManager.selection()
+                                Task {
+                                    await viewModel.updatePolish(zoneId: zoneId, value: val)
+                                    ToastManager.shared.showSuccess("Polish Updated to \(val.capitalized)", icon: "photo.fill")
+                                }
+                            }
+                        )) {
+                            Text("Off").tag("off")
+                            Text("Lossless").tag("lossless")
+                            Text("Lossy").tag("lossy")
+                        }
+                        .pickerStyle(.menu)
+                        .labelsHidden()
+                    }
+                    .disabled(!viewModel.hasFetchedData)
                 }
-                .disabled(!viewModel.hasFetchedData)
             }
+        }
+        .sheet(isPresented: $showingPolishUpgradeSheet) {
+            PlanUpgradeSheetView(
+                featureName: "Polish (WebP)",
+                requiredTier: .pro,
+                zoneName: zoneName
+            )
         }
         .listStyle(.insetGrouped)
         .listState(

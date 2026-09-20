@@ -12,6 +12,7 @@ struct QueuesView: View {
     @State private var queueToPurge: CFQueue?
     @State private var showingDeleteAlert = false
     @State private var showingPurgeAlert = false
+    @State private var showingUpgradeSheet = false
 
     init(accountId: String) {
         self.accountId = accountId
@@ -31,6 +32,12 @@ struct QueuesView: View {
                     }
                     .accessibilityLabel("Create Queue")
                 }
+            }
+            .sheet(isPresented: $showingUpgradeSheet) {
+                PlanUpgradeSheetView(
+                    featureName: "Cloudflare Queues",
+                    requiredTier: .paid
+                )
             }
             .sheet(isPresented: $showingCreateSheet) {
                 CreateQueueSheetView(viewModel: viewModel)
@@ -138,9 +145,9 @@ struct QueuesView: View {
             isEmpty: viewModel.hasFetchedData && viewModel.queues.isEmpty,
             emptyTitle: "No Queues Configured",
             emptySystemImage: "tray.2.fill",
-            emptyDescription: "Cloudflare Queues provides reliable point-to-point asynchronous messaging between Workers.",
-            emptyActionTitle: "Create Queue",
-            emptyAction: { showingCreateSheet = true },
+            emptyDescription: "Cloudflare Queues provides reliable point-to-point asynchronous messaging between Workers (Requires Workers Paid).",
+            emptyActionTitle: "Upgrade to Workers Paid",
+            emptyAction: { showingUpgradeSheet = true },
             errorMessage: (viewModel.hasFetchedData && viewModel.queues.isEmpty) ? viewModel.errorMessage : nil,
             retryAction: { Task { await viewModel.fetchQueues() } }
         )

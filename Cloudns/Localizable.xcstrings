@@ -2311,6 +2311,158 @@
         }
       }
     },
+    "%@ feature, locked": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ميزة %@، مقفلة"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@-Funktion, gesperrt"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ feature, locked"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Función %@, bloqueada"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fonctionnalité %@, verrouillée"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Funzionalità %@, bloccata"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 機能、ロック中"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 기능, 잠김"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recurso %@, bloqueado"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Функция %@, заблокирована"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 功能，已锁定"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 功能，已鎖定"
+          }
+        }
+      }
+    },
+    "%@ feature, unlocked": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ميزة %@، مفتوحة"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@-Funktion, freigeschaltet"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ feature, unlocked"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Función %@, desbloqueada"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fonctionnalité %@, déverrouillée"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Funzionalità %@, sbloccata"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 機能、利用可能"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 기능, 잠금 해제됨"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recurso %@, desbloqueado"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Функция %@, разблокирована"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 功能，已解锁"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 功能，已解鎖"
+          }
+        }
+      }
+    },
     "%@ Hosts": {
       "extractionState": "manual",
       "localizations": {
@@ -40426,6 +40578,158 @@
         }
       }
     },
+    "Cloudflare Queues": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Queues"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Queues"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Queues"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Queues"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Queues"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Queues"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Queues"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Queues"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Queues"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Queues"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Queues 消息队列"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Queues 訊息佇列"
+          }
+        }
+      }
+    },
+    "Cloudflare Queues provides reliable point-to-point asynchronous messaging between Workers (Requires Workers Paid).": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "توفر Cloudflare Queues رسائل غير متزامنة موثوقة من نقطة إلى نقطة بين Workers (تتطلب Workers Paid)."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Queues bietet zuverlässiges asynchrones Point-to-Point-Messaging zwischen Workers (erfordert Workers Paid)."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Queues provides reliable point-to-point asynchronous messaging between Workers (Requires Workers Paid)."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Queues proporciona mensajería asíncrona confiable punto a punto entre Workers (requiere Workers Paid)."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Queues fournit une messagerie asynchrone point à point fiable entre Workers (nécessite Workers Paid)."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Queues fornisce messaggistica asincrona punto a punto affidabile tra Workers (richiede Workers Paid)."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Queues は、Workers 間の信頼性の高いポイントツーポイントの非同期メッセージングを提供します（Workers Paid が必要です）。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Queues는 Workers 간의 안정적인 지점 간 비동기 메시징을 제공합니다(Workers Paid 필요)."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O Cloudflare Queues fornece mensagens assíncronas ponto a ponto confiáveis entre Workers (requer Workers Paid)."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Queues обеспечивает надежную асинхронную передачу сообщений между Workers (требуется Workers Paid)."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Queues 为 Workers 之间提供可靠的点对点异步消息传递（需要 Workers Paid 计划）。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Queues 為 Workers 之間提供可靠的點對點非同步訊息傳遞（需要 Workers Paid 方案）。"
+          }
+        }
+      }
+    },
     "Cloudflare Queues provides reliable point-to-point asynchronous messaging between Workers.": {
       "extractionState": "manual",
       "localizations": {
@@ -40884,6 +41188,82 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cloudflare 服务状態"
+          }
+        }
+      }
+    },
+    "Cloudflare Subscription": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اشتراك Cloudflare"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare-Abonnement"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Subscription"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suscripción a Cloudflare"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abonnement Cloudflare"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abbonamento Cloudflare"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare サブスクリプション"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare 구독"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Assinatura do Cloudflare"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подписка Cloudflare"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare 订阅"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare 訂閱"
           }
         }
       }
@@ -58597,19 +58977,96 @@
         }
       }
     },
+    "Custom Certificate Uploaded": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تم تحميل الشهادة المخصصة"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eigenes Zertifikat hochgeladen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom Certificate Uploaded"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Certificado personalizado subido"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Certificat personnalisé téléversé"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Certificato personalizzato caricato"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カスタム証明書がアップロードされました"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "사용자 지정 인증서가 업로드되었습니다"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Certificado personalizado enviado"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пользовательский сертификат загружен"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自定义证书已上传"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自訂憑證已上傳"
+          }
+        }
+      }
+    },
     "Custom Certificates": {
       "extractionState": "manual",
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "الشهادات المخصصة"
+            "value": "شهادات مخصصة"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Benutzerdefinierte Zertifikate"
+            "value": "Eigene Zertifikate"
           }
         },
         "en": {
@@ -58645,7 +59102,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "맞춤형 인증서"
+            "value": "사용자 지정 인증서"
           }
         },
         "pt-BR": {
@@ -58669,7 +59126,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "自定义憑證"
+            "value": "自訂憑證"
           }
         }
       }
@@ -59290,6 +59747,82 @@
         }
       }
     },
+    "Custom firewall rules inspect incoming traffic and enforce security actions.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تفحص قواعد جدار الحماية المخصصة حركة المرور الواردة وتفرض إجراءات الأمان."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Benutzerdefinierte Firewall-Regeln prüfen eingehenden Datenverkehr und erzwingen Sicherheitsaktionen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom firewall rules inspect incoming traffic and enforce security actions."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las reglas de firewall personalizadas inspeccionan el tráfico entrante y aplican acciones de seguridad."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les règles de pare-feu personnalisées inspectent le trafic entrant et appliquent des mesures de sécurité."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le regole personalizzate del firewall controllano il traffico in entrata e applicano azioni di sicurezza."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カスタムファイアウォールルールは着信トラフィックを検査し、セキュリティアクションを実行します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "사용자 지정 방화벽 규칙은 수신 트래픽을 검사하고 보안 조치를 적용합니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As regras personalizadas de firewall inspecionam o tráfego de entrada e aplicam ações de segurança."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пользовательские правила брандмауэра проверяют входящий трафик и применяют меры безопасности."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自定义防火墙规则可检查传入流量并执行安全策略。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自訂防火牆規則可檢查傳入流量並執行安全性策略。"
+          }
+        }
+      }
+    },
     "Custom JSON payload sent in the HTTP request body.": {
       "extractionState": "manual",
       "localizations": {
@@ -59517,6 +60050,237 @@
           "stringUnit": {
             "state": "translated",
             "value": "自訂規則 (%lld)"
+          }
+        }
+      }
+    },
+    "Custom Rules (%lld/%lld)": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "قواعد مخصصة (%lld/%lld)"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Benutzerdefinierte Regeln (%lld/%lld)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom Rules (%lld/%lld)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reglas personalizadas (%lld/%lld)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Règles personnalisées (%lld/%lld)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Regole personalizzate (%lld/%lld)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カスタムルール (%lld/%lld)"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "사용자 지정 규칙 (%lld/%lld)"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Regras personalizadas (%lld/%lld)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Настраиваемые правила (%lld/%lld)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自定义规则 (%lld/%lld)"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自訂規則 (%lld/%lld)"
+          }
+        }
+      }
+    },
+    "Custom SSL Certificates": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "شهادات SSL مخصصة"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eigene SSL-Zertifikate"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom SSL Certificates"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Certificados SSL personalizados"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Certificats SSL personnalisés"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Certificati SSL personalizzati"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カスタム SSL 証明書"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "사용자 지정 SSL 인증서"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Certificados SSL personalizados"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пользовательские SSL-сертификаты"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自定义 SSL 证书"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自訂 SSL 憑證"
+          }
+        }
+      }
+    },
+    "Custom SSL certificates require a Cloudflare Business or Enterprise plan to upload.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تتطلب شهادات SSL المخصصة خطة Cloudflare Business أو Enterprise للتحميل."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Für eigene SSL-Zertifikate ist ein Cloudflare Business- oder Enterprise-Tarif erforderlich."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom SSL certificates require a Cloudflare Business or Enterprise plan to upload."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los certificados SSL personalizados requieren un plan Cloudflare Business o Enterprise para subirse."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les certificats SSL personnalisés nécessitent un forfait Cloudflare Business ou Enterprise."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I certificati SSL personalizzati richiedono un piano Cloudflare Business o Enterprise per il caricamento."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カスタム SSL 証明書のアップロードには、Cloudflare Business または Enterprise プランが必要です。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "사용자 지정 SSL 인증서를 업로드하려면 Cloudflare Business 또는 Enterprise 요금제가 필요합니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os certificados SSL personalizados exigem um plano Cloudflare Business ou Enterprise para upload."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Для загрузки пользовательских SSL-сертификатов требуется тариф Cloudflare Business или Enterprise."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上传自定义 SSL 证书需要 Cloudflare Business 或 Enterprise 计划。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上傳自訂 SSL 憑證需要 Cloudflare Business 或 Enterprise 方案。"
           }
         }
       }
@@ -77077,6 +77841,82 @@
         }
       }
     },
+    "Edge Certificates (%lld)": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "شهادات الحافة (%lld)"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edge-Zertifikate (%lld)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edge Certificates (%lld)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Certificados perimetrales (%lld)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Certificats Edge (%lld)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Certificati Edge (%lld)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "エッジ証明書 (%lld)"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "엣지 인증서 (%lld)"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Certificados Edge (%lld)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Периферийные сертификаты (%lld)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "边缘证书 (%lld)"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "邊緣憑證 (%lld)"
+          }
+        }
+      }
+    },
     "Edge Diagnostics": {
       "extractionState": "manual",
       "localizations": {
@@ -91630,6 +92470,83 @@
         }
       }
     },
+    "Free: 5 max": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "المجاني: 5 كحد أقصى"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kostenlos: max. 5"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Free: 5 max"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gratis: 5 máx."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gratuit : 5 max"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gratuito: max 5"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Free: 最大 5 件"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "무료: 최대 5개"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gratuito: máx. 5"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Бесплатно: макс. 5"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "免费版：上限 5 条"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "免費方案：上限 5 條"
+          }
+        }
+      }
+    },
     "Fresh Mint": {
       "extractionState": "manual",
       "localizations": {
@@ -101405,6 +102322,83 @@
           "stringUnit": {
             "state": "translated",
             "value": "匯入失敗"
+          }
+        }
+      }
+    },
+    "Import SSL certificate with private key": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "استيراد شهادة SSL بالمفتاح الخاص"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SSL-Zertifikat mit privatem Schlüssel importieren"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import SSL certificate with private key"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importar certificado SSL con clave privada"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importer un certificat SSL avec clé privée"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importa certificato SSL con chiave privata"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "秘密鍵付きの SSL 証明書をインポート"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "개인 키가 포함된 SSL 인증서 가져오기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importar certificado SSL com chave privada"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Импортировать SSL-сертификат с закрытым ключом"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "导入带有私钥的 SSL 证书"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "匯入帶有私密金鑰的 SSL 憑證"
           }
         }
       }
@@ -142448,6 +143442,160 @@
         }
       }
     },
+    "Paste your matching unencrypted RSA/ECDSA private key in PEM format.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الصق المفتاح الخاص RSA/ECDSA غير المشفر بتنسيق PEM."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fügen Sie Ihren passenden unverschlüsselten RSA/ECDSA-Privatschlüssel im PEM-Format ein."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paste your matching unencrypted RSA/ECDSA private key in PEM format."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pegue su clave privada RSA/ECDSA no cifrada coincidente en formato PEM."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collez votre clé privée RSA/ECDSA non chiffrée correspondante au format PEM."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Incolla la tua chiave privata RSA/ECDSA non crittografata corrispondente in formato PEM."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "対応する暗号化されていない RSA/ECDSA 秘密鍵（PEM 形式）を貼り付けます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "일치하는 암호화되지 않은 RSA/ECDSA 개인 키를 PEM 형식으로 붙여넣습니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cole sua chave privada RSA/ECDSA não criptografada correspondente no formato PEM."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вставьте соответствующий незашифрованный закрытый ключ RSA/ECDSA в формате PEM."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "粘贴匹配的未加密 RSA/ECDSA 私钥（PEM 格式）。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "貼上相符的未加密 RSA/ECDSA 私密金鑰（PEM 格式）。"
+          }
+        }
+      }
+    },
+    "Paste your PEM-encoded SSL/TLS certificate chain (including intermediate certificates).": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الصق سلسلة شهادات SSL/TLS بتنسيق PEM (بما في ذلك الشهادات الوسيطة)."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fügen Sie Ihre PEM-codierte SSL/TLS-Zertifikatskette ein (einschließlich Zwischenzertifikaten)."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paste your PEM-encoded SSL/TLS certificate chain (including intermediate certificates)."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pegue su cadena de certificados SSL/TLS codificada en PEM (incluidos los certificados intermedios)."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collez votre chaîne de certificats SSL/TLS encodée en PEM (y compris les certificats intermédiaires)."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Incolla la catena di certificati SSL/TLS con codifica PEM (inclusi i certificati intermedi)."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PEM エンコードされた SSL/TLS 証明書チェーン（中間証明書を含む）を貼り付けます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PEM 인코딩된 SSL/TLS 인증서 체인(중간 인증서 포함)을 붙여넣습니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cole sua cadeia de certificados SSL/TLS codificada em PEM (incluindo certificados intermediários)."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вставьте цепочку сертификатов SSL/TLS в кодировке PEM (включая промежуточные сертификаты)."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "粘贴您的 PEM 编码 SSL/TLS 证书链（包含中间证书）。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "貼上您的 PEM 編碼 SSL/TLS 憑證鏈（包含中繼憑證）。"
+          }
+        }
+      }
+    },
     "Path (e.g. /healthz)": {
       "extractionState": "manual",
       "localizations": {
@@ -144138,6 +145286,82 @@
           "stringUnit": {
             "state": "translated",
             "value": "方案計劃"
+          }
+        }
+      }
+    },
+    "Plan upgrades are securely handled via your Cloudflare Dashboard.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تتم ترقيات الخطة بشكل آمن عبر لوحة تحكم Cloudflare."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tarif-Upgrades werden sicher über Ihr Cloudflare-Dashboard abgewickelt."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plan upgrades are securely handled via your Cloudflare Dashboard."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las actualizaciones del plan se gestionan de forma segura a través de su panel de Cloudflare."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les mises à niveau de forfait sont gérées en toute sécurité via votre tableau de bord Cloudflare."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gli aggiornamenti del piano vengono gestiti in modo sicuro tramite la dashboard di Cloudflare."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プランのアップグレードは Cloudflare ダッシュボード経由で安全に行われます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "요금제 업그레이드는 Cloudflare 대시보드를 통해 안전하게 처리됩니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os upgrades de plano são processados com segurança no painel da Cloudflare."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Повышение тарифного плана безопасно выполняется через панель управления Cloudflare."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "计划升级将在您的 Cloudflare 控制台中安全完成。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "方案升級將在您的 Cloudflare 控制台中安全完成。"
           }
         }
       }
@@ -147988,6 +149212,83 @@
           "stringUnit": {
             "state": "translated",
             "value": "隱私政策"
+          }
+        }
+      }
+    },
+    "Private Key": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "المفتاح الخاص"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privater Schlüssel"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Private Key"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clave privada"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clé privée"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiave privata"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "秘密鍵"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "개인 키"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chave privada"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Закрытый ключ"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "私钥"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "私密金鑰"
           }
         }
       }
@@ -162545,6 +163846,83 @@
         }
       }
     },
+    "Requires Business plan or higher": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يتطلب خطة Business أو أعلى"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erfordert Business-Tarif oder höher"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Requires Business plan or higher"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Requiere plan Business o superior"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nécessite le forfait Business ou supérieur"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Richiede piano Business o superiore"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Business プラン以上が必要です"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Business 요금제 이상 필요"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Requer plano Business ou superior"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Требуется тариф Business или выше"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "需要 Business 或更高计划"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "需要 Business 或更高方案"
+          }
+        }
+      }
+    },
     "Reset All Filters": {
       "extractionState": "manual",
       "localizations": {
@@ -169625,6 +171003,83 @@
           "stringUnit": {
             "state": "translated",
             "value": "Rule Name 已複製"
+          }
+        }
+      }
+    },
+    "Rule quota reached (5/5). Upgrade to Pro for 20 custom rules.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تم الوصول إلى الحد الأقصى للقواعد (5/5). قم بالترقية إلى Pro للحصول على 20 قاعدة مخصصة."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Regelkontingent erreicht (5/5). Upgraden Sie auf Pro für 20 benutzerdefinierte Regeln."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rule quota reached (5/5). Upgrade to Pro for 20 custom rules."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Límite de reglas alcanzado (5/5). Mejore a Pro para obtener 20 reglas personalizadas."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quota de règles atteint (5/5). Passez à Pro pour 20 règles personnalisées."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quota regole raggiunta (5/5). Passa a Pro per 20 regole personalizzate."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ルール上限に達しました (5/5)。Pro にアップグレードすると 20 件まで作成できます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "규칙 할당량에 도달했습니다(5/5). 20개의 사용자 지정 규칙을 사용하려면 Pro로 업그레이드하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limite de regras atingido (5/5). Faça upgrade para o Pro para obter 20 regras personalizadas."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Лимит правил исчерпан (5/5). Перейдите на Pro для создания 20 правил."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "规则配额已达上限 (5/5)。升级至 Pro 计划可创建 20 条自定义规则。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "規則配額已達上限 (5/5)。升級至 Pro 方案可建立 20 條自訂規則。"
           }
         }
       }
@@ -182026,6 +183481,83 @@
         }
       }
     },
+    "SSL/TLS Certificate": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "شهادة SSL/TLS"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SSL/TLS-Zertifikat"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SSL/TLS Certificate"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Certificado SSL/TLS"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Certificat SSL/TLS"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Certificato SSL/TLS"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SSL/TLS 証明書"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SSL/TLS 인증서"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Certificado SSL/TLS"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сертификат SSL/TLS"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SSL/TLS 证书"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SSL/TLS 憑證"
+          }
+        }
+      }
+    },
     "SSL/TLS Encryption": {
       "extractionState": "manual",
       "localizations": {
@@ -189335,6 +190867,82 @@
           "stringUnit": {
             "state": "translated",
             "value": "這些防護措施可在不影響正常訪客的情況下保護您的網站。電子郵件混淆可防止擷取，而防盜鏈保護可防止外部盜用影像。"
+          }
+        }
+      }
+    },
+    "This feature is part of Cloudflare %@ and is locked for your current plan.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "هذه الميزة جزء من Cloudflare %@ ومقفلة لخطتك الحالية."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diese Funktion ist Teil von Cloudflare %@ und für Ihren aktuellen Tarif gesperrt."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This feature is part of Cloudflare %@ and is locked for your current plan."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta función forma parte de Cloudflare %@ y está bloqueada para su plan actual."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cette fonctionnalité fait partie de Cloudflare %@ et est verrouillée pour votre forfait actuel."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questa funzionalità fa parte di Cloudflare %@ ed è bloccata per il tuo piano attuale."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この機能は Cloudflare %@ の一部であり、現在のプランではロックされています。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 기능은 Cloudflare %@의 일부이며 현재 요금제에서는 잠겨 있습니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este recurso faz parte do Cloudflare %@ e está bloqueado para o seu plano atual."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Эта функция входит в Cloudflare %@ и заблокирована для вашего текущего плана."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此功能属于 Cloudflare %@，在您当前的计划中未解锁。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此功能屬於 Cloudflare %@，在您目前的方案中未解鎖。"
           }
         }
       }
@@ -198425,6 +200033,310 @@
         }
       }
     },
+    "Upgrade": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ترقية"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upgraden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upgrade"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mejorar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mettre à niveau"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiorna"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アップグレード"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "업그레이드"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upgrade"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Повысить"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "升级"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "升級"
+          }
+        }
+      }
+    },
+    "Upgrade on Cloudflare": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الترقية على Cloudflare"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auf Cloudflare upgraden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upgrade on Cloudflare"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mejorar en Cloudflare"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mettre à niveau sur Cloudflare"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiorna su Cloudflare"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare でアップグレード"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare에서 업그레이드"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fazer upgrade na Cloudflare"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Повысить на Cloudflare"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在 Cloudflare 升级"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在 Cloudflare 升級"
+          }
+        }
+      }
+    },
+    "Upgrade Plan": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ترقية الخطة"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tarif upgraden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upgrade Plan"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mejorar plan"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mettre à niveau le forfait"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiorna piano"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プランをアップグレード"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "요금제 업그레이드"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fazer upgrade do plano"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Повысить тарифный план"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "升级计划"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "升級方案"
+          }
+        }
+      }
+    },
+    "Upgrade to Workers Paid": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الترقية إلى Workers Paid"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auf Workers Paid upgraden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upgrade to Workers Paid"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mejorar a Workers Paid"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passer à Workers Paid"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passa a Workers Paid"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workers Paid にアップグレード"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workers Paid로 업그레이드"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fazer upgrade para o Workers Paid"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Повысить до Workers Paid"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "升级至 Workers Paid"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "升級至 Workers Paid"
+          }
+        }
+      }
+    },
     "Upload": {
       "extractionState": "manual",
       "localizations": {
@@ -198498,6 +200410,237 @@
           "stringUnit": {
             "state": "translated",
             "value": "上傳"
+          }
+        }
+      }
+    },
+    "Upload and manage your own SSL/TLS certificates for your zone.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "قم بتحميل وإدارة شهادات SSL/TLS الخاصة بنطاقك."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Laden Sie eigene SSL/TLS-Zertifikate für Ihre Zone hoch und verwalten Sie diese."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upload and manage your own SSL/TLS certificates for your zone."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suba y administre sus propios certificados SSL/TLS para su zona."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Téléversez et gérez vos propres certificats SSL/TLS pour votre zone."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carica e gestisci i tuoi certificati SSL/TLS per la tua zona."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ゾーン用の独自の SSL/TLS 証明書をアップロードして管理します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "영역에 대한 자체 SSL/TLS 인증서를 업로드하고 관리합니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envie e gerencie seus próprios certificados SSL/TLS para sua zona."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Загружайте собственные сертификаты SSL/TLS для вашей зоны и управляйте ими."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "为您的域名上传和管理自有 SSL/TLS 证书。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "為您的網域上傳和管理自有 SSL/TLS 憑證。"
+          }
+        }
+      }
+    },
+    "Upload Custom Cert": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تحميل شهادة مخصصة"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eigenes Zertifikat hochladen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upload Custom Cert"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Subir certificado personalizado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Téléverser un cert personnalisé"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carica cert personalizzato"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カスタム証明書をアップロード"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "사용자 지정 인증서 업로드"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enviar certificado personalizado"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Загрузить сертификат"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上传自定义证书"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上傳自訂憑證"
+          }
+        }
+      }
+    },
+    "Upload Custom Certificate": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تحميل شهادة مخصصة"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eigenes Zertifikat hochladen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upload Custom Certificate"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Subir certificado personalizado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Téléverser un certificat personnalisé"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carica certificato personalizzato"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カスタム証明書をアップロード"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "사용자 지정 인증서 업로드"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enviar certificado personalizado"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Загрузить сертификат"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上传自定义证书"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上傳自訂憑證"
           }
         }
       }
@@ -202502,6 +204645,83 @@
           "stringUnit": {
             "state": "translated",
             "value": "WAF 自訂規則"
+          }
+        }
+      }
+    },
+    "WAF Custom Rules Quota": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "حصة قواعد WAF المخصصة"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "WAF-Regelkontingent"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "WAF Custom Rules Quota"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuota de reglas personalizadas de WAF"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quota de règles personnalisées WAF"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quota regole personalizzate WAF"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "WAF カスタムルールのクォータ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "WAF 사용자 지정 규칙 할당량"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cota de regras personalizadas do WAF"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Квота настраиваемых правил WAF"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "WAF 自定义规则配额"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "WAF 自訂規則配額"
           }
         }
       }
@@ -206968,6 +209188,82 @@
           "stringUnit": {
             "state": "translated",
             "value": "Workers AI 執行階段綁定不需要外部 ID。"
+          }
+        }
+      }
+    },
+    "Workers Paid": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workers Paid"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workers Paid"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workers Paid"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workers Paid"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workers Paid"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workers Paid"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workers Paid"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workers Paid"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workers Paid"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workers Paid"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workers Paid 付费版"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workers Paid 付費版"
           }
         }
       }

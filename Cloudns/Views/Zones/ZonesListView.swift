@@ -202,10 +202,20 @@ struct ZoneRowView: View {
             AccountAvatarView(identifier: zone.name, size: 36, showShadow: false)
 
             VStack(alignment: .leading, spacing: 3) {
-                Text(verbatim: zone.name)
-                    .font(.body.weight(.medium))
-                    .foregroundStyle(.primary)
-                    .lineLimit(1)
+                HStack(spacing: 6) {
+                    Text(verbatim: zone.name)
+                        .font(.body.weight(.medium))
+                        .foregroundStyle(.primary)
+                        .lineLimit(1)
+
+                    if let tier = zone.plan?.planTier, tier != .free {
+                        PlanBadgeView(
+                            title: tier.shortBadge,
+                            tintColor: PlanBadgeView.color(for: tier),
+                            isUnlocked: true
+                        )
+                    }
+                }
 
                 if zone.paused || (zone.developmentMode ?? 0) > 0 {
                     HStack(spacing: 5) {
@@ -237,6 +247,8 @@ struct ZoneRowView: View {
             ZoneRowSparklineView(zoneId: zone.id, cached: sparkline)
         }
         .padding(.vertical, 2)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape(Rectangle())
     }
 }
 

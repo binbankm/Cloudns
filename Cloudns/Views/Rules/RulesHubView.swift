@@ -2,6 +2,8 @@ import SwiftUI
 
 struct RulesHubView: View {
     let zoneId: String
+    var zoneName: String?
+    var currentTier: PlanTier = .free
 
     var body: some View {
         List {
@@ -32,7 +34,9 @@ struct RulesHubView: View {
                     subtitle: "Lightweight JavaScript on HTTP requests",
                     icon: "curlybraces",
                     color: .orange,
-                    badgeText: "PRO",
+                    requiredTier: .pro,
+                    currentTier: currentTier,
+                    zoneName: zoneName,
                     destination: SnippetsListView(zoneId: zoneId)
                 )
             }

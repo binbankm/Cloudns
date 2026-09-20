@@ -6,17 +6,30 @@ import SwiftUI
 
 struct EdgeCertificatesView: View {
     let zoneId: String
+    var zoneName: String = ""
+    var zoneTier: PlanTier = .free
 
     @StateObject private var viewModel = EdgeCertificatesViewModel()
     @State private var searchText = ""
     @State private var certToDelete: EdgeCertificateModel?
     @State private var showingDeleteConfirm = false
+    @State private var showingUploadSheet = false
+    @State private var showingUpgradeSheet = false
+
+    private var isCustomCertUnlocked: Bool {
+        zoneTier >= .business
+    }
+
+    private var activeCustomCerts: [EdgeCertificateModel] {
+        viewModel.certificates.filter { $0.type.lowercased() == "custom" }
+    }
 
     private var displayedCertificates: [EdgeCertificateModel] {
+        let list = viewModel.certificates.filter { $0.type.lowercased() != "custom" }
         if searchText.isEmpty {
-            return viewModel.certificates
+            return list
         }
-        return viewModel.certificates.filter {
+        return list.filter {
             $0.hosts.joined(separator: " ").localizedStandardContains(searchText) ||
                 $0.issuer.localizedStandardContains(searchText) ||
                 $0.type.localizedStandardContains(searchText)
@@ -25,6 +38,7 @@ struct EdgeCertificatesView: View {
 
     var body: some View {
         List {
+            // MARK: - Universal SSL
             Section(
                 header: Text("Universal SSL"),
                 footer: Text("Cloudflare signs and issues free SSL/TLS edge certificates for your domain and subdomains automatically.")
@@ -41,8 +55,118 @@ struct EdgeCertificatesView: View {
                 ))
             }
 
+            // MARK: - Custom Certificates (Business & Enterprise)
+            Section(
+                header: HStack {
+                    Text("Custom Certificates")
+                    if !isCustomCertUnlocked {
+                        PlanBadgeView(
+                            title: PlanTier.business.shortBadge,
+                            tintColor: PlanBadgeView.color(for: .business),
+                            isUnlocked: false
+                        )
+                    }
+                },
+                footer: Text(isCustomCertUnlocked
+                    ? "Upload and manage your own SSL/TLS certificates for your zone."
+                    : "Custom SSL certificates require a Cloudflare Business or Enterprise plan to upload.")
+            ) {
+                if isCustomCertUnlocked {
+                    Button {
+                        HapticManager.selection()
+                        showingUploadSheet = true
+                    } label: {
+                        HStack(spacing: 12) {
+                            ListRowIcon(icon: "plus.circle.fill", color: .orange)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Upload Custom Certificate")
+                                    .font(.body.weight(.medium))
+                                    .foregroundStyle(.primary)
+                                Text("Import SSL certificate with private key")
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.tertiary)
+                        }
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                } else {
+                    Button {
+                        HapticManager.notification(.warning)
+                        showingUpgradeSheet = true
+                    } label: {
+                        HStack(spacing: 12) {
+                            ListRowIcon(icon: "person.badge.key", color: .orange)
+                            VStack(alignment: .leading, spacing: 2) {
+                                HStack(spacing: 6) {
+                                    Text("Upload Custom Certificate")
+                                        .font(.body.weight(.medium))
+                                        .foregroundStyle(.primary)
+                                    PlanBadgeView(
+                                        title: PlanTier.business.shortBadge,
+                                        tintColor: PlanBadgeView.color(for: .business),
+                                        isUnlocked: false
+                                    )
+                                }
+                                Text("Requires Business plan or higher")
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                            Image(systemName: "lock.fill")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.secondary)
+                        }
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                }
+
+                ForEach(activeCustomCerts) { cert in
+                    EdgeCertificateCardView(certificate: cert)
+                        .contextMenu {
+                            Button {
+                                copyToClipboard(cert.hosts.joined(separator: ", "), toast: "Certificate Hosts Copied")
+                            } label: {
+                                Label("Copy Hosts", systemImage: "doc.on.doc")
+                            }
+
+                            Button {
+                                copyToClipboard(cert.id, toast: "Certificate ID Copied")
+                            } label: {
+                                Label("Copy Certificate ID", systemImage: "link")
+                            }
+
+                            Divider()
+
+                            Button(role: .destructive) {
+                                certToDelete = cert
+                                showingDeleteConfirm = true
+                                HapticManager.impact(.medium)
+                            } label: {
+                                Label("Delete Certificate", systemImage: "trash")
+                            }
+                        }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button(role: .destructive) {
+                                certToDelete = cert
+                                showingDeleteConfirm = true
+                                HapticManager.impact(.medium)
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+                            .tint(.red)
+                        }
+                }
+            }
+
+            // MARK: - Edge / Universal Certificates
             if !displayedCertificates.isEmpty {
-                Section(header: Text("Active Certificates (\(displayedCertificates.count))")) {
+                Section(header: Text("Edge Certificates (\(displayedCertificates.count))")) {
                     ForEach(displayedCertificates) { cert in
                         EdgeCertificateCardView(certificate: cert)
                             .contextMenu {
@@ -113,6 +237,17 @@ struct EdgeCertificatesView: View {
         }
         .navigationTitle("Edge Certificates")
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $showingUpgradeSheet) {
+            PlanUpgradeSheetView(
+                featureName: "Custom SSL Certificates",
+                currentTier: zoneTier,
+                requiredTier: .business,
+                zoneName: zoneName
+            )
+        }
+        .sheet(isPresented: $showingUploadSheet) {
+            UploadCustomCertificateView(zoneId: zoneId, viewModel: viewModel)
+        }
         .confirmationDialog("Delete Certificate", isPresented: $showingDeleteConfirm, titleVisibility: .visible) {
             if let cert = certToDelete {
                 Button("Delete Certificate", role: .destructive) {
@@ -248,6 +383,98 @@ struct EdgeCertificateCardView: View {
             Text("Expires: \(dateStr)")
                 .font(.caption)
                 .foregroundStyle(.secondary)
+        }
+    }
+}
+
+// MARK: - UploadCustomCertificateView
+
+struct UploadCustomCertificateView: View {
+    let zoneId: String
+    @ObservedObject var viewModel: EdgeCertificatesViewModel
+    @Environment(\.dismiss) private var dismiss
+
+    @State private var certificatePEM = ""
+    @State private var privateKeyPEM = ""
+    @State private var isUploading = false
+    @State private var errorMessage: String?
+
+    private var isValid: Bool {
+        !certificatePEM.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+        !privateKeyPEM.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section(
+                    header: Text("SSL/TLS Certificate"),
+                    footer: Text("Paste your PEM-encoded SSL/TLS certificate chain (including intermediate certificates).")
+                ) {
+                    TextEditor(text: $certificatePEM)
+                        .font(.caption.monospaced())
+                        .frame(minHeight: 120)
+                }
+
+                Section(
+                    header: Text("Private Key"),
+                    footer: Text("Paste your matching unencrypted RSA/ECDSA private key in PEM format.")
+                ) {
+                    TextEditor(text: $privateKeyPEM)
+                        .font(.caption.monospaced())
+                        .frame(minHeight: 100)
+                }
+
+                if let errorMessage {
+                    Section {
+                        Text(errorMessage)
+                            .font(.caption)
+                            .foregroundStyle(.red)
+                    }
+                }
+            }
+            .navigationTitle("Upload Custom Cert")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                    .disabled(isUploading)
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Upload") {
+                        uploadCertificate()
+                    }
+                    .fontWeight(.semibold)
+                    .disabled(!isValid || isUploading)
+                }
+            }
+        }
+        .presentationDetents([.medium, .large])
+    }
+
+    private func uploadCertificate() {
+        guard isValid else { return }
+        isUploading = true
+        errorMessage = nil
+        HapticManager.selection()
+
+        Task {
+            do {
+                try await viewModel.uploadCustomCertificate(
+                    zoneId: zoneId,
+                    certificate: certificatePEM.trimmingCharacters(in: .whitespacesAndNewlines),
+                    privateKey: privateKeyPEM.trimmingCharacters(in: .whitespacesAndNewlines)
+                )
+                ToastManager.shared.showSuccess("Custom Certificate Uploaded", icon: "checkmark.seal.fill")
+                HapticManager.notification(.success)
+                dismiss()
+            } catch {
+                errorMessage = error.localizedDescription
+                HapticManager.notification(.error)
+                isUploading = false
+            }
         }
     }
 }

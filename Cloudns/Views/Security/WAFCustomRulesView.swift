@@ -6,16 +6,63 @@ import SwiftUI
 
 struct WAFCustomRulesView: View {
     let zoneId: String
+    var zoneName: String = ""
+    var zoneTier: PlanTier = .free
 
     @StateObject private var viewModel = WAFViewModel()
     @State private var showingAddSheet = false
+    @State private var showingUpgradeSheet = false
     @State private var ruleToDelete: WAFRule?
     @State private var showingDeleteConfirm = false
+
+    private var maxAllowedRules: Int {
+        switch zoneTier {
+        case .free: 5
+        case .pro: 20
+        case .business: 100
+        case .enterprise: 1000
+        default: 5
+        }
+    }
+
+    private var isQuotaExceeded: Bool {
+        viewModel.rules.count >= maxAllowedRules
+    }
+
+    private var sectionHeaderView: some View {
+        HStack {
+            Text("Custom Rules (\(viewModel.rules.count)/\(maxAllowedRules))")
+            Spacer()
+            if zoneTier == .free {
+                Text("Free: 5 max")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var sectionFooterView: some View {
+        if isQuotaExceeded && zoneTier == .free {
+            HStack {
+                Text("Rule quota reached (5/5). Upgrade to Pro for 20 custom rules.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Button("Upgrade") {
+                    showingUpgradeSheet = true
+                }
+                .font(.caption.weight(.semibold))
+            }
+        } else {
+            Text("Custom firewall rules inspect incoming traffic and enforce security actions.")
+        }
+    }
 
     var body: some View {
         List {
             if !viewModel.rules.isEmpty {
-                Section(header: Text("Custom Rules (\(viewModel.rules.count))")) {
+                Section(header: sectionHeaderView, footer: sectionFooterView) {
                     ForEach(viewModel.rules) { rule in
                         WAFRuleCardView(rule: rule, onToggle: {
                             HapticManager.selection()
@@ -95,6 +142,14 @@ struct WAFCustomRulesView: View {
         }
         .sheet(isPresented: $showingAddSheet) {
             AddWAFRuleView(zoneId: zoneId, viewModel: viewModel)
+        }
+        .sheet(isPresented: $showingUpgradeSheet) {
+            PlanUpgradeSheetView(
+                featureName: "WAF Custom Rules Quota",
+                currentTier: zoneTier,
+                requiredTier: .pro,
+                zoneName: zoneName
+            )
         }
         .confirmationDialog(
             "Delete WAF Rule",

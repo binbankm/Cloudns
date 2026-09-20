@@ -199,17 +199,8 @@ struct SecuritySettingsView: View {
                     HStack(spacing: 12) {
                         ListRowIcon(icon: "cpu.fill", color: .purple)
                         VStack(alignment: .leading, spacing: 2) {
-                            HStack(spacing: 6) {
-                                Text("Bot Fight Mode")
-                                    .font(.body)
-                                Text("Free")
-                                    .font(.caption2.weight(.medium))
-                                    .foregroundStyle(.secondary)
-                                    .padding(.horizontal, 6)
-                                    .padding(.vertical, 2)
-                                    .background(Color(.tertiarySystemFill))
-                                    .clipShape(Capsule())
-                            }
+                            Text("Bot Fight Mode")
+                                .font(.body)
                             Text("Detects and challenges automated scrapers and malicious crawlers.")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)

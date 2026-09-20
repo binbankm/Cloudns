@@ -7,6 +7,7 @@ import SwiftUI
 struct ZoneDetailView: View {
     let initialZone: Zone
     @State private var zone: Zone
+    @State private var showingPlanUpgradeSheet = false
     @Environment(\.dismiss) private var dismiss
 
     init(zone: Zone) {
@@ -22,12 +23,37 @@ struct ZoneDetailView: View {
                     statusBadge
                 }
 
-                if let planName = zone.plan?.displayName {
-                    LabeledContent("Plan") {
-                        Text(planName)
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
+                let tier = zone.plan?.planTier ?? .free
+                LabeledContent {
+                    Button {
+                        HapticManager.selection()
+                        showingPlanUpgradeSheet = true
+                    } label: {
+                        HStack(spacing: 6) {
+                            Text(zone.plan?.displayName ?? "Free")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+
+                            if tier != .free {
+                                PlanBadgeView(
+                                    title: tier.shortBadge,
+                                    tintColor: PlanBadgeView.color(for: tier),
+                                    isUnlocked: true
+                                )
+                            } else {
+                                Text("Upgrade")
+                                    .font(.caption2.weight(.semibold))
+                                    .foregroundStyle(ThemeManager.shared.accentColor)
+                            }
+
+                            Image(systemName: "chevron.right")
+                                .font(.caption2.weight(.semibold))
+                                .foregroundStyle(.tertiary)
+                        }
                     }
+                    .buttonStyle(.plain)
+                } label: {
+                    Text("Plan")
                 }
 
                 if let type = zone.type {
@@ -118,7 +144,11 @@ struct ZoneDetailView: View {
                     subtitle: "Custom and managed rules",
                     icon: "shield.lefthalf.filled",
                     color: .red,
-                    destination: WAFCustomRulesView(zoneId: zone.id)
+                    destination: WAFCustomRulesView(
+                        zoneId: zone.id,
+                        zoneName: zone.name,
+                        zoneTier: zone.plan?.planTier ?? .free
+                    )
                 )
                 ZoneNavRowView(
                     title: "Rate Limiting",
@@ -157,7 +187,11 @@ struct ZoneDetailView: View {
                     subtitle: "Universal, ACM, and custom certificates",
                     icon: "checkmark.seal.fill",
                     color: .orange,
-                    destination: EdgeCertificatesView(zoneId: zone.id)
+                    destination: EdgeCertificatesView(
+                        zoneId: zone.id,
+                        zoneName: zone.name,
+                        zoneTier: zone.plan?.planTier ?? .free
+                    )
                 )
             }
 
@@ -168,7 +202,7 @@ struct ZoneDetailView: View {
                     subtitle: "Minification, Brotli, and HTTP/2",
                     icon: "speedometer",
                     color: .yellow,
-                    destination: SpeedSettingsView(zoneId: zone.id)
+                    destination: SpeedSettingsView(zoneId: zone.id, zoneName: zone.name, zoneTier: zone.plan?.planTier ?? .free)
                 )
                 ZoneNavRowView(
                     title: "Caching",
@@ -182,7 +216,7 @@ struct ZoneDetailView: View {
                     subtitle: "Transform, cache, redirect, and snippets",
                     icon: "slider.horizontal.3",
                     color: .teal,
-                    destination: RulesHubView(zoneId: zone.id)
+                    destination: RulesHubView(zoneId: zone.id, zoneName: zone.name, currentTier: zone.plan?.planTier ?? .free)
                 )
             }
 
@@ -200,7 +234,9 @@ struct ZoneDetailView: View {
                     subtitle: "Distribute traffic across origins",
                     icon: "arrow.triangle.branch",
                     color: .blue,
-                    badgeText: "ADD-ON",
+                    requiredTier: .addOn,
+                    currentTier: zone.plan?.planTier ?? .free,
+                    zoneName: zone.name,
                     destination: LoadBalancerView(zoneId: zone.id)
                 )
             }
@@ -263,6 +299,13 @@ struct ZoneDetailView: View {
             RecentZonesManager.shared.recordVisit(zoneId: zone.id)
             WidgetDataStore.shared.syncZoneWithAnalytics(zone: zone)
         }
+        .sheet(isPresented: $showingPlanUpgradeSheet) {
+            PlanUpgradeSheetView(
+                featureName: "Cloudflare Subscription",
+                requiredTier: (zone.plan?.planTier ?? .free) == .free ? .pro : .business,
+                zoneName: zone.name
+            )
+        }
     }
 
     @ViewBuilder
@@ -305,7 +348,12 @@ struct ZoneNavRowView<Destination: View>: View {
     let icon: String
     let color: Color
     let badgeText: LocalizedStringKey?
+    let requiredTier: PlanTier?
+    let currentTier: PlanTier
+    let zoneName: String?
     let destination: Destination
+
+    @State private var showingUpgradeSheet = false
 
     init(
         title: LocalizedStringKey,
@@ -313,6 +361,9 @@ struct ZoneNavRowView<Destination: View>: View {
         icon: String,
         color: Color,
         badgeText: LocalizedStringKey? = nil,
+        requiredTier: PlanTier? = nil,
+        currentTier: PlanTier = .free,
+        zoneName: String? = nil,
         destination: Destination
     ) {
         self.title = title
@@ -320,38 +371,81 @@ struct ZoneNavRowView<Destination: View>: View {
         self.icon = icon
         self.color = color
         self.badgeText = badgeText
+        self.requiredTier = requiredTier
+        self.currentTier = currentTier
+        self.zoneName = zoneName
         self.destination = destination
     }
 
-    var body: some View {
-        NavigationLink(destination: destination) {
-            HStack(spacing: 12) {
-                ListRowIcon(icon: icon, color: color)
-
-                VStack(alignment: .leading, spacing: 2) {
-                    HStack(spacing: 6) {
-                        Text(title)
-                            .font(.body)
-                            .foregroundStyle(.primary)
-
-                        if let badgeText {
-                            Text(badgeText)
-                                .font(.caption2.weight(.bold))
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(ThemeManager.shared.accentColor.opacity(0.14))
-                                .foregroundStyle(ThemeManager.shared.accentColor)
-                                .clipShape(Capsule())
-                        }
-                    }
-
-                    Text(subtitle)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-            }
-            .padding(.vertical, 2)
-            .accessibilityElement(children: .combine)
+    private var isLocked: Bool {
+        if let requiredTier {
+            return currentTier < requiredTier
         }
+        return false
+    }
+
+    var body: some View {
+        if isLocked, let requiredTier {
+            Button {
+                HapticManager.selection()
+                showingUpgradeSheet = true
+            } label: {
+                rowContent
+            }
+            .buttonStyle(.plain)
+            .sheet(isPresented: $showingUpgradeSheet) {
+                PlanUpgradeSheetView(
+                    featureName: title,
+                    requiredTier: requiredTier,
+                    zoneName: zoneName
+                )
+            }
+        } else {
+            NavigationLink(destination: destination) {
+                rowContent
+            }
+        }
+    }
+
+    private var rowContent: some View {
+        HStack(spacing: 12) {
+            ListRowIcon(icon: icon, color: color)
+
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 6) {
+                    Text(title)
+                        .font(.body)
+                        .foregroundStyle(.primary)
+
+                    if let requiredTier {
+                        PlanBadgeView(required: requiredTier, current: currentTier)
+                    } else if let badgeText {
+                        Text(badgeText)
+                            .font(.caption2.weight(.bold))
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(ThemeManager.shared.accentColor.opacity(0.14))
+                            .foregroundStyle(ThemeManager.shared.accentColor)
+                            .clipShape(Capsule())
+                    }
+                }
+
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+
+            if isLocked {
+                Image(systemName: "chevron.right")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(.tertiary)
+            }
+        }
+        .padding(.vertical, 2)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape(Rectangle())
+        .accessibilityElement(children: .combine)
     }
 }
