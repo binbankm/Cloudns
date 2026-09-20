@@ -79,3 +79,34 @@ public struct D1TableColumn: Identifiable, Equatable, Sendable {
         self.pk = pk
     }
 }
+
+public struct D1TableInfo: Identifiable, Equatable, Sendable {
+    public var id: String { name }
+    public let name: String
+    public let type: String?
+    public let rowCount: Int?
+
+    public init(name: String, type: String? = "table", rowCount: Int? = nil) {
+        self.name = name
+        self.type = type
+        self.rowCount = rowCount
+    }
+}
+
+public struct D1BackupInfo: Codable, Identifiable, Equatable, Sendable {
+    public var id: String { bookmarkId ?? UUID().uuidString }
+    public let bookmarkId: String?
+    public let timestamp: String?
+    public let state: String?
+
+    enum CodingKeys: String, CodingKey {
+        case bookmarkId = "bookmark_id"
+        case timestamp, state
+    }
+
+    public init(bookmarkId: String?, timestamp: String?, state: String? = "ready") {
+        self.bookmarkId = bookmarkId
+        self.timestamp = timestamp
+        self.state = state
+    }
+}

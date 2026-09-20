@@ -89,3 +89,43 @@ struct UpdateWAFRuleResponse: Codable, Sendable {
 struct WAFEntrypointUpdate: Codable, Sendable {
     let rules: [UpdateWAFRuleRequest]
 }
+
+public struct RulesetOverride: Codable, Equatable, Sendable {
+    public let action: String?
+    public let enabled: Bool?
+    public let sensitivity_level: String?
+    public let rules: [RuleOverrideItem]?
+    public let categories: [CategoryOverrideItem]?
+
+    public init(action: String? = nil, enabled: Bool? = nil, sensitivity_level: String? = nil, rules: [RuleOverrideItem]? = nil, categories: [CategoryOverrideItem]? = nil) {
+        self.action = action
+        self.enabled = enabled
+        self.sensitivity_level = sensitivity_level
+        self.rules = rules
+        self.categories = categories
+    }
+}
+
+public struct RuleOverrideItem: Codable, Equatable, Sendable {
+    public let id: String
+    public let action: String?
+    public let enabled: Bool?
+
+    public init(id: String, action: String? = nil, enabled: Bool? = nil) {
+        self.id = id
+        self.action = action
+        self.enabled = enabled
+    }
+}
+
+public struct CategoryOverrideItem: Codable, Equatable, Sendable {
+    public let category: String
+    public let action: String?
+    public let enabled: Bool?
+
+    public init(category: String, action: String? = nil, enabled: Bool? = nil) {
+        self.category = category
+        self.action = action
+        self.enabled = enabled
+    }
+}

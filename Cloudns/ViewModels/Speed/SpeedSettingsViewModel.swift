@@ -11,6 +11,7 @@ final class SpeedSettingsViewModel: BaseLoadableViewModel {
     @Published var fonts: Bool = false
     @Published var tieredCache: Bool = false
     @Published var polish: String = "off"
+    @Published var mirage: Bool = false
 
     private let speedService: SpeedSettingsServiceProtocol
 
@@ -32,6 +33,7 @@ final class SpeedSettingsViewModel: BaseLoadableViewModel {
             fonts = res.fonts
             tieredCache = res.tieredCache
             polish = res.polish
+            mirage = res.mirage
             hasFetchedData = true
         } catch {
             errorMessage = "Failed to load speed settings: \(error.localizedDescription)"
@@ -113,6 +115,17 @@ final class SpeedSettingsViewModel: BaseLoadableViewModel {
             try await speedService.updatePolish(zoneId: zoneId, value: value)
         } catch {
             polish = previous
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    func updateMirage(zoneId: String, isOn: Bool) async {
+        let previous = mirage
+        mirage = isOn
+        do {
+            try await speedService.updateMirage(zoneId: zoneId, isOn: isOn)
+        } catch {
+            mirage = previous
             errorMessage = error.localizedDescription
         }
     }

@@ -245,3 +245,101 @@ public struct R2CORSRule: Codable, Identifiable, Equatable, Sendable {
         try container.encode(allowed, forKey: .allowed)
     }
 }
+
+// MARK: - R2 Lifecycle Models
+
+public struct R2LifecycleConfig: Codable, Equatable, Sendable {
+    public let rules: [R2LifecycleRule]
+
+    public init(rules: [R2LifecycleRule]) {
+        self.rules = rules
+    }
+}
+
+public struct R2LifecycleRule: Codable, Identifiable, Equatable, Sendable {
+    public let id: String
+    public let enabled: Bool
+    public let conditions: R2LifecycleConditions?
+    public let actions: R2LifecycleActions?
+
+    public init(id: String, enabled: Bool = true, conditions: R2LifecycleConditions? = nil, actions: R2LifecycleActions? = nil) {
+        self.id = id
+        self.enabled = enabled
+        self.conditions = conditions
+        self.actions = actions
+    }
+}
+
+public struct R2LifecycleConditions: Codable, Equatable, Sendable {
+    public let prefix: String?
+
+    public init(prefix: String? = nil) {
+        self.prefix = prefix
+    }
+}
+
+public struct R2LifecycleActions: Codable, Equatable, Sendable {
+    public let delete: R2LifecycleDeleteAction?
+    public let abortMultipartUploads: R2LifecycleDeleteAction?
+    public let storageClassTransitions: [R2LifecycleTransitionAction]?
+
+    public init(delete: R2LifecycleDeleteAction? = nil, abortMultipartUploads: R2LifecycleDeleteAction? = nil, storageClassTransitions: [R2LifecycleTransitionAction]? = nil) {
+        self.delete = delete
+        self.abortMultipartUploads = abortMultipartUploads
+        self.storageClassTransitions = storageClassTransitions
+    }
+}
+
+public struct R2LifecycleDeleteAction: Codable, Equatable, Sendable {
+    public let maxAgeSeconds: Int?
+
+    public init(maxAgeSeconds: Int?) {
+        self.maxAgeSeconds = maxAgeSeconds
+    }
+}
+
+public struct R2LifecycleTransitionAction: Codable, Equatable, Sendable {
+    public let condition: R2LifecycleDeleteAction?
+    public let storageClass: String?
+
+    public init(condition: R2LifecycleDeleteAction?, storageClass: String?) {
+        self.condition = condition
+        self.storageClass = storageClass
+    }
+}
+
+// MARK: - R2 Event Notifications
+
+public struct R2EventNotificationConfig: Codable, Equatable, Sendable {
+    public let queue: String?
+    public let queueId: String?
+    public let rules: [R2EventNotificationRule]?
+
+    enum CodingKeys: String, CodingKey {
+        case queue
+        case queueId = "queue_id"
+        case rules
+    }
+
+    public init(queue: String? = nil, queueId: String? = nil, rules: [R2EventNotificationRule]? = nil) {
+        self.queue = queue
+        self.queueId = queueId
+        self.rules = rules
+    }
+}
+
+public struct R2EventNotificationRule: Codable, Identifiable, Equatable, Sendable {
+    public var id: String {
+        "\(prefix ?? "")-\(suffix ?? "")-\(actions.joined(separator: ","))"
+    }
+
+    public let prefix: String?
+    public let suffix: String?
+    public let actions: [String]
+
+    public init(prefix: String? = nil, suffix: String? = nil, actions: [String]) {
+        self.prefix = prefix
+        self.suffix = suffix
+        self.actions = actions
+    }
+}

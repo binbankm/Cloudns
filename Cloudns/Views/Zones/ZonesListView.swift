@@ -136,7 +136,7 @@ struct ZonesListView: View {
     // MARK: - Subviews
 
     private var zonesSection: some View {
-        Section {
+        Section(header: Text("Domains")) {
             ForEach(displayedZones) { zone in
                 NavigationLink {
                     ZoneDetailView(zone: zone)

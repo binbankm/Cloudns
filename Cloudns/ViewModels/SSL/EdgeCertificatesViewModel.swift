@@ -90,12 +90,19 @@ class EdgeCertificatesViewModel: BaseLoadableViewModel {
         }
     }
 
-    func uploadCustomCertificate(zoneId: String, certificate: String, privateKey: String) async throws {
+    func uploadCustomCertificate(
+        zoneId: String,
+        certificate: String,
+        privateKey: String,
+        bundleMethod: String = "ubiquitous",
+        geoRestrictions: GeoRestrictions? = nil
+    ) async throws {
         _ = try await certService.uploadCustomCertificate(
             zoneId: zoneId,
             certificate: certificate,
             privateKey: privateKey,
-            bundleMethod: "ubiquitous"
+            bundleMethod: bundleMethod,
+            geoRestrictions: geoRestrictions
         )
         await fetchCertificates(zoneId: zoneId)
     }

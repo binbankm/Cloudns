@@ -101,3 +101,21 @@ public struct HyperdrivePatch: Codable, Sendable {
         self.caching = caching
     }
 }
+
+public struct HyperdriveMetrics: Codable, Equatable, Sendable {
+    public let activeConnections: Int?
+    public let queuedQueries: Int?
+    public let cacheHitRatio: Double?
+
+    enum CodingKeys: String, CodingKey {
+        case activeConnections = "active_connections"
+        case queuedQueries = "queued_queries"
+        case cacheHitRatio = "cache_hit_ratio"
+    }
+
+    public init(activeConnections: Int? = nil, queuedQueries: Int? = nil, cacheHitRatio: Double? = nil) {
+        self.activeConnections = activeConnections
+        self.queuedQueries = queuedQueries
+        self.cacheHitRatio = cacheHitRatio
+    }
+}

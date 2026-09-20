@@ -11,6 +11,7 @@ struct SpeedSettingsView: View {
 
     @StateObject private var viewModel = SpeedSettingsViewModel()
     @State private var showingPolishUpgradeSheet = false
+    @State private var showingMirageUpgradeSheet = false
 
     var body: some View {
         List {
@@ -299,11 +300,81 @@ struct SpeedSettingsView: View {
                     }
                     .disabled(!viewModel.hasFetchedData)
                 }
+
+                // Mirage
+                let isMirageLocked = zoneTier < .pro
+
+                if isMirageLocked {
+                    Button {
+                        HapticManager.selection()
+                        showingMirageUpgradeSheet = true
+                    } label: {
+                        HStack(spacing: 12) {
+                            ListRowIcon(icon: "iphone.gen3", color: .indigo)
+                            VStack(alignment: .leading, spacing: 2) {
+                                HStack(spacing: 6) {
+                                    Text("Mirage™")
+                                        .font(.body)
+                                        .foregroundStyle(.primary)
+                                        .lineLimit(1)
+
+                                    PlanBadgeView(required: .pro, current: zoneTier)
+                                }
+                                Text("Accelerate image delivery on mobile networks and slow connections.")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.caption2.weight(.semibold))
+                                .foregroundStyle(.tertiary)
+                        }
+                        .padding(.vertical, 2)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                } else {
+                    Toggle(isOn: Binding(
+                        get: { viewModel.mirage },
+                        set: { val in
+                            HapticManager.selection()
+                            Task {
+                                await viewModel.updateMirage(zoneId: zoneId, isOn: val)
+                                ToastManager.shared.showSuccess(val ? LocalizedStringKey("Mirage™ Enabled") : LocalizedStringKey("Mirage™ Disabled"), icon: "iphone.gen3")
+                            }
+                        }
+                    )) {
+                        HStack(spacing: 12) {
+                            ListRowIcon(icon: "iphone.gen3", color: .indigo)
+                            VStack(alignment: .leading, spacing: 2) {
+                                HStack(spacing: 6) {
+                                    Text("Mirage™")
+                                        .font(.body)
+                                        .lineLimit(1)
+
+                                    PlanBadgeView(required: .pro, current: zoneTier)
+                                }
+                                Text("Accelerate image delivery on mobile networks and slow connections.")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+                    .disabled(!viewModel.hasFetchedData)
+                }
             }
         }
         .sheet(isPresented: $showingPolishUpgradeSheet) {
             PlanUpgradeSheetView(
                 featureName: "Polish (WebP)",
+                requiredTier: .pro,
+                zoneName: zoneName
+            )
+        }
+        .sheet(isPresented: $showingMirageUpgradeSheet) {
+            PlanUpgradeSheetView(
+                featureName: "Mirage™",
                 requiredTier: .pro,
                 zoneName: zoneName
             )

@@ -17,6 +17,12 @@ protocol R2ServiceProtocol: Sendable {
     func getR2CORS(accountId: String, bucketName: String) async throws -> [R2CORSRule]
     func putR2CORS(accountId: String, bucketName: String, rules: [R2CORSRule]) async throws
     func deleteR2CORS(accountId: String, bucketName: String) async throws
+    func getR2Lifecycle(accountId: String, bucketName: String) async throws -> [R2LifecycleRule]
+    func putR2Lifecycle(accountId: String, bucketName: String, rules: [R2LifecycleRule]) async throws
+    func deleteR2Lifecycle(accountId: String, bucketName: String) async throws
+    func getR2EventNotifications(accountId: String, bucketName: String) async throws -> [R2EventNotificationConfig]
+    func putR2EventNotification(accountId: String, bucketName: String, queueId: String, rules: [R2EventNotificationRule]) async throws
+    func deleteR2EventNotification(accountId: String, bucketName: String, queueId: String) async throws
 }
 
 final class R2Service: R2ServiceProtocol {
@@ -220,6 +226,50 @@ final class R2Service: R2ServiceProtocol {
 
     func deleteR2CORS(accountId: String, bucketName: String) async throws {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/r2/buckets/\(bucketName)/cors", method: "DELETE")
+        struct Res: Codable { let id: String? }
+        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+    }
+
+    func getR2Lifecycle(accountId: String, bucketName: String) async throws -> [R2LifecycleRule] {
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/r2/buckets/\(bucketName)/lifecycle")
+        struct LifecycleResponse: Codable {
+            let rules: [R2LifecycleRule]?
+        }
+        let (res, _): (LifecycleResponse?, ResultInfo?) = try await client.performRequest(request)
+        return res?.rules ?? []
+    }
+
+    func putR2Lifecycle(accountId: String, bucketName: String, rules: [R2LifecycleRule]) async throws {
+        let data = try JSONEncoder().encode(["rules": rules])
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/r2/buckets/\(bucketName)/lifecycle", method: "PUT", body: data)
+        struct Res: Codable { let id: String? }
+        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+    }
+
+    func deleteR2Lifecycle(accountId: String, bucketName: String) async throws {
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/r2/buckets/\(bucketName)/lifecycle", method: "DELETE")
+        struct Res: Codable { let id: String? }
+        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+    }
+
+    func getR2EventNotifications(accountId: String, bucketName: String) async throws -> [R2EventNotificationConfig] {
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/event_notifications/r2/\(bucketName)/configuration")
+        struct NotifResponse: Codable {
+            let queues: [R2EventNotificationConfig]?
+        }
+        let (res, _): (NotifResponse?, ResultInfo?) = try await client.performRequest(request)
+        return res?.queues ?? []
+    }
+
+    func putR2EventNotification(accountId: String, bucketName: String, queueId: String, rules: [R2EventNotificationRule]) async throws {
+        let data = try JSONEncoder().encode(["rules": rules])
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/event_notifications/r2/\(bucketName)/configuration/queues/\(queueId)", method: "PUT", body: data)
+        struct Res: Codable { let id: String? }
+        let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
+    }
+
+    func deleteR2EventNotification(accountId: String, bucketName: String, queueId: String) async throws {
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/event_notifications/r2/\(bucketName)/configuration/queues/\(queueId)", method: "DELETE")
         struct Res: Codable { let id: String? }
         let (_, _): (Res?, ResultInfo?) = try await client.performRequest(request)
     }

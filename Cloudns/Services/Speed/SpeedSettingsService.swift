@@ -2,7 +2,7 @@ import Foundation
 
 /// Protocol defining Cloudflare web performance and speed optimization service
 protocol SpeedSettingsServiceProtocol: Sendable {
-    func getSpeedSettings(zoneId: String) async throws -> (brotli: Bool, rocketLoader: Bool, earlyHints: Bool, speedBrain: Bool, fonts: Bool, tieredCache: Bool, polish: String)
+    func getSpeedSettings(zoneId: String) async throws -> (brotli: Bool, rocketLoader: Bool, earlyHints: Bool, speedBrain: Bool, fonts: Bool, tieredCache: Bool, polish: String, mirage: Bool)
     func updateBrotli(zoneId: String, isOn: Bool) async throws
     func updateRocketLoader(zoneId: String, isOn: Bool) async throws
     func updateEarlyHints(zoneId: String, isOn: Bool) async throws
@@ -10,6 +10,7 @@ protocol SpeedSettingsServiceProtocol: Sendable {
     func updateFonts(zoneId: String, isOn: Bool) async throws
     func updateTieredCache(zoneId: String, isOn: Bool) async throws
     func updatePolish(zoneId: String, value: String) async throws
+    func updateMirage(zoneId: String, isOn: Bool) async throws
 }
 
 /// Concrete domain service for Cloudflare web optimization
@@ -21,14 +22,15 @@ final class SpeedSettingsService: SpeedSettingsServiceProtocol {
 
     private init() {}
 
-    func getSpeedSettings(zoneId: String) async throws -> (brotli: Bool, rocketLoader: Bool, earlyHints: Bool, speedBrain: Bool, fonts: Bool, tieredCache: Bool, polish: String) {
+    func getSpeedSettings(zoneId: String) async throws -> (brotli: Bool, rocketLoader: Bool, earlyHints: Bool, speedBrain: Bool, fonts: Bool, tieredCache: Bool, polish: String, mirage: Bool) {
         async let br = try? getSetting(zoneId: zoneId, settingName: "brotli")
         async let rl = try? getSetting(zoneId: zoneId, settingName: "rocket_loader")
         async let eh = try? getSetting(zoneId: zoneId, settingName: "early_hints")
         async let sb = try? getSetting(zoneId: zoneId, settingName: "speed_brain")
         async let fn = try? getSetting(zoneId: zoneId, settingName: "fonts")
         async let pl = try? getSetting(zoneId: zoneId, settingName: "polish")
-        let (brotli, rocket, hints, speedBrain, fonts, polish) = await (br, rl, eh, sb, fn, pl)
+        async let mg = try? getSetting(zoneId: zoneId, settingName: "mirage2")
+        let (brotli, rocket, hints, speedBrain, fonts, polish, mirage) = await (br, rl, eh, sb, fn, pl, mg)
 
         let tieredCacheOn = await getTieredCacheStatus(zoneId: zoneId)
 
@@ -39,7 +41,8 @@ final class SpeedSettingsService: SpeedSettingsServiceProtocol {
             speedBrain: speedBrain?.value.boolValue ?? false,
             fonts: fonts?.value.boolValue ?? false,
             tieredCache: tieredCacheOn,
-            polish: polish?.value.stringValue ?? "off"
+            polish: polish?.value.stringValue ?? "off",
+            mirage: mirage?.value.boolValue ?? false
         )
     }
 
@@ -72,6 +75,10 @@ final class SpeedSettingsService: SpeedSettingsServiceProtocol {
 
     func updatePolish(zoneId: String, value: String) async throws {
         _ = try await updateSetting(zoneId: zoneId, settingName: "polish", value: value)
+    }
+
+    func updateMirage(zoneId: String, isOn: Bool) async throws {
+        _ = try await updateSetting(zoneId: zoneId, settingName: "mirage2", value: isOn ? "on" : "off")
     }
 
     private func getTieredCacheStatus(zoneId: String) async -> Bool {

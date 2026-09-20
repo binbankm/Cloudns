@@ -14,6 +14,7 @@ struct D1TableView: View {
     @State private var editorContext: D1RowContext?
     @State private var rowToDelete: [String: String]?
     @State private var showingDeleteAlert = false
+    @State private var showingSchemaSheet = false
 
     init(accountId: String, databaseId: String, tableName: String) {
         self.accountId = accountId
@@ -61,12 +62,21 @@ struct D1TableView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    editorContext = .insert
-                } label: {
-                    Image(systemName: "plus")
+                HStack(spacing: 12) {
+                    Button {
+                        showingSchemaSheet = true
+                    } label: {
+                        Image(systemName: "info.circle")
+                    }
+                    .accessibilityLabel("Table Schema")
+
+                    Button {
+                        editorContext = .insert
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                    .accessibilityLabel("Insert Row")
                 }
-                .accessibilityLabel("Insert Row")
             }
         }
         .sheet(item: $editorContext) { context in
@@ -74,6 +84,9 @@ struct D1TableView: View {
                 viewModel: viewModel,
                 existingRow: context.row
             )
+        }
+        .sheet(isPresented: $showingSchemaSheet) {
+            D1TableSchemaSheetView(tableName: tableName, columns: viewModel.columns)
         }
         .confirmationDialog("Delete Row", isPresented: $showingDeleteAlert, titleVisibility: .visible, presenting: rowToDelete) { row in
             Button("Delete Row", role: .destructive) {
@@ -363,5 +376,97 @@ private struct D1CardRowCard: View {
                 Label("Delete Row", systemImage: "trash")
             }
         }
+    }
+}
+
+// MARK: - D1TableSchemaSheetView
+
+struct D1TableSchemaSheetView: View {
+    let tableName: String
+    let columns: [D1ColumnInfo]
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section(header: Text("Table Summary")) {
+                    LabeledContent("Table Name", value: tableName)
+                    LabeledContent("Columns Count", value: "\(columns.count)")
+                }
+
+                Section(header: Text("Column Definitions (\(columns.count))")) {
+                    if columns.isEmpty {
+                        Text("No column schema available.")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        ForEach(columns) { col in
+                            columnSchemaRow(col)
+                        }
+                    }
+                }
+            }
+            .listStyle(.insetGrouped)
+            .navigationTitle("Table Schema")
+            .navigationBarTitleDisplayMode(.inline)
+            .presentationDragIndicator(.visible)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") { dismiss() }
+                }
+            }
+        }
+    }
+
+    private func columnSchemaRow(_ col: D1ColumnInfo) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                if col.isPrimaryKey {
+                    Image(systemName: "key.fill")
+                        .font(.caption)
+                        .foregroundStyle(.yellow)
+                }
+
+                Text(col.name)
+                    .font(.body.weight(.semibold).monospaced())
+                    .foregroundStyle(.primary)
+
+                Spacer()
+
+                Text(col.type)
+                    .font(.caption2.weight(.bold).monospaced())
+                    .foregroundStyle(.blue)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Capsule().fill(Color.blue.opacity(0.12)))
+            }
+
+            HStack(spacing: 8) {
+                if col.isPrimaryKey {
+                    Text("PRIMARY KEY")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(.orange)
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 1)
+                        .background(Capsule().fill(Color.orange.opacity(0.12)))
+                }
+
+                if col.notNull {
+                    Text("NOT NULL")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(.purple)
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 1)
+                        .background(Capsule().fill(Color.purple.opacity(0.12)))
+                }
+
+                if let def = col.defaultValue, !def.isEmpty {
+                    Text("DEFAULT: \(def)")
+                        .font(.caption2.monospaced())
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+        .padding(.vertical, 2)
     }
 }

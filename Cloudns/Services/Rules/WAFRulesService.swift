@@ -8,6 +8,8 @@ protocol WAFRulesServiceProtocol: Sendable {
     func deleteWAFRule(zoneId: String, rulesetId: String, ruleId: String) async throws
     func createWAFRule(zoneId: String, rulesetId: String, action: String, expression: String, description: String?, enabled: Bool, ratelimit: RateLimitConfig?, actionParameters: ActionParameters?) async throws -> Ruleset
     func createRuleset(zoneId: String, phase: String, action: String, expression: String, description: String?, enabled: Bool, ratelimit: RateLimitConfig?, actionParameters: ActionParameters?) async throws -> Ruleset
+    func listManagedRulesets(zoneId: String) async throws -> [Ruleset]
+    func fetchRulesetDetails(zoneId: String, rulesetId: String) async throws -> Ruleset?
 }
 
 extension WAFRulesServiceProtocol {
@@ -209,5 +211,17 @@ final class WAFRulesService: WAFRulesServiceProtocol {
         let (ruleset, _): (Ruleset?, ResultInfo?) = try await client.performRequest(request)
         guard let rs = ruleset else { throw APIError.cloudflareError("Failed to create ruleset.") }
         return rs
+    }
+
+    func listManagedRulesets(zoneId: String) async throws -> [Ruleset] {
+        let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/rulesets")
+        let (rulesets, _): ([Ruleset]?, ResultInfo?) = try await client.performRequest(request)
+        return rulesets?.filter { $0.kind == "managed" || $0.phase.contains("managed") } ?? []
+    }
+
+    func fetchRulesetDetails(zoneId: String, rulesetId: String) async throws -> Ruleset? {
+        let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/rulesets/\(rulesetId)")
+        let (ruleset, _): (Ruleset?, ResultInfo?) = try await client.performRequest(request)
+        return ruleset
     }
 }

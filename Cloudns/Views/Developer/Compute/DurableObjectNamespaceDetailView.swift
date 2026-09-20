@@ -9,9 +9,12 @@ struct DurableObjectNamespaceDetailView: View {
     let namespace: DurableObjectNamespace
 
     @State private var objects: [DurableObjectInstance] = []
+    @State private var stats: DurableObjectStats?
     @State private var nextCursor: String?
     @State private var isLoading = false
     @State private var errorMessage: String?
+    @State private var instanceToDelete: DurableObjectInstance?
+    @State private var showingDeleteConfirm = false
 
     var body: some View {
         List {
@@ -48,6 +51,21 @@ struct DurableObjectNamespaceDetailView: View {
                 }
             }
 
+            if let s = stats {
+                Section(header: Text("Storage Statistics")) {
+                    if let cnt = s.objectCount {
+                        LabeledContent("Object Count", value: "\(cnt)")
+                    }
+
+                    if let bytes = s.storageBytes {
+                        LabeledContent("Persistent Storage Size") {
+                            Text(ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file))
+                                .font(.body.monospacedDigit())
+                        }
+                    }
+                }
+            }
+
             Section(header: Text("Active Instances (\(objects.count))"), footer: Text("Instances are spun up on-demand at the edge nearest to incoming coordination requests.")) {
                 if isLoading, objects.isEmpty {
                     HStack {
@@ -77,6 +95,26 @@ struct DurableObjectNamespaceDetailView: View {
                                 } label: {
                                     Label("Copy Instance ID", systemImage: "doc.on.doc")
                                 }
+
+                                Divider()
+
+                                Button(role: .destructive) {
+                                    instanceToDelete = obj
+                                    showingDeleteConfirm = true
+                                    HapticManager.impact(.medium)
+                                } label: {
+                                    Label("Delete Instance", systemImage: "trash")
+                                }
+                            }
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    instanceToDelete = obj
+                                    showingDeleteConfirm = true
+                                    HapticManager.impact(.medium)
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                                .tint(.red)
                             }
                     }
                 }
@@ -85,11 +123,34 @@ struct DurableObjectNamespaceDetailView: View {
         .listStyle(.insetGrouped)
         .navigationTitle(namespace.displayName)
         .navigationBarTitleDisplayMode(.inline)
+        .confirmationDialog("Delete Durable Object Instance", isPresented: $showingDeleteConfirm, titleVisibility: .visible) {
+            if let obj = instanceToDelete {
+                Button("Delete Instance '\(obj.id)'", role: .destructive) {
+                    Task {
+                        do {
+                            try await DurableObjectService.shared.deleteDOObject(accountId: accountId, namespaceId: namespace.id, objectId: obj.id)
+                            objects.removeAll(where: { $0.id == obj.id })
+                            ToastManager.shared.showSuccess("Instance Deleted", icon: "trash.fill")
+                            HapticManager.notification(.success)
+                        } catch {
+                            ToastManager.shared.showError("Failed to Delete Instance")
+                            HapticManager.notification(.error)
+                        }
+                        instanceToDelete = nil
+                    }
+                }
+            }
+            Button("Cancel", role: .cancel) {
+                instanceToDelete = nil
+            }
+        } message: {
+            Text("Are you sure you want to delete this Durable Object instance and purge its stored state?")
+        }
         .refreshable {
-            await fetchObjects()
+            await loadData()
         }
         .task {
-            await fetchObjects()
+            await loadData()
         }
     }
 
@@ -118,7 +179,8 @@ struct DurableObjectNamespaceDetailView: View {
         .padding(.vertical, 2)
     }
 
-    private func fetchObjects() async {
+    @MainActor
+    private func loadData() async {
         isLoading = true
         errorMessage = nil
         do {
@@ -128,6 +190,8 @@ struct DurableObjectNamespaceDetailView: View {
         } catch {
             errorMessage = error.localizedDescription
         }
+
+        stats = try? await DurableObjectService.shared.getNamespaceStats(accountId: accountId, namespaceId: namespace.id)
         isLoading = false
     }
 }

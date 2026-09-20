@@ -58,18 +58,46 @@ public struct CFQueueProducer: Codable, Equatable, Identifiable, Sendable {
 
 public struct CFQueueConsumer: Codable, Equatable, Identifiable, Sendable {
     public var id: String {
-        scriptName ?? "\(service ?? "")-\(environment ?? "")"
+        consumerId ?? scriptName ?? "\(service ?? "")-\(environment ?? "")"
     }
 
+    public let consumerId: String?
     public let service: String?
     public let environment: String?
     public let scriptName: String?
+    public let type: String?
+    public let deadLetterQueue: String?
+    public let createdOn: String?
     public let settings: CFQueueConsumerSettings?
 
     enum CodingKeys: String, CodingKey {
+        case consumerId = "consumer_id"
         case service, environment
         case scriptName = "script_name"
+        case type
+        case deadLetterQueue = "dead_letter_queue"
+        case createdOn = "created_on"
         case settings
+    }
+
+    public init(
+        consumerId: String? = nil,
+        service: String? = nil,
+        environment: String? = nil,
+        scriptName: String? = nil,
+        type: String? = "worker",
+        deadLetterQueue: String? = nil,
+        createdOn: String? = nil,
+        settings: CFQueueConsumerSettings? = nil
+    ) {
+        self.consumerId = consumerId
+        self.service = service
+        self.environment = environment
+        self.scriptName = scriptName
+        self.type = type
+        self.deadLetterQueue = deadLetterQueue
+        self.createdOn = createdOn
+        self.settings = settings
     }
 }
 
@@ -79,6 +107,7 @@ public struct CFQueueConsumerSettings: Codable, Equatable, Sendable {
     public let maxRetries: Int?
     public let maxWaitTimeMs: Int?
     public let retryDelay: Int?
+    public let maxConcurrency: Int?
 
     enum CodingKeys: String, CodingKey {
         case batchSize = "batch_size"
@@ -86,6 +115,57 @@ public struct CFQueueConsumerSettings: Codable, Equatable, Sendable {
         case maxRetries = "max_retries"
         case maxWaitTimeMs = "max_wait_time_ms"
         case retryDelay = "retry_delay"
+        case maxConcurrency = "max_concurrency"
+    }
+
+    public init(
+        batchSize: Int? = 10,
+        maxBatchTimeout: Int? = 5,
+        maxRetries: Int? = 3,
+        maxWaitTimeMs: Int? = nil,
+        retryDelay: Int? = nil,
+        maxConcurrency: Int? = nil
+    ) {
+        self.batchSize = batchSize
+        self.maxBatchTimeout = maxBatchTimeout
+        self.maxRetries = maxRetries
+        self.maxWaitTimeMs = maxWaitTimeMs
+        self.retryDelay = retryDelay
+        self.maxConcurrency = maxConcurrency
+    }
+}
+
+public struct CFQueueConsumerCreate: Codable, Sendable {
+    public let service: String?
+    public let environment: String?
+    public let deadLetterQueue: String?
+    public let type: String?
+    public let settings: CFQueueConsumerSettings?
+
+    enum CodingKeys: String, CodingKey {
+        case service, environment
+        case deadLetterQueue = "dead_letter_queue"
+        case type, settings
+    }
+
+    public init(service: String?, environment: String? = nil, deadLetterQueue: String? = nil, type: String? = "worker", settings: CFQueueConsumerSettings? = nil) {
+        self.service = service
+        self.environment = environment
+        self.deadLetterQueue = deadLetterQueue
+        self.type = type
+        self.settings = settings
+    }
+}
+
+public struct CFQueueMetrics: Codable, Equatable, Sendable {
+    public let messages: Int?
+    public let delayedMessages: Int?
+    public let activeConsumers: Int?
+
+    enum CodingKeys: String, CodingKey {
+        case messages
+        case delayedMessages = "delayed_messages"
+        case activeConsumers = "active_consumers"
     }
 }
 

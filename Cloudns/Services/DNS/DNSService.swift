@@ -13,6 +13,7 @@ protocol DNSServiceProtocol: Sendable {
     func importDNSRecords(zoneId: String, fileURL: URL) async throws
     func getDNSSEC(zoneId: String) async throws -> DNSSEC
     func updateDNSSEC(zoneId: String, status: String) async throws -> DNSSEC
+    func scanDNSRecords(zoneId: String) async throws -> Int
 }
 
 extension DNSServiceProtocol {
@@ -181,5 +182,16 @@ final class DNSService: DNSServiceProtocol {
             throw APIError.cloudflareError("Failed to update DNSSEC status.")
         }
         return dnssec
+    }
+
+    /// Triggers automated scan for common DNS records
+    func scanDNSRecords(zoneId: String) async throws -> Int {
+        let request = try factory.createAuthenticatedRequest(path: "zones/\(zoneId)/dns_records/scan", method: "POST")
+        struct ScanResponse: Codable {
+            let recs_added: Int?
+            let total_records_parsed: Int?
+        }
+        let (scanRes, _): (ScanResponse?, ResultInfo?) = try await client.performRequest(request)
+        return scanRes?.recs_added ?? scanRes?.total_records_parsed ?? 0
     }
 }

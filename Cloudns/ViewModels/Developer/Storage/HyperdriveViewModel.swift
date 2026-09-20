@@ -44,4 +44,24 @@ final class HyperdriveViewModel: BaseLoadableViewModel {
             await fetchConfigs()
         } catch {}
     }
+
+    func updateCaching(configId: String, disabled: Bool, maxAge: Int?, staleWhileRevalidate: Int?) async -> HyperdriveConfig? {
+        do {
+            let caching = HyperdriveCaching(disabled: disabled, maxAge: maxAge, staleWhileRevalidate: staleWhileRevalidate)
+            let patch = HyperdrivePatch(caching: caching)
+            let updated = try await hyperdriveService.updateHyperdriveConfig(accountId: accountId, configId: configId, payload: patch)
+            await fetchConfigs()
+            return updated
+        } catch {
+            return nil
+        }
+    }
+
+    func fetchMetrics(configId: String) async -> HyperdriveMetrics? {
+        do {
+            return try await hyperdriveService.getHyperdriveMetrics(accountId: accountId, configId: configId)
+        } catch {
+            return nil
+        }
+    }
 }

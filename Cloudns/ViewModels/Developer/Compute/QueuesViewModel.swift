@@ -50,4 +50,46 @@ final class QueuesViewModel: BaseLoadableViewModel {
             try await queueService.purgeQueue(accountId: accountId, queueId: queueId)
         } catch {}
     }
+
+    func bindConsumer(queueId: String, consumer: CFQueueConsumerCreate) async -> Bool {
+        do {
+            _ = try await queueService.createQueueConsumer(accountId: accountId, queueId: queueId, consumer: consumer)
+            await fetchQueues()
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    func deleteConsumer(queueId: String, consumerId: String) async -> Bool {
+        do {
+            try await queueService.deleteQueueConsumer(accountId: accountId, queueId: queueId, consumerId: consumerId)
+            await fetchQueues()
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    func updateQueueSettings(queueId: String, deliveryDelay: Int?, messageRetentionPeriod: Int?, deliveryPaused: Bool? = nil) async -> CFQueue? {
+        do {
+            let updated = try await queueService.updateQueue(accountId: accountId, queueId: queueId, deliveryDelay: deliveryDelay, messageRetentionPeriod: messageRetentionPeriod, deliveryPaused: deliveryPaused)
+            await fetchQueues()
+            return updated
+        } catch {
+            return nil
+        }
+    }
+
+    func refreshQueue(queueId: String) async -> CFQueue? {
+        do {
+            let updated = try await queueService.getQueue(accountId: accountId, queueId: queueId)
+            if let idx = queues.firstIndex(where: { $0.id == queueId }) {
+                queues[idx] = updated
+            }
+            return updated
+        } catch {
+            return nil
+        }
+    }
 }

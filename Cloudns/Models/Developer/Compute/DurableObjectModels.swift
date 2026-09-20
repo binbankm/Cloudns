@@ -47,3 +47,18 @@ public struct DurableObjectInstance: Codable, Identifiable, Equatable, Sendable 
         self.hasStoredData = hasStoredData
     }
 }
+
+public struct DurableObjectStats: Codable, Equatable, Sendable {
+    public let storageBytes: Int64?
+    public let objectCount: Int?
+
+    enum CodingKeys: String, CodingKey {
+        case storageBytes = "storage_bytes"
+        case objectCount = "object_count"
+    }
+
+    public init(storageBytes: Int64? = nil, objectCount: Int? = nil) {
+        self.storageBytes = storageBytes
+        self.objectCount = objectCount
+    }
+}

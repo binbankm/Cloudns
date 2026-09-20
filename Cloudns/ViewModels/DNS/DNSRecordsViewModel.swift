@@ -304,4 +304,14 @@ final class DNSRecordsViewModel: BaseLoadableViewModel {
         }
         isLoading = false
     }
+
+    func scanRecords() async -> Int? {
+        do {
+            let res = try await dnsService.scanDNSRecords(zoneId: zoneId)
+            await fetchRecords(isRefresh: true)
+            return res
+        } catch {
+            return nil
+        }
+    }
 }

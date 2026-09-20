@@ -3,9 +3,12 @@ import Foundation
 protocol D1ServiceProtocol: Sendable {
     func getD1Databases(accountId: String) async throws -> [D1Database]
     func listD1Databases(accountId: String) async throws -> [D1Database]
+    func getD1Database(accountId: String, databaseId: String) async throws -> D1Database
     func createD1Database(accountId: String, name: String, primaryLocationHint: String?) async throws -> D1Database
     func deleteD1Database(accountId: String, databaseId: String) async throws
     func executeD1Query(accountId: String, databaseId: String, sql: String) async throws -> D1QueryResult
+    func listTables(accountId: String, databaseId: String) async throws -> [D1TableInfo]
+    func getTableSchema(accountId: String, databaseId: String, tableName: String) async throws -> [D1TableColumn]
 }
 
 final class D1Service: D1ServiceProtocol {
@@ -26,6 +29,13 @@ final class D1Service: D1ServiceProtocol {
         return databases ?? []
     }
 
+    func getD1Database(accountId: String, databaseId: String) async throws -> D1Database {
+        let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/d1/database/\(databaseId)")
+        let (database, _): (D1Database?, ResultInfo?) = try await client.performRequest(request)
+        guard let db = database else { throw APIError.cloudflareError("Failed to fetch D1 database details") }
+        return db
+    }
+
     func createD1Database(accountId: String, name: String, primaryLocationHint: String? = nil) async throws -> D1Database {
         var payload: [String: Any] = ["name": name]
         if let loc = primaryLocationHint, !loc.isEmpty {
@@ -42,6 +52,28 @@ final class D1Service: D1ServiceProtocol {
         let request = try factory.createAuthenticatedRequest(path: "accounts/\(accountId)/d1/database/\(databaseId)", method: "DELETE")
         struct DeleteRes: Codable { let id: String? }
         let (_, _): (DeleteRes?, ResultInfo?) = try await client.performRequest(request)
+    }
+
+    func listTables(accountId: String, databaseId: String) async throws -> [D1TableInfo] {
+        let sql = "SELECT name, type FROM sqlite_master WHERE type IN ('table', 'view') AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%' ORDER BY name;"
+        let result = try await executeD1Query(accountId: accountId, databaseId: databaseId, sql: sql)
+        return result.rows.map { row in
+            D1TableInfo(name: row["name"] ?? "unknown", type: row["type"] ?? "table")
+        }
+    }
+
+    func getTableSchema(accountId: String, databaseId: String, tableName: String) async throws -> [D1TableColumn] {
+        let escaped = tableName.replacingOccurrences(of: "\"", with: "\"\"")
+        let sql = "PRAGMA table_info(\"\(escaped)\");"
+        let result = try await executeD1Query(accountId: accountId, databaseId: databaseId, sql: sql)
+        return result.rows.compactMap { row in
+            guard let name = row["name"], let type = row["type"] else { return nil }
+            let cid = Int(row["cid"] ?? "0") ?? 0
+            let notnull = Int(row["notnull"] ?? "0") ?? 0
+            let pk = Int(row["pk"] ?? "0") ?? 0
+            let dflt = row["dflt_value"]
+            return D1TableColumn(cid: cid, name: name, type: type, notnull: notnull, dflt_value: dflt == "NULL" ? nil : dflt, pk: pk)
+        }
     }
 
     func executeD1Query(accountId: String, databaseId: String, sql: String) async throws -> D1QueryResult {

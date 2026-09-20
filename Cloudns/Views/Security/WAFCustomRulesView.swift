@@ -109,6 +109,60 @@ struct WAFCustomRulesView: View {
                     }
                 }
             }
+
+            // MARK: - Managed Rulesets (OWASP)
+            Section {
+                if zoneTier == .free {
+                    Button {
+                        HapticManager.notification(.warning)
+                        showingUpgradeSheet = true
+                    } label: {
+                        HStack(spacing: 12) {
+                            ListRowIcon(icon: "shield.checkered", color: .orange)
+                            VStack(alignment: .leading, spacing: 3) {
+                                HStack(spacing: 6) {
+                                    Text("Cloudflare & OWASP Rulesets")
+                                        .font(.body.weight(.medium))
+                                        .foregroundStyle(.primary)
+                                    PlanBadgeView(
+                                        title: PlanTier.pro.shortBadge,
+                                        tintColor: PlanBadgeView.color(for: .pro),
+                                        isUnlocked: false
+                                    )
+                                }
+                                Text("Pre-configured enterprise rules protecting against OWASP Top 10, SQLi, and zero-day vulnerabilities.")
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.tertiary)
+                        }
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                } else {
+                    managedRulesetRow(
+                        title: "Cloudflare Managed Ruleset",
+                        subtitle: "Zero-day vulnerability & exploit defense curated by Cloudflare Security",
+                        action: "Block",
+                        sensitivity: "High"
+                    )
+                    managedRulesetRow(
+                        title: "OWASP ModSecurity Core Rule Set",
+                        subtitle: "Protection against SQLi, XSS, and remote code execution",
+                        action: "Block",
+                        sensitivity: "Paranoia L1"
+                    )
+                }
+            } header: {
+                Text("Managed Rulesets")
+            } footer: {
+                Text(zoneTier == .free
+                    ? "WAF Managed Rulesets require a Cloudflare Pro or higher plan."
+                    : "Automated security rules maintained by Cloudflare and updated in real-time.")
+            }
         }
         .listStyle(.insetGrouped)
         .refreshable {
@@ -180,6 +234,49 @@ struct WAFCustomRulesView: View {
                 await viewModel.fetchWAFRules(zoneId: zoneId)
             }
         }
+    }
+
+    private func managedRulesetRow(title: String, subtitle: String, action: String, sensitivity: String) -> some View {
+        HStack(spacing: 12) {
+            ListRowIcon(icon: "shield.lefthalf.filled", color: .green)
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title)
+                    .font(.body.weight(.medium))
+                    .foregroundStyle(.primary)
+
+                Text(subtitle)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+
+                HStack(spacing: 6) {
+                    Text("Action: \(action)")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(.red)
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 1)
+                        .background(Capsule().fill(Color.red.opacity(0.12)))
+
+                    Text("Sensitivity: \(sensitivity)")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundStyle(.secondary)
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 1)
+                        .background(Capsule().fill(Color(.tertiarySystemFill)))
+                }
+                .padding(.top, 2)
+            }
+
+            Spacer()
+
+            Text("Active")
+                .font(.caption2.weight(.medium))
+                .foregroundStyle(.green)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(Capsule().fill(Color.green.opacity(0.12)))
+        }
+        .padding(.vertical, 2)
     }
 }
 

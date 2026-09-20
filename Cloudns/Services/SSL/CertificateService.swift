@@ -25,8 +25,15 @@ protocol CertificateServiceProtocol: Sendable {
     func updateUniversalSSL(zoneId: String, enabled: Bool) async throws
     func deleteCertificatePack(zoneId: String, packId: String) async throws
     func fetchCustomCertificates(zoneId: String) async throws -> [CustomCertificate]
-    func uploadCustomCertificate(zoneId: String, certificate: String, privateKey: String, bundleMethod: String) async throws -> CustomCertificate
+    func uploadCustomCertificate(zoneId: String, certificate: String, privateKey: String, bundleMethod: String, geoRestrictions: GeoRestrictions?) async throws -> CustomCertificate
+    func updateCustomCertificate(zoneId: String, certificateId: String, certificate: String?, privateKey: String?, bundleMethod: String?, geoRestrictions: GeoRestrictions?) async throws -> CustomCertificate
     func deleteCustomCertificate(zoneId: String, certificateId: String) async throws
+}
+
+extension CertificateServiceProtocol {
+    func uploadCustomCertificate(zoneId: String, certificate: String, privateKey: String, bundleMethod: String = "ubiquitous") async throws -> CustomCertificate {
+        try await uploadCustomCertificate(zoneId: zoneId, certificate: certificate, privateKey: privateKey, bundleMethod: bundleMethod, geoRestrictions: nil)
+    }
 }
 
 /// Concrete domain service for Cloudflare SSL/TLS and edge certificates
@@ -207,11 +214,12 @@ final class CertificateService: CertificateServiceProtocol {
         return certs ?? []
     }
 
-    func uploadCustomCertificate(zoneId: String, certificate: String, privateKey: String, bundleMethod: String = "ubiquitous") async throws -> CustomCertificate {
+    func uploadCustomCertificate(zoneId: String, certificate: String, privateKey: String, bundleMethod: String = "ubiquitous", geoRestrictions: GeoRestrictions? = nil) async throws -> CustomCertificate {
         let uploadReq = CustomCertificateUploadRequest(
             certificate: certificate,
             private_key: privateKey,
-            bundle_method: bundleMethod
+            bundle_method: bundleMethod,
+            geo_restrictions: geoRestrictions
         )
         let body = try JSONEncoder().encode(uploadReq)
         let request = try factory.createAuthenticatedRequest(
@@ -224,6 +232,26 @@ final class CertificateService: CertificateServiceProtocol {
             throw APIError.cloudflareError("Failed to upload custom certificate.")
         }
         return uploaded
+    }
+
+    func updateCustomCertificate(zoneId: String, certificateId: String, certificate: String?, privateKey: String?, bundleMethod: String?, geoRestrictions: GeoRestrictions?) async throws -> CustomCertificate {
+        let updateReq = CustomCertificateUpdateRequest(
+            certificate: certificate,
+            private_key: privateKey,
+            bundle_method: bundleMethod,
+            geo_restrictions: geoRestrictions
+        )
+        let body = try JSONEncoder().encode(updateReq)
+        let request = try factory.createAuthenticatedRequest(
+            path: "zones/\(zoneId)/custom_certificates/\(certificateId)",
+            method: "PATCH",
+            body: body
+        )
+        let (cert, _): (CustomCertificate?, ResultInfo?) = try await client.performRequest(request)
+        guard let updated = cert else {
+            throw APIError.cloudflareError("Failed to update custom certificate.")
+        }
+        return updated
     }
 
     func deleteCustomCertificate(zoneId: String, certificateId: String) async throws {

@@ -246,7 +246,7 @@ struct EdgeCertificatesView: View {
             )
         }
         .sheet(isPresented: $showingUploadSheet) {
-            UploadCustomCertificateView(zoneId: zoneId, viewModel: viewModel)
+            UploadCustomCertificateView(zoneId: zoneId, zoneTier: zoneTier, viewModel: viewModel)
         }
         .confirmationDialog("Delete Certificate", isPresented: $showingDeleteConfirm, titleVisibility: .visible) {
             if let cert = certToDelete {
@@ -391,11 +391,14 @@ struct EdgeCertificateCardView: View {
 
 struct UploadCustomCertificateView: View {
     let zoneId: String
+    var zoneTier: PlanTier = .free
     @ObservedObject var viewModel: EdgeCertificatesViewModel
     @Environment(\.dismiss) private var dismiss
 
     @State private var certificatePEM = ""
     @State private var privateKeyPEM = ""
+    @State private var bundleMethod = "ubiquitous"
+    @State private var geoRestriction = "none"
     @State private var isUploading = false
     @State private var errorMessage: String?
 
@@ -423,6 +426,41 @@ struct UploadCustomCertificateView: View {
                     TextEditor(text: $privateKeyPEM)
                         .font(.caption.monospaced())
                         .frame(minHeight: 100)
+                }
+
+                Section(
+                    header: Text("Bundle Method"),
+                    footer: Text("Ubiquitous optimizes for browser compatibility. Optimal prioritizes modern browsers.")
+                ) {
+                    Picker("Bundle Method", selection: $bundleMethod) {
+                        Text("Ubiquitous (Compatible)").tag("ubiquitous")
+                        Text("Optimal (Modern)").tag("optimal")
+                        Text("Force (As Uploaded)").tag("force")
+                    }
+                    .pickerStyle(.menu)
+                }
+
+                Section(
+                    header: HStack {
+                        Text("Geo-Key Restrictions")
+                        if zoneTier < .enterprise {
+                            PlanBadgeView(
+                                title: PlanTier.enterprise.shortBadge,
+                                tintColor: PlanBadgeView.color(for: .enterprise),
+                                isUnlocked: false
+                            )
+                        }
+                    },
+                    footer: Text("Restricts private key distribution to specific geographic regions (Enterprise feature).")
+                ) {
+                    Picker("Geo Restriction", selection: $geoRestriction) {
+                        Text("None (Global Edge)").tag("none")
+                        Text("United States Only (US)").tag("us")
+                        Text("European Union Only (EU)").tag("eu")
+                        Text("Highest Security Data Centers").tag("highest_security")
+                    }
+                    .pickerStyle(.menu)
+                    .disabled(zoneTier < .enterprise)
                 }
 
                 if let errorMessage {
@@ -462,10 +500,16 @@ struct UploadCustomCertificateView: View {
 
         Task {
             do {
+                let geo: GeoRestrictions? = (geoRestriction == "none" || zoneTier < .enterprise)
+                    ? nil
+                    : GeoRestrictions(label: geoRestriction)
+
                 try await viewModel.uploadCustomCertificate(
                     zoneId: zoneId,
                     certificate: certificatePEM.trimmingCharacters(in: .whitespacesAndNewlines),
-                    privateKey: privateKeyPEM.trimmingCharacters(in: .whitespacesAndNewlines)
+                    privateKey: privateKeyPEM.trimmingCharacters(in: .whitespacesAndNewlines),
+                    bundleMethod: bundleMethod,
+                    geoRestrictions: geo
                 )
                 ToastManager.shared.showSuccess("Custom Certificate Uploaded", icon: "checkmark.seal.fill")
                 HapticManager.notification(.success)

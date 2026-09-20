@@ -30,7 +30,7 @@ struct SettingsView: View {
             List {
                 // MARK: - Profile Card Section
 
-                Section {
+                Section(header: Text("Account")) {
                     Button {
                         HapticManager.impact(.light)
                         showingAccountSheet = true

@@ -237,6 +237,22 @@ struct DNSRecordsView: View {
                 // Tools & Presets Section
                 Section("Tools") {
                     Button {
+                        Task {
+                            HapticManager.selection()
+                            ToastManager.shared.showSuccess("Scanning DNS Records…", icon: "antenna.radiowaves.left.and.right")
+                            if let added = await viewModel.scanRecords() {
+                                ToastManager.shared.showSuccess(added > 0 ? "\(added) Records Added" : "Scan Complete", icon: "checkmark.circle.fill")
+                                HapticManager.notification(.success)
+                            } else {
+                                ToastManager.shared.showError("DNS Scan Failed")
+                                HapticManager.notification(.error)
+                            }
+                        }
+                    } label: {
+                        Label("Scan DNS Records", systemImage: "antenna.radiowaves.left.and.right")
+                    }
+
+                    Button {
                         showingPresetsSheet = true
                     } label: {
                         Label("DNS Presets", systemImage: "wand.and.stars")
